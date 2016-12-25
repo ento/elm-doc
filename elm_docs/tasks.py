@@ -73,11 +73,12 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
         'package_version': package_version,
     }
     yield {
-        'basename': 'elm_package_doc:{}/{}'.format(package_version['user'], package_version['project']),
+        'basename': 'package_doc:{}/{}'.format(package_version['user'], package_version['project']),
         'actions': [(build_package_page, (package_data,))],
         'targets': [package_data['output']],
         #'file_deps': [module['source_file']] #todo
     }
+
     # todo: yield task for package documentation.json
     # todo: yield task for package readme.md
     # todo: yield task to link from latest to this version's directory
@@ -98,7 +99,7 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
                 'package_version': package_version,
             }
             yield {
-                'basename': 'elm_module_doc:{}'.format(elm_file),
+                'basename': 'module_doc:{}'.format(elm_file),
                 'actions': [(build_package_page, (package_data,))],
                 'targets': [package_data['output']],
                 #'file_deps': [module['source_file']] #todo
