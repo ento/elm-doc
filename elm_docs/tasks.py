@@ -54,6 +54,11 @@ def build_package_page(package_data):
         ))
 
 
+def link_latest_package_dir(package_dir: pathlib.Path, link_path: pathlib.Path):
+    os.makedirs(package_dir, exist_ok=True)
+    link_path.symlink_to(package_dir, target_is_directory=True)
+
+
 def load_elm_package(path: str):
     with open(path) as f:
         return json.load(f)
@@ -81,7 +86,16 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
 
     # todo: yield task for package documentation.json
     # todo: yield task for package readme.md
-    # todo: yield task to link from latest to this version's directory
+
+    # link from /latest
+    latest_path = package_docs_root.parent / 'latest'
+    yield {
+        'basename': 'package_latest_link:{}/{}'.format(package_version['user'], package_version['project']),
+        'actions': [(link_latest_package_dir, (package_docs_root, latest_path))],
+        'targets': [latest_path],
+        #'file_deps': [], # todo
+    }
+
     # todo: make mount point configurable: prepend path in page package html and in generated js
 
     # module pages
