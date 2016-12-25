@@ -4,6 +4,7 @@ import os
 import os.path
 import json
 import pathlib
+import shutil
 import urllib.parse
 
 
@@ -59,6 +60,11 @@ def link_latest_package_dir(package_dir: pathlib.Path, link_path: pathlib.Path):
     link_path.symlink_to(package_dir, target_is_directory=True)
 
 
+def copy_package_readme(package_readme: pathlib.Path, output_path: pathlib.Path):
+    if package_readme.is_file():
+        shutil.copy(package_readme, output_path)
+
+
 def load_elm_package(path: str):
     with open(path) as f:
         return json.load(f)
@@ -67,6 +73,7 @@ def load_elm_package(path: str):
 def build_elm_package_docs(output_dir: str, elm_package_path: str):
     elm_package = load_elm_package(elm_package_path)
     package_version = get_package_version(elm_package)
+    package_identifier = '/'.join((package_version['user'], package_version['project'], package_version['version']))
 
     package_docs_root = pathlib.Path(output_dir) / 'packages' / package_version['user'] / package_version['project'] / package_version['version']
     package_root = pathlib.Path(elm_package_path).parent
@@ -78,19 +85,29 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
         'package_version': package_version,
     }
     yield {
-        'basename': 'package_doc:{}/{}'.format(package_version['user'], package_version['project']),
+        'basename': 'package_doc:' + package_identifier,
         'actions': [(build_package_page, (package_data,))],
         'targets': [package_data['output']],
         #'file_deps': [module['source_file']] #todo
     }
 
-    # todo: yield task for package documentation.json
-    # todo: yield task for package readme.md
+    # todo: yield task for package documentation.json: expose all modules based on pattern if project package
+
+    # package readme
+    readme_filename = 'README.md'
+    package_readme = pathlib.Path(elm_package_path).parent / readme_filename
+    output_readme_path = package_docs_root / readme_filename
+    yield {
+        'basename': 'package_readme:' + package_identifier,
+        'actions': [(copy_package_readme, (package_readme, output_readme_path))],
+        'targets': [output_readme_path],
+        'file_deps': [package_readme],
+    }
 
     # link from /latest
     latest_path = package_docs_root.parent / 'latest'
     yield {
-        'basename': 'package_latest_link:{}/{}'.format(package_version['user'], package_version['project']),
+        'basename': 'package_latest_link:' + package_identifier,
         'actions': [(link_latest_package_dir, (package_docs_root, latest_path))],
         'targets': [latest_path],
         #'file_deps': [], # todo

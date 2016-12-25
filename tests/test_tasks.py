@@ -22,6 +22,8 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
     make_elm_project(elm_version, tmpdir, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
+        tmpdir.join('README.md').write('hello')
+
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         result = by_basename(tasks.create_tasks(output_dir, ['elm-package.json']))
 
@@ -30,6 +32,12 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         action, args = result['package_latest_link'][0]['actions'][0]
         action(*args)
         assert package_dir.dirpath('latest').check(dir=True, link=True)
+
+        # readme
+        assert len(result['package_readme']) == 1
+        action, args = result['package_readme'][0]['actions'][0]
+        action(*args)
+        assert package_dir.join('README.md').check()
 
         # package doc
         assert len(result['package_doc']) == 1
