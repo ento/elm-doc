@@ -1,6 +1,6 @@
 '''
 '''
-from typing import Dict, NamedTuple, Optional
+from typing import Dict, NamedTuple, Iterator, Optional
 import os
 import os.path
 import json
@@ -10,6 +10,7 @@ import urllib.parse
 
 
 PackageVersion = NamedTuple('PackageVersion', [('user', str), ('project', str), ('version', str)])
+ModuleName = str
 
 
 PAGE_PACKAGE_TEMPLATE = '''
@@ -69,6 +70,18 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(package_readme, output_path)
 
 
+def iter_package_modules(package_dir: Path, elm_package: Dict) -> Iterator[ModuleName]:
+    for source_dir_name in elm_package['source-directories']:
+        source_dir = package_dir / source_dir_name
+        elm_files = source_dir.glob('**/*.elm')
+        for elm_file in elm_files:
+            if elm_file.relative_to(package_dir).parts[0] == 'elm-stuff':
+                continue
+            rel_path = elm_file.relative_to(source_dir)
+            module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
+            yield module_name
+
+
 def load_elm_package(path: str):
     with open(path) as f:
         return json.load(f)
@@ -117,21 +130,16 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
     # todo: make mount point configurable: prepend path in page package html and in generated js
 
     # module pages
-    for source_dir_name in elm_package['source-directories']:
-        source_dir = package_dir / source_dir_name
-        elm_files = source_dir.glob('**/*.elm')
-        for elm_file in elm_files:
-            if elm_file.relative_to(package_dir).parts[0] == 'elm-stuff':
-                continue
-            rel_path = elm_file.relative_to(source_dir)
-            module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
-            module_output = package_docs_root / module_name.replace('.', '-')
-            yield {
-                'basename': 'module_page:{}'.format(elm_file),
-                'actions': [(build_package_page, (package_version, module_output, module_name))],
-                'targets': [module_output],
-                #'file_deps': [module['source_file']] #todo
-            }
+    package_modules = list(iter_package_modules(package_dir, elm_package))
+    for module in package_modules:
+        module_output = package_docs_root / module.replace('.', '-')
+        yield {
+            'basename': 'module_page:{}:{}'.format(package_identifier, module),
+            'actions': [(build_package_page, (package_version, module_output, module))],
+            'targets': [module_output],
+            #'file_deps': [module['source_file']] #todo
+        }
+
 
 
 def create_tasks(output_dir, elm_packages):
