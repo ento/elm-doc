@@ -71,12 +71,13 @@ def load_elm_package(path: str):
 
 
 def build_elm_package_docs(output_dir: str, elm_package_path: str):
+    package_dir = pathlib.Path(elm_package_path).parent
+
     elm_package = load_elm_package(elm_package_path)
     package_version = get_package_version(elm_package)
     package_identifier = '/'.join((package_version['user'], package_version['project'], package_version['version']))
 
     package_docs_root = pathlib.Path(output_dir) / 'packages' / package_version['user'] / package_version['project'] / package_version['version']
-    package_root = pathlib.Path(elm_package_path).parent
 
     # package root page
     package_data = {
@@ -95,7 +96,7 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
 
     # package readme
     readme_filename = 'README.md'
-    package_readme = pathlib.Path(elm_package_path).parent / readme_filename
+    package_readme = package_dir / readme_filename
     output_readme_path = package_docs_root / readme_filename
     yield {
         'basename': 'package_readme:' + package_identifier,
@@ -117,10 +118,10 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
 
     # module pages
     for source_dir_name in elm_package['source-directories']:
-        source_dir = package_root / source_dir_name
+        source_dir = package_dir / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
         for elm_file in elm_files:
-            if elm_file.relative_to(package_root).parts[0] == 'elm-stuff':
+            if elm_file.relative_to(package_dir).parts[0] == 'elm-stuff':
                 continue
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
