@@ -1,5 +1,7 @@
 '''
 '''
+import os
+import os.path
 import json
 import pathlib
 import urllib.parse
@@ -45,7 +47,11 @@ def get_package_version(elm_package):
 
 
 def build_elm_module_doc(module):
-    print(module['output'])
+    os.makedirs(os.path.dirname(module['output']), exist_ok=True)
+    with open(module['output'], 'w') as f:
+        f.write(PAGE_PACKAGE_TEMPLATE.format(
+            flags=get_page_package_flags(module['package_version'], module['module_name'])
+        ))
 
 
 def load_elm_package(path: str):
@@ -76,8 +82,8 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
             module = {
                 'source_file': elm_file,
-                'name': module_name,
                 'output': package_docs_root / module_name.replace('.', '-'),
+                'module_name': module_name,
                 'package_version': package_version,
             }
             yield {
