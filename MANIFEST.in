@@ -1,0 +1,3 @@
+include requirements.in *.txt *.py LICENSE README.md tox.ini .travis.yml
+recursive-include tests *.py
+exclude README.in dev-requirements.in
