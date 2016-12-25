@@ -46,11 +46,11 @@ def get_package_version(elm_package):
     }
 
 
-def build_elm_module_doc(module):
-    os.makedirs(os.path.dirname(module['output']), exist_ok=True)
-    with open(module['output'], 'w') as f:
+def build_package_page(package_data):
+    os.makedirs(os.path.dirname(package_data['output']), exist_ok=True)
+    with open(package_data['output'], 'w') as f:
         f.write(PAGE_PACKAGE_TEMPLATE.format(
-            flags=get_page_package_flags(module['package_version'], module['module_name'])
+            flags=get_page_package_flags(package_data['package_version'], package_data['module_name'])
         ))
 
 
@@ -66,12 +66,24 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
     package_docs_root = pathlib.Path(output_dir) / 'packages' / package_version['user'] / package_version['project'] / package_version['version']
     package_root = pathlib.Path(elm_package_path).parent
 
-    # todo: yield task to create package_docs_root
-    # todo: yield task for package root page
-    # todo: yield task for package documentation
-    # todo: yield task for package readme
-    # todo: yield task to link from latest to this version
+    # package root page
+    package_data = {
+        'output': package_docs_root / 'index.html',
+        'module_name': None,
+        'package_version': package_version,
+    }
+    yield {
+        'basename': 'elm_package_doc:{}/{}'.format(package_version['user'], package_version['project']),
+        'actions': [(build_package_page, (package_data,))],
+        'targets': [package_data['output']],
+        #'file_deps': [module['source_file']] #todo
+    }
+    # todo: yield task for package documentation.json
+    # todo: yield task for package readme.md
+    # todo: yield task to link from latest to this version's directory
+    # todo: make mount point configurable: prepend path in page package html and in generated js
 
+    # module pages
     for source_dir_name in elm_package['source-directories']:
         source_dir = package_root / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
@@ -80,23 +92,21 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
                 continue
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
-            module = {
-                'source_file': elm_file,
+            package_data = {
                 'output': package_docs_root / module_name.replace('.', '-'),
                 'module_name': module_name,
                 'package_version': package_version,
             }
             yield {
                 'basename': 'elm_module_doc:{}'.format(elm_file),
-                'actions': [(build_elm_module_doc, [], {'module': module})],
-                'targets': [module['output']],
+                'actions': [(build_package_page, (package_data,))],
+                'targets': [package_data['output']],
                 #'file_deps': [module['source_file']] #todo
             }
 
 
 def create_tasks(output_dir, elm_packages):
-    # todo: yield task for copying assets
-    # todo: yield task for building elm apps
+    # todo: yield task for building elm apps and copying assets
     # todo: yield task for all-packages
     # todo: yield task for new-packages
 

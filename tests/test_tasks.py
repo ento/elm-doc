@@ -23,13 +23,25 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = by_basename(tasks.create_tasks(output_dir, ['elm-package.json']))
+
+        # package doc
+        assert len(result['elm_package_doc']) == 1
+        output_index = output_dir.join(
+            'packages', 'user', 'project', '1.0.0', 'index.html')
+        assert result['elm_package_doc'][0]['targets'] == [output_index]
+
+        action, args = result['elm_package_doc'][0]['actions'][0]
+        action(*args)
+        assert output_index.check()
+
+        # module doc
         assert len(result['elm_module_doc']) == 1
         output_main = output_dir.join(
             'packages', 'user', 'project', '1.0.0', 'Main')
         assert result['elm_module_doc'][0]['targets'] == [output_main]
 
-        action, args, kwargs = result['elm_module_doc'][0]['actions'][0]
-        action(*args, **kwargs)
+        action, args = result['elm_module_doc'][0]['actions'][0]
+        action(*args)
         assert output_main.check()
 
 
