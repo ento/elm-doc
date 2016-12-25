@@ -39,21 +39,21 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         action(*args)
         assert package_dir.join('README.md').check()
 
-        # package doc
-        assert len(result['package_doc']) == 1
+        # package page
+        assert len(result['package_page']) == 1
         output_index = package_dir.join('index.html')
-        assert result['package_doc'][0]['targets'] == [output_index]
+        assert result['package_page'][0]['targets'] == [output_index]
 
-        action, args = result['package_doc'][0]['actions'][0]
+        action, args = result['package_page'][0]['actions'][0]
         action(*args)
         assert output_index.check()
 
-        # module doc
-        assert len(result['module_doc']) == 1
+        # module page
+        assert len(result['module_page']) == 1
         output_main = package_dir.join('Main')
-        assert result['module_doc'][0]['targets'] == [output_main]
+        assert result['module_page'][0]['targets'] == [output_main]
 
-        action, args = result['module_doc'][0]['actions'][0]
+        action, args = result['module_page'][0]['actions'][0]
         action(*args)
         assert output_main.check()
 

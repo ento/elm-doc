@@ -86,7 +86,7 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
         'package_version': package_version,
     }
     yield {
-        'basename': 'package_doc:' + package_identifier,
+        'basename': 'package_page:' + package_identifier,
         'actions': [(build_package_page, (package_data,))],
         'targets': [package_data['output']],
         #'file_deps': [module['source_file']] #todo
@@ -131,7 +131,7 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
                 'package_version': package_version,
             }
             yield {
-                'basename': 'module_doc:{}'.format(elm_file),
+                'basename': 'module_page:{}'.format(elm_file),
                 'actions': [(build_package_page, (package_data,))],
                 'targets': [package_data['output']],
                 #'file_deps': [module['source_file']] #todo
