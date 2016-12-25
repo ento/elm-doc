@@ -1,11 +1,15 @@
 '''
 '''
+from typing import Dict, NamedTuple, Optional
 import os
 import os.path
 import json
-import pathlib
+from pathlib import Path
 import shutil
 import urllib.parse
+
+
+PackageVersion = NamedTuple('PackageVersion', [('user', str), ('project', str), ('version', str)])
 
 
 PAGE_PACKAGE_TEMPLATE = '''
@@ -27,40 +31,40 @@ PAGE_PACKAGE_TEMPLATE = '''
 </html>
 '''
 
-def get_page_package_flags(package_version, module=None):
+def get_page_package_flags(package_version: PackageVersion, module : Optional[str] = None):
     flags = {
-        'user': package_version['user'],
-        'project': package_version['project'],
-        'version': package_version['version'],
-        'allVersions': [package_version['version']],
+        'user': package_version.user,
+        'project': package_version.project,
+        'version': package_version.version,
+        'allVersions': [package_version.version],
         'moduleName': module,
     }
     return flags
 
 
-def get_package_version(elm_package):
-    repo_path = pathlib.Path(urllib.parse.urlparse(elm_package['repository']).path)
-    return {
-        'user': repo_path.parent.stem,
-        'project': repo_path.stem,
-        'version': elm_package['version'],
-    }
+def get_package_version(elm_package: Dict) -> PackageVersion:
+    repo_path = Path(urllib.parse.urlparse(elm_package['repository']).path)
+    return PackageVersion(
+        repo_path.parent.stem,
+        repo_path.stem,
+        elm_package['version'],
+    )
 
 
-def build_package_page(package_data):
-    os.makedirs(os.path.dirname(package_data['output']), exist_ok=True)
-    with open(package_data['output'], 'w') as f:
+def build_package_page(package_version: PackageVersion, output_path: Path, module : Optional[str] = None):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
         f.write(PAGE_PACKAGE_TEMPLATE.format(
-            flags=get_page_package_flags(package_data['package_version'], package_data['module_name'])
+            flags=get_page_package_flags(package_version, module)
         ))
 
 
-def link_latest_package_dir(package_dir: pathlib.Path, link_path: pathlib.Path):
+def link_latest_package_dir(package_dir: Path, link_path: Path):
     os.makedirs(package_dir, exist_ok=True)
     link_path.symlink_to(package_dir, target_is_directory=True)
 
 
-def copy_package_readme(package_readme: pathlib.Path, output_path: pathlib.Path):
+def copy_package_readme(package_readme: Path, output_path: Path):
     if package_readme.is_file():
         shutil.copy(package_readme, output_path)
 
@@ -71,24 +75,20 @@ def load_elm_package(path: str):
 
 
 def build_elm_package_docs(output_dir: str, elm_package_path: str):
-    package_dir = pathlib.Path(elm_package_path).parent
+    package_dir = Path(elm_package_path).parent
 
     elm_package = load_elm_package(elm_package_path)
     package_version = get_package_version(elm_package)
-    package_identifier = '/'.join((package_version['user'], package_version['project'], package_version['version']))
+    package_identifier = '/'.join((package_version.user, package_version.project, package_version.version))
 
-    package_docs_root = pathlib.Path(output_dir) / 'packages' / package_version['user'] / package_version['project'] / package_version['version']
+    package_docs_root = Path(output_dir) / 'packages' / package_version.user / package_version.project / package_version.version
 
-    # package root page
-    package_data = {
-        'output': package_docs_root / 'index.html',
-        'module_name': None,
-        'package_version': package_version,
-    }
+    # package index page
+    package_index_output = package_docs_root / 'index.html'
     yield {
         'basename': 'package_page:' + package_identifier,
-        'actions': [(build_package_page, (package_data,))],
-        'targets': [package_data['output']],
+        'actions': [(build_package_page, (package_version, package_index_output))],
+        'targets': [package_index_output],
         #'file_deps': [module['source_file']] #todo
     }
 
@@ -125,15 +125,11 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
                 continue
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
-            package_data = {
-                'output': package_docs_root / module_name.replace('.', '-'),
-                'module_name': module_name,
-                'package_version': package_version,
-            }
+            module_output = package_docs_root / module_name.replace('.', '-')
             yield {
                 'basename': 'module_page:{}'.format(elm_file),
-                'actions': [(build_package_page, (package_data,))],
-                'targets': [package_data['output']],
+                'actions': [(build_package_page, (package_version, module_output, module_name))],
+                'targets': [module_output],
                 #'file_deps': [module['source_file']] #todo
             }
 
