@@ -5,11 +5,18 @@ from pathlib import Path
 
 from elm_docs import elm_package
 from elm_docs import package_tasks
+from elm_docs import asset_tasks
 
 
 def create_tasks(output_dir: str, project_paths: List[str]):
     output_path = Path(output_dir).resolve()
-    # todo: yield task for building elm apps and copying assets
+
+    yield {
+        'basename': 'assets',
+        'actions': [(asset_tasks.build_assets, (output_path,))],
+        'targets': [output_path / 'assets', output_path / 'artifacts'],
+        'uptodate': [True],
+    }
 
     packages = list(map(elm_package.from_path,
                             map(lambda path: Path(path).resolve(), project_paths)))

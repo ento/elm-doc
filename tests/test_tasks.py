@@ -33,6 +33,13 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         result = by_basename(tasks.create_tasks(output_dir, ['.']))
 
+        # artifacts and assets
+        assert len(result['assets']) == 1
+        action, args = result['assets'][0]['actions'][0]
+        action(*args)
+        assert output_dir.join('assets').check(dir=True)
+        assert output_dir.join('artifacts').check(dir=True)
+
         # link from /latest
         assert len(result['package_latest_link']) == 1
         action, args = result['package_latest_link'][0]['actions'][0]
@@ -100,20 +107,3 @@ def by_basename(tasks):
         basename = task['basename'].split(':')[0]
         rv[basename].append(task)
     return rv
-
-
-# deprecated
-def _get_npm_elm_version_range(elm_package):
-    min_version, gt_op, _, lt_op, max_version = elm_package['elm-version'].split(' ')
-    return '{gt_op}{min_version} {lt_op}{max_version}'.format(
-        min_version=min_version,
-        gt_op=flip_inequality_op(gt_op),
-        lt_op=lt_op,
-        max_version=max_version,
-    )
-
-
-# deprecated
-def _flip_inequality_op(op):
-    # assume there's only one < or >
-    return op.replace('>', '<').replace('<', '>')
