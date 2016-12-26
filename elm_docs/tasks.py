@@ -1,12 +1,16 @@
 '''
 '''
-from typing import Dict, NamedTuple, Iterator, Optional
+from typing import Dict, NamedTuple, List, Iterator, Optional
 import os
 import os.path
 import json
 from pathlib import Path
 import shutil
+from tempfile import TemporaryDirectory
 import urllib.parse
+import subprocess
+
+from elm_docs import elm_package_overlayer_path
 
 
 PackageVersion = NamedTuple('PackageVersion', [('user', str), ('project', str), ('version', str)])
@@ -70,6 +74,29 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(package_readme, output_path)
 
 
+def build_package_docs_json(package_dir: Path, elm_package: Dict, output_path: Path, package_modules: List[ModuleName]):
+    here = os.path.abspath(os.path.dirname(__file__))
+    # todo: use my own elm
+    elm_make = os.environ['ELM_MAKE']
+    elm_package_with_exposed_modules = {**elm_package, **{'exposed-modules': package_modules}}
+    overlayer_path = elm_package_overlayer_path()
+    with TemporaryDirectory() as tmpdir:
+        elm_package_path = Path(tmpdir) / 'elm-package.json'
+        with open(elm_package_path, 'w') as f:
+            json.dump(elm_package_with_exposed_modules, f)
+        env = {
+            **os.environ,
+            **{
+                'USE_ELM_PACKAGE': elm_package_path,
+                'INSTEAD_OF_ELM_PACKAGE': package_dir / 'elm-package.json',
+                'DYLD_INSERT_LIBRARIES': overlayer_path,
+            }
+        }
+        subprocess.check_call([elm_make, '--yes', '--docs', output_path], cwd=package_dir, env=env)
+
+
+# todo: if project package: expose all modules based on pattern
+# todo: if dep package: read exposed-modules of package.json
 def iter_package_modules(package_dir: Path, elm_package: Dict) -> Iterator[ModuleName]:
     for source_dir_name in elm_package['source-directories']:
         source_dir = package_dir / source_dir_name
@@ -82,13 +109,13 @@ def iter_package_modules(package_dir: Path, elm_package: Dict) -> Iterator[Modul
             yield module_name
 
 
-def load_elm_package(path: str):
+def load_elm_package(path: Path):
     with open(path) as f:
         return json.load(f)
 
 
-def build_elm_package_docs(output_dir: str, elm_package_path: str):
-    package_dir = Path(elm_package_path).parent
+def build_elm_package_docs(output_dir: str, elm_package_path: Path):
+    package_dir = elm_package_path.parent
 
     elm_package = load_elm_package(elm_package_path)
     package_version = get_package_version(elm_package)
@@ -104,8 +131,6 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
         'targets': [package_index_output],
         #'file_deps': [module['source_file']] #todo
     }
-
-    # todo: yield task for package documentation.json: expose all modules based on pattern if project package
 
     # package readme
     readme_filename = 'README.md'
@@ -140,6 +165,14 @@ def build_elm_package_docs(output_dir: str, elm_package_path: str):
             #'file_deps': [module['source_file']] #todo
         }
 
+    # package documentation.json
+    docs_json_path = package_docs_root / 'documentation.json'
+    yield {
+        'basename': 'package_docs_json:' + package_identifier,
+        'actions': [(build_package_docs_json, (package_dir, elm_package, docs_json_path, package_modules))],
+        'targets': [docs_json_path],
+        #'file_deps': [all_elm_files_in_source_dirs] # todo
+    }
 
 
 def create_tasks(output_dir, elm_packages):
@@ -148,7 +181,8 @@ def create_tasks(output_dir, elm_packages):
     # todo: yield task for new-packages
 
     for elm_package in elm_packages:
-        for task in build_elm_package_docs(output_dir, elm_package):
+        # todo: yield task to install elm for this package
+        for task in build_elm_package_docs(output_dir, Path(elm_package).resolve()):
             yield task
 
 

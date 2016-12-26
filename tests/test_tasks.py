@@ -1,4 +1,9 @@
+import os
+import os.path
 from collections import defaultdict
+import json
+
+import elm_docs
 from elm_docs import tasks
 
 
@@ -21,6 +26,7 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
     modules = ['Main.elm']
     make_elm_project(elm_version, tmpdir, modules=modules)
     output_dir = tmpdir.join('docs')
+    elm_docs.__path__.append(os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir)))
     with tmpdir.as_cwd():
         tmpdir.join('README.md').write('hello')
 
@@ -56,6 +62,16 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         action, args = result['module_page'][0]['actions'][0]
         action(*args)
         assert output_main.check()
+
+        # package documentation.json
+        assert len(result['package_docs_json']) == 1
+        output_docs = package_dir.join('documentation.json')
+        assert result['package_docs_json'][0]['targets'] == [output_docs]
+
+        action, args = result['package_docs_json'][0]['actions'][0]
+        action(*args)
+        assert output_docs.check()
+        assert json.loads(output_docs.read())[0]['name'] == 'Main'
 
 
 def by_basename(tasks):

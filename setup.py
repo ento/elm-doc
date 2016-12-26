@@ -1,7 +1,16 @@
 """
 Generate your own Elm package documentation site
 """
+import sys
 from setuptools import find_packages, setup
+from setuptools.extension import Extension
+
+if sys.platform == 'darwin':
+    from distutils import sysconfig
+    vars = sysconfig.get_config_vars()
+    vars['LDSHARED'] = vars['LDSHARED'].replace('-bundle', '-dynamiclib')
+
+ext = Extension('overlay_elm_package', sources=['native/overlay_elm_package.c'], libraries=["dl"])
 
 with open('requirements.in') as f:
     dependencies = f.readlines()
@@ -20,6 +29,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=dependencies,
+    ext_modules=[ext],
     entry_points={
         'console_scripts': [
             'elm-docs = elm_docs.cli:main',
