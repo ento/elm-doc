@@ -83,7 +83,7 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
         subprocess.check_call([elm_make, '--yes', '--docs', output_path], cwd=package.path, env=env)
 
 
-def build_elm_package_docs(output_path: Path, package: ElmPackage):
+def create_package_tasks(output_path: Path, package: ElmPackage):
     package_identifier = '/'.join((package.user, package.project, package.version))
 
     package_docs_root = output_path / 'packages' / package.user / package.project / package.version
@@ -166,7 +166,7 @@ def create_tasks(output_dir: str, project_paths: List[str]):
                             map(lambda path: Path(path).resolve(), project_paths)))
     for package in packages:
         # todo: yield task to install elm for this package
-        for task in build_elm_package_docs(output_path, package):
+        for task in create_package_tasks(output_path, package):
             yield task
 
     # all-packages
