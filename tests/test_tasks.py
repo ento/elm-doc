@@ -31,7 +31,7 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         tmpdir.join('README.md').write('hello')
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
-        result = by_basename(tasks.create_tasks(output_dir, ['elm-package.json']))
+        result = by_basename(tasks.create_tasks(output_dir, ['.']))
 
         # link from /latest
         assert len(result['package_latest_link']) == 1
