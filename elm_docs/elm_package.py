@@ -5,18 +5,22 @@ import urllib.parse
 
 
 ModuleName = str
-ElmPackage = NamedTuple('ElmPackage', [
+DESCRIPTION_FILENAME = 'elm-package.json'
+STUFF_DIRECTORY = 'elm-stuff'
+
+
+ElmPackageBase = NamedTuple('ElmPackageBase', [
     ('path', Path),
     ('description', Dict),
     ('name', str),
     ('user', str),
     ('project', str),
-    ('version', str),
-    ('source_directories', List[Path]),
-    ('summary', str),
 ])
-DESCRIPTION_FILENAME = 'elm-package.json'
-STUFF_DIRECTORY = 'elm-stuff'
+
+
+class ElmPackage(ElmPackageBase):
+    def __getattr__(self, name):
+        return self.description[name.replace('_', '-')]
 
 
 def from_path(path: Path) -> ElmPackage:
@@ -30,9 +34,6 @@ def from_path(path: Path) -> ElmPackage:
         name='{0}/{1}'.format(user, project),
         user=user,
         project=project,
-        version=description['version'],
-        source_directories=description['source-directories'],
-        summary=description['summary'],
     )
 
 
