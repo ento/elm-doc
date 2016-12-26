@@ -83,10 +83,10 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
         subprocess.check_call([elm_make, '--yes', '--docs', output_path], cwd=package.path, env=env)
 
 
-def build_elm_package_docs(output_dir: str, package: ElmPackage):
+def build_elm_package_docs(output_path: Path, package: ElmPackage):
     package_identifier = '/'.join((package.user, package.project, package.version))
 
-    package_docs_root = Path(output_dir) / 'packages' / package.user / package.project / package.version
+    package_docs_root = output_path / 'packages' / package.user / package.project / package.version
 
     # package index page
     package_index_output = package_docs_root / 'index.html'
@@ -140,20 +140,52 @@ def build_elm_package_docs(output_dir: str, package: ElmPackage):
     }
 
 
-def create_tasks(output_dir: str, project_paths: List[str]):
-    # todo: yield task for building elm apps and copying assets
-    # todo: yield task for all-packages
-    # todo: yield task for new-packages
+def write_all_packages(packages: List[ElmPackage], output_path: Path):
+    all_packages = map(
+        lambda package: {
+            'name': package.name,
+            'summary': package.summary,
+            'versions': [package.version],
+        },
+        packages)
+    with open(output_path, 'w') as f:
+        json.dump(list(all_packages), f)
 
-    for elm_package in elm_packages:
+
+def write_new_packages(packages: List[ElmPackage], output_path: Path):
+    new_packages = map(lambda package: package.name, packages)
+    with open(output_path, 'w') as f:
+        json.dump(list(new_packages), f)
+
+
+def create_tasks(output_dir: str, project_paths: List[str]):
+    output_path = Path(output_dir).resolve()
+    # todo: yield task for building elm apps and copying assets
 
     packages = list(map(elm_package.from_path,
                             map(lambda path: Path(path).resolve(), project_paths)))
     for package in packages:
         # todo: yield task to install elm for this package
-        for task in build_elm_package_docs(output_dir, package):
+        for task in build_elm_package_docs(output_path, package):
             yield task
 
+    # all-packages
+    all_packages_path = output_path / 'all-packages'
+    yield {
+        'basename': 'all_packages',
+        'actions': [(write_all_packages, (packages, all_packages_path))],
+        'targets': [all_packages_path],
+        'file_deps': map(elm_package.description_path, packages),
+    }
+
+    # new-packages
+    new_packages_path = output_path / 'new-packages'
+    yield {
+        'basename': 'new_packages',
+        'actions': [(write_new_packages, (packages, new_packages_path))],
+        'targets': [new_packages_path],
+        'file_deps': map(elm_package.description_path, packages),
+    }
 
 
 def task_elm_docs():

@@ -73,6 +73,26 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         assert output_docs.check()
         assert json.loads(output_docs.read())[0]['name'] == 'Main'
 
+        # all-packages
+        assert len(result['all_packages']) == 1
+        all_packages = output_dir.join('all-packages')
+        assert result['all_packages'][0]['targets'] == [all_packages]
+
+        action, args = result['all_packages'][0]['actions'][0]
+        action(*args)
+        assert all_packages.check()
+        assert len(json.loads(all_packages.read())) > 0
+
+        # new-packages
+        assert len(result['new_packages']) == 1
+        new_packages = output_dir.join('new-packages')
+        assert result['new_packages'][0]['targets'] == [new_packages]
+
+        action, args = result['new_packages'][0]['actions'][0]
+        action(*args)
+        assert new_packages.check()
+        assert len(json.loads(new_packages.read())) > 0
+
 
 def by_basename(tasks):
     rv = defaultdict(list)

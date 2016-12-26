@@ -8,10 +8,12 @@ ModuleName = str
 ElmPackage = NamedTuple('ElmPackage', [
     ('path', Path),
     ('description', Dict),
+    ('name', str),
     ('user', str),
     ('project', str),
     ('version', str),
     ('source_directories', List[Path]),
+    ('summary', str),
 ])
 DESCRIPTION_FILENAME = 'elm-package.json'
 STUFF_DIRECTORY = 'elm-stuff'
@@ -20,13 +22,17 @@ STUFF_DIRECTORY = 'elm-stuff'
 def from_path(path: Path) -> ElmPackage:
     description = load_description(path / DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
+    user = repo_path.parent.stem
+    project = repo_path.stem
     return ElmPackage(
         path=path,
         description=description,
-        user=repo_path.parent.stem,
-        project=repo_path.stem,
+        name='{0}/{1}'.format(user, project),
+        user=user,
+        project=project,
         version=description['version'],
-        source_directories=description['source-directories']
+        source_directories=description['source-directories'],
+        summary=description['summary'],
     )
 
 
