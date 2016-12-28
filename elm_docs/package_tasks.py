@@ -9,6 +9,7 @@ import subprocess
 
 from doit.tools import create_folder
 
+from elm_docs import elm_platform
 from elm_docs import elm_package_overlayer_path
 from elm_docs import elm_package
 from elm_docs.elm_package import ElmPackage, ModuleName
@@ -64,14 +65,16 @@ def copy_package_readme(package_readme: Path, output_path: Path):
 
 def build_package_docs_json(package: ElmPackage, output_path: Path, package_modules: List[ModuleName]):
     here = os.path.abspath(os.path.dirname(__file__))
-    # todo: use my own elm
-    elm_make = os.environ['ELM_MAKE']
     elm_package_with_exposed_modules = {**package.description, **{'exposed-modules': package_modules}}
     overlayer_path = elm_package_overlayer_path()
     with TemporaryDirectory() as tmpdir:
-        elm_package_path = Path(tmpdir) / elm_package.DESCRIPTION_FILENAME
+        root_path = Path(tmpdir)
+        elm_package_path = root_path / elm_package.DESCRIPTION_FILENAME
         with open(elm_package_path, 'w') as f:
             json.dump(elm_package_with_exposed_modules, f)
+        # todo: use package's node_modules if present
+        elm_platform.install(root_path, package.elm_version)
+        elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
         env = {
             **os.environ,
             **{

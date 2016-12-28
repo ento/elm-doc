@@ -14,6 +14,13 @@ def install(to: Path, elm_version: str):
     subprocess.check_call(['yarn', 'install'], cwd=to)
 
 
+def get_npm_executable_path(project_root: Path, executable: str):
+    script = 'console.log(require("elm/platform").executablePaths["{}"])'.format(
+        executable)
+    executable_path = subprocess.check_output(['node', '-e', script], cwd=project_root)
+    return Path(executable_path.decode('utf-8').strip())
+
+
 def get_npm_version_range(elm_version: str) -> str:
     if _is_exact(elm_version):
         return elm_version
