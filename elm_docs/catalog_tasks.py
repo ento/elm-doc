@@ -4,31 +4,13 @@ import json
 
 from elm_docs.elm_package import ElmPackage
 from elm_docs import elm_package
+from elm_docs import page_template
 
 
-INDEX_PAGE_TEMPLATE = '''
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <link rel="shortcut icon" size="16x16, 32x32, 48x48, 64x64, 128x128, 256x256" href="/assets/favicon.ico">
-    <link rel="stylesheet" href="/assets/highlight/styles/default.css">
-    <link rel="stylesheet" href="/assets/style.css">
-    <script src="/assets/highlight/highlight.pack.js"></script>
-    <script src="/artifacts/Page-Catalog.js"></script>
-  </head>
-  <body>
-  <script>
-    var page = Elm.Page.Catalog.fullscreen();
-  </script>
-  </body>
-</html>
-'''
 
-def write_index_page(output_path: Path):
+def write_index_page(output_path: Path, mount_point: str = ''):
     with open(output_path, 'w') as f:
-        f.write(INDEX_PAGE_TEMPLATE)
-
+        f.write(page_template.render('Catalog', mount_point=mount_point))
 
 
 def write_all_packages(packages: List[ElmPackage], output_path: Path):
@@ -49,12 +31,12 @@ def write_new_packages(packages: List[ElmPackage], output_path: Path):
         json.dump(list(new_packages), f)
 
 
-def create_catalog_tasks(packages: List[ElmPackage], output_path: Path):
+def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
     # index
     index_path = output_path / 'index.html'
     yield {
         'basename': 'index',
-        'actions': [(write_index_page, (index_path,))],
+        'actions': [(write_index_page, (index_path, mount_point))],
         'targets': [index_path],
         'uptodate': [True],
     }

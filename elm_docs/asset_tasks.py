@@ -1,4 +1,5 @@
 import os
+import os.path
 from tempfile import TemporaryDirectory
 from pathlib import Path
 import urllib.request
@@ -10,7 +11,10 @@ from elm_docs import elm_platform
 from elm_docs import elm_package
 
 
-def build_assets(output_path: Path):
+codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir, 'native', 'prepend_mountpoint.js'))
+
+
+def build_assets(output_path: Path, mount_point: str = ''):
     tarball = 'https://api.github.com/repos/elm-lang/package.elm-lang.org/tarball'
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
@@ -24,6 +28,9 @@ def build_assets(output_path: Path):
 
         # install elm
         elm_platform.install(root_path, package.elm_version)
+        subprocess.check_call(
+            ['yarn', 'add', 'jscodeshift'],
+            cwd=root_path)
         subprocess.check_call(
             ['./node_modules/.bin/elm-package', 'install', '--yes'],
             cwd=root_path)
@@ -42,6 +49,19 @@ def build_assets(output_path: Path):
                  '--output',
                  'artifacts/Page-{0}.js'.format(basename)],
                 cwd=root_path)
+
+        # todo: jscodeshift doesn't exit with 1 when there's an error
+        env = {
+            **os.environ,
+            **{'ELM_DOCS_MOUNT_POINT': mount_point},
+        }
+        subprocess.check_call(
+            ['./node_modules/.bin/jscodeshift',
+             '--transform',
+             codeshifter,
+             artifacts_path],
+            env=env,
+            cwd=root_path)
 
         # copy artifacts and assets
         shutil.copytree(artifacts_path, output_path / 'artifacts')
