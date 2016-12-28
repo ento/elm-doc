@@ -48,7 +48,7 @@ def build_package_page(package: ElmPackage, output_path: Path, module : Optional
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         f.write(PAGE_PACKAGE_TEMPLATE.format(
-            flags=get_page_package_flags(package, module)
+            flags=json.dumps(get_page_package_flags(package, module))
         ))
 
 
