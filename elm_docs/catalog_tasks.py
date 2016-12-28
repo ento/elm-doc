@@ -1,5 +1,6 @@
 from typing import List
 from pathlib import Path
+import json
 
 from elm_docs.elm_package import ElmPackage
 from elm_docs import elm_package
