@@ -61,13 +61,13 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
             elm_platform.install(root_path, package.elm_version)
             elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
 
-        # todo: linux compat
         env = {
             **os.environ,
             **{
                 'USE_ELM_PACKAGE': overlayed_elm_package_path,
                 'INSTEAD_OF_ELM_PACKAGE': elm_package.description_path(package),
                 'DYLD_INSERT_LIBRARIES': overlayer_path,
+                'LD_PRELOAD': overlayer_path,
             }
         }
         subprocess.check_call([elm_make, '--yes', '--docs', output_path, '--output', '/dev/null'], cwd=package.path, env=env)
