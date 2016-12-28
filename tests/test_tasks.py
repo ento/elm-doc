@@ -7,17 +7,12 @@ import elm_docs
 from elm_docs import tasks
 
 
-def test_create_tasks_empty_input():
-    result = list(tasks.create_tasks(None, []))
-    assert len(result) == 0
-
-
 def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
     elm_version = '0.18.0'
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks(output_dir, ['elm-package.json']))
+        result = list(tasks.create_tasks('.', output_dir))
         assert len(result) == 0
 
 
@@ -31,7 +26,7 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
         tmpdir.join('README.md').write('hello')
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
-        result = by_basename(tasks.create_tasks(output_dir, ['.']))
+        result = by_basename(tasks.create_tasks('.', output_dir))
 
         # artifacts and assets
         assert len(result['assets']) == 1

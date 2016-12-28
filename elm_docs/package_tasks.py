@@ -7,6 +7,8 @@ import shutil
 from tempfile import TemporaryDirectory
 import subprocess
 
+from doit.tools import create_folder
+
 from elm_docs import elm_package_overlayer_path
 from elm_docs import elm_package
 from elm_docs.elm_package import ElmPackage, ModuleName
@@ -81,76 +83,61 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
         subprocess.check_call([elm_make, '--yes', '--docs', output_path], cwd=package.path, env=env)
 
 
-def create_package_tasks(output_path: Path, package: ElmPackage):
-    package_identifier = '/'.join((package.user, package.project, package.version))
+def create_package_tasks(output_path: Path, package: ElmPackage, exclude_modules: List[str]):
+    basename = lambda name: '{}:{}/{}'.format(name, package.name, package.version)
 
     package_docs_root = output_path / 'packages' / package.user / package.project / package.version
+    package_modules = list(elm_package.iter_package_modules(package, exclude_modules))
+
+    # package documentation.json
+    docs_json_path = package_docs_root / 'documentation.json'
+    yield {
+        'basename': basename('package_docs_json'),
+        'actions': [(create_folder, (package_docs_root,)),
+                    (build_package_docs_json, (package, docs_json_path, package_modules))],
+        'targets': [docs_json_path],
+        #'file_dep': [all_elm_files_in_source_dirs] # todo
+    }
 
     # package index page
     package_index_output = package_docs_root / 'index.html'
     yield {
-        'basename': 'package_page:' + package_identifier,
+        'basename': basename('package_page'),
         'actions': [(build_package_page, (package, package_index_output))],
         'targets': [package_index_output],
-        #'file_deps': [module['source_file']] #todo
+        #'file_dep': [module['source_file']] #todo
     }
 
     # package readme
     readme_filename = 'README.md'
     package_readme = package.path / readme_filename
     output_readme_path = package_docs_root / readme_filename
-    yield {
-        'basename': 'package_readme:' + package_identifier,
-        'actions': [(copy_package_readme, (package_readme, output_readme_path))],
-        'targets': [output_readme_path],
-        'file_deps': [package_readme],
-    }
+    if package_readme.is_file():
+        yield {
+            'basename': basename('package_readme'),
+            'actions': [(copy_package_readme, (package_readme, output_readme_path))],
+            'targets': [output_readme_path],
+            'file_dep': [package_readme],
+        }
 
     # link from /latest
     latest_path = package_docs_root.parent / 'latest'
     yield {
-        'basename': 'package_latest_link:' + package_identifier,
+        'basename': basename('package_latest_link'),
         'actions': [(link_latest_package_dir, (package_docs_root, latest_path))],
         'targets': [latest_path],
-        #'file_deps': [], # todo
+        #'file_dep': [], # todo
+        'uptodate': [True]
     }
 
     # todo: make mount point configurable: prepend path in page package html and in generated js
 
     # module pages
-    package_modules = list(elm_package.iter_package_modules(package))
     for module in package_modules:
         module_output = package_docs_root / module.replace('.', '-')
         yield {
-            'basename': 'module_page:{}:{}'.format(package_identifier, module),
+            'basename': basename('module_page') + ':' + module,
             'actions': [(build_package_page, (package, module_output, module))],
             'targets': [module_output],
-            #'file_deps': [module['source_file']] #todo
+            #'file_dep': [module['source_file']] #todo
         }
-
-    # package documentation.json
-    docs_json_path = package_docs_root / 'documentation.json'
-    yield {
-        'basename': 'package_docs_json:' + package_identifier,
-        'actions': [(build_package_docs_json, (package, docs_json_path, package_modules))],
-        'targets': [docs_json_path],
-        #'file_deps': [all_elm_files_in_source_dirs] # todo
-    }
-
-
-def write_all_packages(packages: List[ElmPackage], output_path: Path):
-    all_packages = map(
-        lambda package: {
-            'name': package.name,
-            'summary': package.summary,
-            'versions': [package.version],
-        },
-        packages)
-    with open(output_path, 'w') as f:
-        json.dump(list(all_packages), f)
-
-
-def write_new_packages(packages: List[ElmPackage], output_path: Path):
-    new_packages = map(lambda package: package.name, packages)
-    with open(output_path, 'w') as f:
-        json.dump(list(new_packages), f)

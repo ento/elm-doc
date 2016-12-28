@@ -1,5 +1,6 @@
 from typing import NamedTuple, Dict, List, Iterator
 from pathlib import Path
+import fnmatch
 import json
 import urllib.parse
 
@@ -48,7 +49,7 @@ def load_description(path: Path) -> Dict:
 
 # todo: if project package: expose all modules based on pattern
 # todo: if dep package: read exposed-modules of package.json
-def iter_package_modules(package: ElmPackage) -> Iterator[ModuleName]:
+def iter_package_modules(package: ElmPackage, exclude_patterns: List[str] = []) -> Iterator[ModuleName]:
     for source_dir_name in package.source_directories:
         source_dir = package.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
@@ -57,4 +58,7 @@ def iter_package_modules(package: ElmPackage) -> Iterator[ModuleName]:
                 continue
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
+            if any(fnmatch.fnmatch(module_name, pattern)
+                   for pattern in exclude_patterns):
+                continue
             yield module_name
