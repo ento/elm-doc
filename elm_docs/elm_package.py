@@ -42,8 +42,8 @@ def from_path(path: Path, is_dep: bool = False) -> ElmPackage:
     )
 
 
-def description_path(elm_package: ElmPackage) -> Path:
-    return elm_package.path / DESCRIPTION_FILENAME
+def description_path(package: ElmPackage) -> Path:
+    return package.path / DESCRIPTION_FILENAME
 
 
 def load_description(path: Path) -> Dict:
