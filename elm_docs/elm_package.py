@@ -8,6 +8,8 @@ import urllib.parse
 ModuleName = str
 DESCRIPTION_FILENAME = 'elm-package.json'
 STUFF_DIRECTORY = 'elm-stuff'
+EXACT_DEPS_FILENAME = 'exact-dependencies.json'
+PACKAGES_DIRECTORY = 'packages'
 
 
 ElmPackageBase = NamedTuple('ElmPackageBase', [
@@ -16,6 +18,7 @@ ElmPackageBase = NamedTuple('ElmPackageBase', [
     ('name', str),
     ('user', str),
     ('project', str),
+    ('is_dep', bool),
 ])
 
 
@@ -24,7 +27,7 @@ class ElmPackage(ElmPackageBase):
         return self.description[name.replace('_', '-')]
 
 
-def from_path(path: Path) -> ElmPackage:
+def from_path(path: Path, is_dep: bool = False) -> ElmPackage:
     description = load_description(path / DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
@@ -35,6 +38,7 @@ def from_path(path: Path) -> ElmPackage:
         name='{0}/{1}'.format(user, project),
         user=user,
         project=project,
+        is_dep=is_dep,
     )
 
 
@@ -47,9 +51,14 @@ def load_description(path: Path) -> Dict:
         return json.load(f)
 
 
-# todo: if project package: expose all modules based on pattern
-# todo: if dep package: read exposed-modules of package.json
-def iter_package_modules(package: ElmPackage, exclude_patterns: List[str] = []) -> Iterator[ModuleName]:
+def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
+    with open(package.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME) as f:
+        exact_deps = json.load(f)
+    for name, version in exact_deps.items():
+        yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version, is_dep=True)
+
+
+def glob_package_modules(package: ElmPackage, exclude_patterns: List[str] = []) -> Iterator[ModuleName]:
     for source_dir_name in package.source_directories:
         source_dir = package.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')

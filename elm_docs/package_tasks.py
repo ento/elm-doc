@@ -6,6 +6,7 @@ import json
 import shutil
 from tempfile import TemporaryDirectory
 import subprocess
+import urllib.request
 
 from doit.tools import create_folder
 
@@ -63,18 +64,21 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(package_readme, output_path)
 
 
-def build_package_docs_json(package: ElmPackage, output_path: Path, package_modules: List[ModuleName]):
+def build_package_docs_json(package: ElmPackage, output_path: Path, package_modules: List[ModuleName], elm_make: Path = None):
     here = os.path.abspath(os.path.dirname(__file__))
     elm_package_with_exposed_modules = {**package.description, **{'exposed-modules': package_modules}}
     overlayer_path = elm_package_overlayer_path()
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
+
         elm_package_path = root_path / elm_package.DESCRIPTION_FILENAME
         with open(elm_package_path, 'w') as f:
             json.dump(elm_package_with_exposed_modules, f)
-        # todo: use package's node_modules if present
-        elm_platform.install(root_path, package.elm_version)
-        elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
+
+        if elm_make is None:
+            elm_platform.install(root_path, package.elm_version)
+            elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
+
         env = {
             **os.environ,
             **{
@@ -86,21 +90,40 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
         subprocess.check_call([elm_make, '--yes', '--docs', output_path], cwd=package.path, env=env)
 
 
-def create_package_tasks(output_path: Path, package: ElmPackage, exclude_modules: List[str]):
+def download_package_docs_json(package: ElmPackage, output_path: Path):
+    url = 'http://package.elm-lang.org/packages/{name}/{version}/documentation.json'.format(
+        name=package.name, version=package.version
+    )
+    urllib.request.urlretrieve(url, output_path)
+
+
+def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path = None, exclude_modules: List[str] = []):
     basename = lambda name: '{}:{}/{}'.format(name, package.name, package.version)
 
     package_docs_root = output_path / 'packages' / package.user / package.project / package.version
-    package_modules = list(elm_package.iter_package_modules(package, exclude_modules))
+    if package.is_dep:
+        package_modules = package.exposed_modules
+    else:
+        package_modules = list(elm_package.glob_package_modules(package, exclude_modules))
 
     # package documentation.json
     docs_json_path = package_docs_root / 'documentation.json'
-    yield {
-        'basename': basename('package_docs_json'),
-        'actions': [(create_folder, (package_docs_root,)),
-                    (build_package_docs_json, (package, docs_json_path, package_modules))],
-        'targets': [docs_json_path],
-        #'file_dep': [all_elm_files_in_source_dirs] # todo
-    }
+    if package.is_dep:
+        yield {
+            'basename': basename('download_package_docs_json'),
+            'actions': [(create_folder, (package_docs_root,)),
+                        (download_package_docs_json, (package, docs_json_path))],
+            'targets': [docs_json_path],
+            #'file_dep': [all_elm_files_in_source_dirs] # todo
+        }
+    else:
+        yield {
+            'basename': basename('build_package_docs_json'),
+            'actions': [(create_folder, (package_docs_root,)),
+                        (build_package_docs_json, (package, docs_json_path, package_modules, elm_make))],
+            'targets': [docs_json_path],
+            #'file_dep': [all_elm_files_in_source_dirs] # todo
+        }
 
     # package index page
     package_index_output = package_docs_root / 'index.html'
