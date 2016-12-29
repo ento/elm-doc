@@ -1,3 +1,7 @@
+os:
+  - linux
+  - osx
+
 cache:
   directories:
     - $HOME/.cache/pip
