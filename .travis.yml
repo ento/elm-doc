@@ -1,0 +1,36 @@
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+language: python
+
+python:
+  - 3.5
+
+env:
+  matrix:
+    - TOXENV=sanity
+    - TOXENV=py33
+    - TOXENV=py34
+    - TOXENV=py35
+    - TOXENV=py36
+    - TOXENV=pypy
+    # Meta
+    - TOXENV=flake8
+    - TOXENV=manifest
+
+install:
+  - pip install tox
+
+script:
+  - tox
+
+before_install:
+  - pip install codecov
+
+after_success:
+  - tox -e coverage-report
+  - codecov
+
+notifications:
+  email: false
