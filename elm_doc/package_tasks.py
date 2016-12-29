@@ -17,7 +17,7 @@ from elm_doc.elm_package import ElmPackage, ModuleName
 from elm_doc import page_template
 
 
-def get_page_package_flags(package: ElmPackage, module : Optional[str] = None):
+def get_page_package_flags(package: ElmPackage, module: Optional[str] = None):
     flags = {
         'user': package.user,
         'project': package.project,
@@ -46,7 +46,11 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(package_readme, output_path)
 
 
-def build_package_docs_json(package: ElmPackage, output_path: Path, package_modules: List[ModuleName], elm_make: Path = None):
+def build_package_docs_json(
+        package: ElmPackage,
+        output_path: Path,
+        package_modules: List[ModuleName],
+        elm_make: Path = None):
     elm_package_with_exposed_modules = {**package.description, **{'exposed-modules': package_modules}}
     overlayer_path = elm_package_overlayer_path()
     with TemporaryDirectory() as tmpdir:
@@ -70,7 +74,10 @@ def build_package_docs_json(package: ElmPackage, output_path: Path, package_modu
                 'LD_PRELOAD': overlayer_path,
             }
         }
-        subprocess.check_call([elm_make, '--yes', '--docs', output_path, '--output', '/dev/null'], cwd=package.path, env=env)
+        subprocess.check_call(
+            [elm_make, '--yes', '--docs', output_path, '--output', '/dev/null'],
+            cwd=package.path,
+            env=env)
 
 
 def download_package_docs_json(package: ElmPackage, output_path: Path):
@@ -80,8 +87,17 @@ def download_package_docs_json(package: ElmPackage, output_path: Path):
     urllib.request.urlretrieve(url, output_path)
 
 
-def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path = None, exclude_modules: List[str] = [], mount_point: str = ''):
-    basename = lambda name: '{}:{}/{}'.format(name, package.name, package.version)
+def package_task_basename_factory(package):
+    return lambda name: '{}:{}/{}'.format(name, package.name, package.version)
+
+
+def create_package_tasks(
+        output_path: Path,
+        package: ElmPackage,
+        elm_make: Path = None,
+        exclude_modules: List[str] = [],
+        mount_point: str = ''):
+    basename = package_task_basename_factory(package)
 
     package_docs_root = output_path / 'packages' / package.user / package.project / package.version
     if package.is_dep:
@@ -97,7 +113,7 @@ def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path 
             'actions': [(create_folder, (package_docs_root,)),
                         (download_package_docs_json, (package, docs_json_path))],
             'targets': [docs_json_path],
-            #'file_dep': [all_elm_files_in_source_dirs] # todo
+            # 'file_dep': [all_elm_files_in_source_dirs] # todo
             'uptodate': [True],
         }
     else:
@@ -106,7 +122,7 @@ def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path 
             'actions': [(create_folder, (package_docs_root,)),
                         (build_package_docs_json, (package, docs_json_path, package_modules, elm_make))],
             'targets': [docs_json_path],
-            #'file_dep': [all_elm_files_in_source_dirs] # todo
+            # 'file_dep': [all_elm_files_in_source_dirs] # todo
         }
 
     # package index page
@@ -115,7 +131,7 @@ def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path 
         'basename': basename('package_page'),
         'actions': [(build_package_page, (package, package_index_output), {'mount_point': mount_point})],
         'targets': [package_index_output],
-        #'file_dep': [module['source_file']] #todo
+        # 'file_dep': [module['source_file']] #todo
         'uptodate': [True],
     }
 
@@ -137,7 +153,7 @@ def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path 
         'basename': basename('package_latest_link'),
         'actions': [(link_latest_package_dir, (package_docs_root, latest_path))],
         'targets': [latest_path],
-        #'file_dep': [], # todo
+        # 'file_dep': [], # todo
         'uptodate': [True]
     }
 
@@ -148,6 +164,6 @@ def create_package_tasks(output_path: Path, package: ElmPackage, elm_make: Path 
             'basename': basename('module_page') + ':' + module,
             'actions': [(build_package_page, (package, module_output, module), {'mount_point': mount_point})],
             'targets': [module_output],
-            #'file_dep': [module['source_file']] #todo
+            # 'file_dep': [module['source_file']] #todo
             'uptodate': [True],
         }

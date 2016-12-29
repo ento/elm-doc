@@ -1,7 +1,6 @@
 from collections import defaultdict
 import json
 
-import elm_doc
 from elm_doc import tasks
 
 

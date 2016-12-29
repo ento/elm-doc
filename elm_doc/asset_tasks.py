@@ -2,8 +2,6 @@ import os
 import os.path
 from tempfile import TemporaryDirectory
 from pathlib import Path
-import urllib.request
-import tarfile
 import subprocess
 import shutil
 

@@ -7,7 +7,6 @@ from elm_doc import elm_package
 from elm_doc import page_template
 
 
-
 def write_index_page(output_path: Path, mount_point: str = ''):
     with open(output_path, 'w') as f:
         f.write(page_template.render('Catalog', mount_point=mount_point))
