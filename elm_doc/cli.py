@@ -6,21 +6,30 @@ from doit.cmd_base import ModuleTaskLoader
 from elm_doc.tasks import create_tasks
 
 
+class DoitException(click.ClickException):
+    def __init__(self, message, exit_code):
+        click.ClickException.__init__(self, message)
+        self.exit_code = exit_code
+
+
+# todo:: validate mode
 @click.command()
-@click.option('--output', '-o')
-@click.option('--elm-make', help='specify which elm-make to use')
+@click.option('--output', '-o', required=True)
+@click.option('--elm-make', help='specify which elm-make to use. if not specified, elm will be installed afresh in a temporary directory')
 @click.option('--mount-at', help='url path at which the docs will be served', default='')
-@click.option('--exclude', '-x', help='comma separated fnmatch pattern of modules to exclude')
+@click.option('--exclude', '-x', help='comma-separated fnmatch pattern of modules to exclude')
 @click.argument('project_path')
 def main(output, elm_make, mount_at, exclude, project_path):
     """Generate your own Elm package documentation site"""
     def task_build():
-        if 'ELM_DOCS_EXTENSION_PATH' in os.environ:
-            import elm_docs
-            elm_docs.__path__.append(os.path.abspath(os.environ['ELM_DOCS_EXTENSION_PATH']))
+        if 'ELM_DOC_EXTENSION_PATH' in os.environ:
+            import elm_doc
+            elm_doc.__path__.append(os.path.abspath(os.environ['ELM_DOC_EXTENSION_PATH']))
         exclude_modules = exclude.split(',') if exclude else []
         return create_tasks(project_path, output, elm_make=elm_make, exclude_modules=exclude_modules, mount_point=mount_at)
-    DoitMain(ModuleTaskLoader(locals())).run(['--verbosity', '0'])
+    result = DoitMain(ModuleTaskLoader(locals())).run(['--verbosity', '0'])
+    if result > 0:
+        raise DoitException('', result)
 
 
 if __name__ == '__main__':

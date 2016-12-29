@@ -5,16 +5,40 @@ import elm_doc
 from elm_doc import tasks
 
 
+# todo: this module should only test which tasks are generated,
+# and test_cli and/or tests for each task should test the actual effects.
+
+
 def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
     elm_version = '0.18.0'
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks('.', output_dir))
-        assert len(result) == 0
+        result = by_basename(tasks.create_tasks('.', output_dir))
+        expected_task_names = [
+            'build_package_docs_json',
+            'package_page',
+            'package_latest_link',
+            'download_package_docs_json',
+            'package_readme',
+            'module_page',
+            'index',
+            'all_packages',
+            'new_packages',
+            'assets']
+        assert list(result.keys()) == expected_task_names
+
+        # artifacts and assets
+        assert len(result['download_package_docs_json']) > 0
+        action, args = result['download_package_docs_json'][0]['actions'][0]
+        action(*args)
+        action, args = result['download_package_docs_json'][0]['actions'][1]
+        action(*args)
+        package, output_path = args
+        assert output_path.is_file()
 
 
-def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
+def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
     elm_version = '0.18.0'
     modules = ['Main.elm']
     make_elm_project(elm_version, tmpdir, modules=modules)

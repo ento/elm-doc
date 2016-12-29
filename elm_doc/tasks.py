@@ -12,7 +12,9 @@ from elm_doc import catalog_tasks
 def create_tasks(project_path: str, output_dir: str, elm_make: str = None, exclude_modules: List[str] = [], mount_point: str = ''):
     output_path = Path(output_dir).resolve()
     elm_make = Path(elm_make).resolve() if elm_make is not None else None
+    # todo: gracefully handle missing elm-package.json
     project_package = elm_package.from_path(Path(project_path).resolve())
+    # todo: gracefully handle missing exact-dependencies.json
     deps = list(elm_package.iter_dependencies(project_package))
     all_packages = [project_package] + deps
 
