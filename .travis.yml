@@ -13,8 +13,6 @@ python:
 env:
   matrix:
     - TOXENV=sanity
-    - TOXENV=py33
-    - TOXENV=py34
     - TOXENV=py35
     - TOXENV=py36
     - TOXENV=nightly
