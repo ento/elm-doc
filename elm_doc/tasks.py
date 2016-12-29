@@ -1,6 +1,7 @@
 '''
 '''
 from typing import List
+import os.path
 from pathlib import Path
 
 from elm_doc import elm_package
@@ -15,10 +16,10 @@ def create_tasks(
         elm_make: str = None,
         exclude_modules: List[str] = [],
         mount_point: str = ''):
-    output_path = Path(output_dir).resolve()
-    elm_make = Path(elm_make).resolve() if elm_make is not None else None
+    output_path = Path(os.path.normpath(output_dir))
+    elm_make = Path(os.path.normpath(elm_make)) if elm_make is not None else None
     # todo: gracefully handle missing elm-package.json
-    project_package = elm_package.from_path(Path(project_path).resolve())
+    project_package = elm_package.from_path(Path(os.path.normpath(project_path)))
     # todo: gracefully handle missing exact-dependencies.json
     deps = list(elm_package.iter_dependencies(project_package))
     all_packages = [project_package] + deps
