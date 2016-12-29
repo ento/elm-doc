@@ -13,7 +13,7 @@ def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = by_basename(tasks.create_tasks('.', str(output_dir)))
+        result = list(tasks.create_tasks('.', str(output_dir)))
         expected_task_names = [
             'build_package_docs_json',
             'package_page',
@@ -25,13 +25,14 @@ def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
             'all_packages',
             'new_packages',
             'assets']
-        assert list(result.keys()) == expected_task_names
+        assert basenames_in_first_seen_order(result) == expected_task_names
 
         # artifacts and assets
-        assert len(result['download_package_docs_json']) > 0
-        action, args = result['download_package_docs_json'][0]['actions'][0]
+        tasks_by_basename = by_basename(result)
+        assert len(tasks_by_basename['download_package_docs_json']) > 0
+        action, args = tasks_by_basename['download_package_docs_json'][0]['actions'][0]
         action(*args)
-        action, args = result['download_package_docs_json'][0]['actions'][1]
+        action, args = tasks_by_basename['download_package_docs_json'][0]['actions'][1]
         action(*args)
         package, output_path = args
         assert output_path.is_file()
@@ -121,4 +122,15 @@ def by_basename(tasks):
     for task in tasks:
         basename = task['basename'].split(':')[0]
         rv[basename].append(task)
+    return rv
+
+
+def basenames_in_first_seen_order(tasks):
+    rv = []
+    seen = set()
+    for task in tasks:
+        basename = task['basename'].split(':')[0]
+        if basename not in seen:
+            seen.add(basename)
+            rv.append(basename)
     return rv
