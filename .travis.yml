@@ -19,7 +19,6 @@ env:
     - TOXENV=py35
     - TOXENV=py36
     - TOXENV=nightly
-    - TOXENV=pypy
     # Meta
     - TOXENV=flake8
     - TOXENV=manifest
