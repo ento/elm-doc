@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -9,7 +10,6 @@
 
 #elif defined __linux__
 
-#define _GNU_SOURCE
 #include <linux/limits.h>
 #include <stdarg.h>
 #include <dlfcn.h>
