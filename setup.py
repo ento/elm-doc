@@ -16,9 +16,9 @@ with open('requirements.in') as f:
     dependencies = f.readlines()
 
 setup(
-    name='elm-docs',
+    name='elm-doc',
     version='0.1.0',
-    url='https://github.com/ento/elm-docs',
+    url='https://github.com/ento/elm-doc',
     license='BSD',
     author='Marica Odagaki',
     author_email='ento.entotto@gmail.com',
@@ -32,7 +32,7 @@ setup(
     ext_modules=[ext],
     entry_points={
         'console_scripts': [
-            'elm-docs = elm_docs.cli:main',
+            'elm-doc = elm_doc.cli:main',
         ],
     },
     classifiers=[

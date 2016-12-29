@@ -3,10 +3,10 @@
 from typing import List
 from pathlib import Path
 
-from elm_docs import elm_package
-from elm_docs import package_tasks
-from elm_docs import asset_tasks
-from elm_docs import catalog_tasks
+from elm_doc import elm_package
+from elm_doc import package_tasks
+from elm_doc import asset_tasks
+from elm_doc import catalog_tasks
 
 
 def create_tasks(project_path: str, output_dir: str, elm_make: str = None, exclude_modules: List[str] = [], mount_point: str = ''):

@@ -1,21 +1,26 @@
-# elm-docs
+# elm-doc
 
-Generate your own Elm package documentation site
-
+Generate static documentation of your Elm project.
 
 # Installation
 
-If you don't use `pipsi`, you're missing out.
-Here are [installation instructions](https://github.com/mitsuhiko/pipsi#readme).
+Requires Python 3.
 
-Simply run:
+Via [pipsi](https://github.com/mitsuhiko/pipsi#readme):
 
-    $ pipsi install .
+    $ pipsi install elm-doc
 
+Or pip:
+
+    $ pip install elm-doc
+
+Other dependencies
+
+- yarn
+- macOS or Linux
 
 # Usage
 
-To use it:
+See:
 
-    $ elm-docs --help
-
+    $ elm-doc --help

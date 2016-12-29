@@ -3,7 +3,7 @@ import os
 import os.path
 from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
-from elm_docs.tasks import create_tasks
+from elm_doc.tasks import create_tasks
 
 
 @click.command()

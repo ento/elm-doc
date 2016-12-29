@@ -1,7 +1,17 @@
-import pytest
-import py
+import os
+import os.path
 import json
 import tarfile
+
+import pytest
+import py
+
+import elm_doc
+
+
+@pytest.fixture(scope='session')
+def overlayer():
+    elm_doc.__path__.append(os.path.normpath(os.path.dirname(__file__)))
 
 
 @pytest.fixture

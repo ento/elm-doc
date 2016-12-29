@@ -1,6 +1,7 @@
 import pytest
 from click.testing import CliRunner
-from elm_docs import cli
+from elm_doc import cli
+import elm_doc
 
 
 @pytest.fixture

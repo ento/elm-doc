@@ -10,11 +10,11 @@ import urllib.request
 
 from doit.tools import create_folder
 
-from elm_docs import elm_platform
-from elm_docs import elm_package_overlayer_path
-from elm_docs import elm_package
-from elm_docs.elm_package import ElmPackage, ModuleName
-from elm_docs import page_template
+from elm_doc import elm_platform
+from elm_doc import elm_package_overlayer_path
+from elm_doc import elm_package
+from elm_doc.elm_package import ElmPackage, ModuleName
+from elm_doc import page_template
 
 
 def get_page_package_flags(package: ElmPackage, module : Optional[str] = None):

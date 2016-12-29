@@ -7,8 +7,8 @@ import tarfile
 import subprocess
 import shutil
 
-from elm_docs import elm_platform
-from elm_docs import elm_package
+from elm_doc import elm_platform
+from elm_doc import elm_package
 
 
 codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir, 'native', 'prepend_mountpoint.js'))
@@ -53,7 +53,7 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # todo: jscodeshift doesn't exit with 1 when there's an error
         env = {
             **os.environ,
-            **{'ELM_DOCS_MOUNT_POINT': mount_point},
+            **{'ELM_DOC_MOUNT_POINT': mount_point},
         }
         subprocess.check_call(
             ['./node_modules/.bin/jscodeshift',

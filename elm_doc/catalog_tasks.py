@@ -2,9 +2,9 @@ from typing import List
 from pathlib import Path
 import json
 
-from elm_docs.elm_package import ElmPackage
-from elm_docs import elm_package
-from elm_docs import page_template
+from elm_doc.elm_package import ElmPackage
+from elm_doc import elm_package
+from elm_doc import page_template
 
 
 

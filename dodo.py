@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 import conftest
-from elm_docs import elm_platform, elm_package
+from elm_doc import elm_platform, elm_package
 
 
 def task_create_elm_stuff_fixture():

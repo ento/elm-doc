@@ -1,10 +1,8 @@
-import os
-import os.path
 from collections import defaultdict
 import json
 
-import elm_docs
-from elm_docs import tasks
+import elm_doc
+from elm_doc import tasks
 
 
 def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
@@ -21,7 +19,6 @@ def test_create_tasks_only_project_modules(tmpdir, make_elm_project):
     modules = ['Main.elm']
     make_elm_project(elm_version, tmpdir, modules=modules)
     output_dir = tmpdir.join('docs')
-    elm_docs.__path__.append(os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir)))
     with tmpdir.as_cwd():
         tmpdir.join('README.md').write('hello')
 

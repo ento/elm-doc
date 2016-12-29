@@ -1,5 +1,5 @@
 module.exports = function(fileInfo, api) {
-  var mountPoint = process.env.ELM_DOCS_MOUNT_POINT;
+  var mountPoint = process.env.ELM_DOC_MOUNT_POINT;
 
   if (typeof mountPoint === 'undefined') {
     return;
