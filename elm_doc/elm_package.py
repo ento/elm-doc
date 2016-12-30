@@ -47,12 +47,12 @@ def description_path(package: ElmPackage) -> Path:
 
 
 def load_description(path: Path) -> Dict:
-    with open(path) as f:
+    with open(str(path)) as f:
         return json.load(f)
 
 
 def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
-    with open(package.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME) as f:
+    with open(str(package.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME)) as f:
         exact_deps = json.load(f)
     for name, version in exact_deps.items():
         yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version, is_dep=True)

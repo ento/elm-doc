@@ -13,7 +13,7 @@ def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = by_basename(tasks.create_tasks('.', output_dir))
+        result = by_basename(tasks.create_tasks('.', str(output_dir)))
         expected_task_names = [
             'build_package_docs_json',
             'package_page',
@@ -46,7 +46,7 @@ def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
         tmpdir.join('README.md').write('hello')
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
-        result = by_basename(tasks.create_tasks('.', output_dir))
+        result = by_basename(tasks.create_tasks('.', str(output_dir)))
 
         # artifacts and assets
         assert len(result['assets']) == 1

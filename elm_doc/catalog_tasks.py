@@ -8,7 +8,7 @@ from elm_doc import page_template
 
 
 def write_index_page(output_path: Path, mount_point: str = ''):
-    with open(output_path, 'w') as f:
+    with open(str(output_path), 'w') as f:
         f.write(page_template.render('Catalog', mount_point=mount_point))
 
 
@@ -20,13 +20,13 @@ def write_all_packages(packages: List[ElmPackage], output_path: Path):
             'versions': [package.version],
         },
         packages)
-    with open(output_path, 'w') as f:
+    with open(str(output_path), 'w') as f:
         json.dump(list(all_packages), f)
 
 
 def write_new_packages(packages: List[ElmPackage], output_path: Path):
     new_packages = map(lambda package: package.name, packages)
-    with open(output_path, 'w') as f:
+    with open(str(output_path), 'w') as f:
         json.dump(list(new_packages), f)
 
 

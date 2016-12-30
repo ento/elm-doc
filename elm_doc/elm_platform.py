@@ -9,15 +9,15 @@ def install(to: Path, elm_version: str):
             'elm': get_npm_version_range(elm_version)
         }
     }
-    with open(to / 'package.json', 'w') as f:
+    with open(str(to / 'package.json'), 'w') as f:
         json.dump(npm_package, f)
-    subprocess.check_call(['yarn', 'install'], cwd=to)
+    subprocess.check_call(['yarn', 'install'], cwd=str(to))
 
 
 def get_npm_executable_path(project_root: Path, executable: str):
     script = 'console.log(require("elm/platform").executablePaths["{}"])'.format(
         executable)
-    executable_path = subprocess.check_output(['node', '-e', script], cwd=project_root)
+    executable_path = subprocess.check_output(['node', '-e', script], cwd=str(project_root))
     return Path(executable_path.decode('utf-8').strip())
 
 

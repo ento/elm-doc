@@ -37,7 +37,7 @@ def make_elm_project(elm_stuff_fixture_path, module_fixture_path):
         root_dir.join('elm-package.json').write(json.dumps(elm_package))
         if copy_elm_stuff:
             with root_dir.as_cwd():
-                with tarfile.open(elm_stuff_fixture_path(elm_version)) as tar:
+                with tarfile.open(str(elm_stuff_fixture_path(elm_version))) as tar:
                     tar.extractall()
 
         module_root = module_fixture_path(elm_version)
