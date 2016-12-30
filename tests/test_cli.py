@@ -28,5 +28,5 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', str(output_dir), '.'])
-        assert not result.exception
+        assert not result.exception, result.output
         assert result.exit_code == 0
