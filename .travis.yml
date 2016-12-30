@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: true
 
 os:
   - linux
@@ -7,6 +7,7 @@ os:
 cache:
   directories:
     - $HOME/.cache/pip
+    - $HOME/.yarn-cache
 
 language: python
 
@@ -18,6 +19,7 @@ env:
     - TOXENV=sanity
     - TOXENV=py35
     - TOXENV=py36
+    - TOXENV=nightly WITH_YARN=true
     - TOXENV=nightly
     # Meta
     - TOXENV=flake8
@@ -33,6 +35,16 @@ before_install:
       tar xvfz git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz
       mv git-lfs-$GIT_LFS_VERSION/git-lfs $HOME/bin/git-lfs
       export PATH=$PATH:$HOME/bin/
+    fi
+  - |
+    if [[ $WITH_YARN == 'yes' ]]; then
+      # Repo for newer Node.js versions
+      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+      # Repo for Yarn
+      sudo apt-key adv --keyserver pgp.mit.edu --recv D101F7899D41F3C3
+      echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+      sudo apt-get update -qq
+      sudo apt-get install -y -qq yarn
     fi
 
 install:

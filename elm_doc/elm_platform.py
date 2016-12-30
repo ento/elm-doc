@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 import json
 
+from elm_doc import node_modules
+
 
 def install(to: Path, elm_version: str):
     npm_package = {
@@ -11,7 +13,7 @@ def install(to: Path, elm_version: str):
     }
     with open(str(to / 'package.json'), 'w') as f:
         json.dump(npm_package, f)
-    subprocess.check_call(['yarn', 'install'], cwd=str(to))
+    node_modules.install(cwd=str(to))
 
 
 def get_npm_executable_path(project_root: Path, executable: str):

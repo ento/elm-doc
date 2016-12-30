@@ -19,7 +19,7 @@ def create_tasks(
     output_path = Path(os.path.normpath(output_dir))
     elm_make = Path(os.path.normpath(elm_make)) if elm_make is not None else None
     # todo: gracefully handle missing elm-package.json
-    project_package = elm_package.from_path(Path(os.path.normpath(project_path)))
+    project_package = elm_package.from_path(Path(os.path.abspath(os.path.normpath(project_path))))
     # todo: gracefully handle missing exact-dependencies.json
     deps = list(elm_package.iter_dependencies(project_package))
     all_packages = [project_package] + deps

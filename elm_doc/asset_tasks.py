@@ -7,6 +7,7 @@ import shutil
 
 from elm_doc import elm_platform
 from elm_doc import elm_package
+from elm_doc import node_modules
 
 
 codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir, 'native', 'prepend_mountpoint.js'))
@@ -26,9 +27,7 @@ def build_assets(output_path: Path, mount_point: str = ''):
 
         # install elm
         elm_platform.install(root_path, package.elm_version)
-        subprocess.check_call(
-            ['yarn', 'add', 'jscodeshift'],
-            cwd=str(root_path))
+        node_modules.add('jscodeshift', cwd=str(root_path))
         subprocess.check_call(
             ['./node_modules/.bin/elm-package', 'install', '--yes'],
             cwd=str(root_path))
