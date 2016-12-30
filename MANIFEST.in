@@ -1,3 +1,6 @@
 include requirements.in *.txt *.py LICENSE README.md tox.ini .travis.yml
 recursive-include tests *.py
-exclude README.in dev-requirements.in
+recursive-include tests *.elm
+recursive-include tests *.tar.gz
+recursive-include native *.js
+exclude dev-requirements.in

@@ -18,7 +18,7 @@ PAGE_TEMPLATE = '''
   </script>
   </body>
 </html>
-'''
+'''  # noqa: E501
 
 
 def render(page_module: str, flags: dict = None, mount_point: str = ''):
