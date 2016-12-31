@@ -48,18 +48,21 @@ def build_assets(output_path: Path, mount_point: str = ''):
                  'artifacts/Page-{0}.js'.format(basename)],
                 cwd=str(root_path))
 
-        # todo: jscodeshift doesn't exit with 1 when there's an error
         env = dict(ChainMap(
             os.environ,
             {'ELM_DOC_MOUNT_POINT': mount_point},
         ))
-        subprocess.check_call(
+        output = subprocess.check_output(
             ['./node_modules/.bin/jscodeshift',
              '--transform',
              codeshifter,
              str(artifacts_path)],
             env=env,
-            cwd=str(root_path))
+            cwd=str(root_path),
+            stderr=subprocess.STDOUT,
+            universal_newlines=True)
+        # todo: jscodeshift doesn't exit with 1 when there's an error
+        assert 'ERROR' not in output, output
 
         # copy artifacts and assets
         shutil.copytree(str(artifacts_path), str(output_path / 'artifacts'))
