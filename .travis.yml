@@ -19,7 +19,7 @@ python:
 
 matrix:
   include:
-  - env: WITH_YARN=true
+  - env: WITH_YARN=yes
     python: "3.5"
 
 before_install:
