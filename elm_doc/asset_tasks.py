@@ -1,5 +1,6 @@
 import os
 import os.path
+from collections import ChainMap
 from tempfile import TemporaryDirectory
 from pathlib import Path
 import subprocess
@@ -48,10 +49,10 @@ def build_assets(output_path: Path, mount_point: str = ''):
                 cwd=str(root_path))
 
         # todo: jscodeshift doesn't exit with 1 when there's an error
-        env = {
-            **os.environ,
-            **{'ELM_DOC_MOUNT_POINT': mount_point},
-        }
+        env = dict(ChainMap(
+            os.environ,
+            {'ELM_DOC_MOUNT_POINT': mount_point},
+        ))
         subprocess.check_call(
             ['./node_modules/.bin/jscodeshift',
              '--transform',

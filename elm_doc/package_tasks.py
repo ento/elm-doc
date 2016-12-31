@@ -1,6 +1,7 @@
 from typing import List, Optional
 import os
 import os.path
+from collections import ChainMap
 from pathlib import Path
 import json
 import shutil
@@ -51,7 +52,10 @@ def build_package_docs_json(
         output_path: Path,
         package_modules: List[ModuleName],
         elm_make: Path = None):
-    elm_package_with_exposed_modules = {**package.description, **{'exposed-modules': package_modules}}
+    elm_package_with_exposed_modules = dict(ChainMap(
+        {'exposed-modules': package_modules},
+        package.description,
+    ))
     overlayer_path = elm_package_overlayer_path()
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
@@ -65,15 +69,15 @@ def build_package_docs_json(
             elm_platform.install(root_path, package.elm_version)
             elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
 
-        env = {
-            **os.environ,
-            **{
+        env = dict(ChainMap(
+            {
                 'USE_ELM_PACKAGE': str(overlayed_elm_package_path),
                 'INSTEAD_OF_ELM_PACKAGE': str(elm_package.description_path(package)),
                 'DYLD_INSERT_LIBRARIES': overlayer_path,
                 'LD_PRELOAD': overlayer_path,
-            }
-        }
+            },
+            os.environ,
+        ))
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(package.path),

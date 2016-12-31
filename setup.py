@@ -12,9 +12,6 @@ if sys.platform == 'darwin':
 
 ext = Extension('overlay_elm_package', sources=['native/overlay_elm_package.c'], libraries=["dl"])
 
-with open('requirements.in') as f:
-    dependencies = f.readlines()
-
 setup(
     name='elm-doc',
     version='0.1.0',
@@ -28,7 +25,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='any',
-    install_requires=dependencies,
+    install_requires=[
+        'click',
+        'doit',
+        'typing ; python_version < "3.5"',
+    ],
     ext_modules=[ext],
     entry_points={
         'console_scripts': [
@@ -51,6 +52,8 @@ setup(
         'Operating System :: MacOS',
         'Operating System :: Unix',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3 Only',
