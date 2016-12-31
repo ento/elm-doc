@@ -38,7 +38,7 @@ const char* replace_path(const char* pathname) {
     // not the elm-package.json to be replaced
     return pathname;
   }
-  fprintf(stderr, "replaced with %s\n", requested_replacement);
+  // fprintf(stderr, "replaced with %s\n", requested_replacement);
   return requested_replacement;
 }
 
