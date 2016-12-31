@@ -21,6 +21,8 @@ matrix:
   include:
   - env: WITH_YARN=yes
     python: "3.5"
+  - env: CHECK_INSTALL=yes
+    python: "3.5"
 
 before_install:
   - pip --version
@@ -54,7 +56,14 @@ before_script:
   - git lfs pull
 
 script:
-  - tox -v
+  - |
+    if [[ "$CHECK_INSTALL" == 'yes' ]]; then
+      pip install .
+      elm-doc --help
+      python -c 'import elm_doc; assert elm_doc.elm_package_overlayer_path()'
+    else
+      tox -v
+    fi
 
 after_success:
   - tox -e coverage-report
