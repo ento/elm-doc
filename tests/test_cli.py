@@ -24,9 +24,9 @@ def test_cli_in_empty_project(tmpdir, runner):
 
 def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
     elm_version = '0.18.0'
-    make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
-    output_dir = tmpdir.join('docs')
+    project_path = tmpdir.mkdir('frontend')
+    make_elm_project(elm_version, project_path, copy_elm_stuff=True)
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', str(output_dir), '.'])
+        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend'])
         assert not result.exception, result.output
         assert result.exit_code == 0
