@@ -11,7 +11,7 @@ from elm_doc import elm_package
 from elm_doc import node_modules
 
 
-codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir, 'native', 'prepend_mountpoint.js'))
+codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), 'native', 'prepend_mountpoint.js'))
 
 
 def build_assets(output_path: Path, mount_point: str = ''):

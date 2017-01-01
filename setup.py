@@ -10,7 +10,7 @@ if sys.platform == 'darwin':
     vars = sysconfig.get_config_vars()
     vars['LDSHARED'] = vars['LDSHARED'].replace('-bundle', '-dynamiclib')
 
-ext = Extension('overlay_elm_package', sources=['native/overlay_elm_package.c'], libraries=["dl"])
+ext = Extension('overlay_elm_package', sources=['src/elm_doc/native/overlay_elm_package.c'], libraries=["dl"])
 
 setup(
     name='elm-doc',
@@ -21,8 +21,6 @@ setup(
     author_email='ento.entotto@gmail.com',
     description='Generate your own Elm package documentation site',
     long_description=__doc__,
-    packages=find_packages(exclude=['tests']),
-    include_package_data=True,
     zip_safe=False,
     platforms='any',
     install_requires=[
@@ -30,6 +28,10 @@ setup(
         'doit',
         'typing ; python_version < "3.5"',
     ],
+    packages=find_packages('src', exclude=['tests']),
+    package_dir={'': 'src'},
+    package_data={'': ['elm_doc/native/*.js']},
+    include_package_data=True,
     ext_modules=[ext],
     entry_points={
         'console_scripts': [
