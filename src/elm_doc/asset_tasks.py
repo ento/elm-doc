@@ -64,6 +64,10 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # todo: jscodeshift doesn't exit with 1 when there's an error
         assert 'ERROR' not in output, output
 
-        # copy artifacts and assets
+        # copy artifacts
+        shutil.rmtree(str(output_path / 'artifacts'), ignore_errors=True)
         shutil.copytree(str(artifacts_path), str(output_path / 'artifacts'))
+
+        # copy assets
+        shutil.rmtree(str(output_path / 'assets'), ignore_errors=True)
         shutil.copytree(str(root_path / 'assets'), str(output_path / 'assets'))
