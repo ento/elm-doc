@@ -12,21 +12,22 @@ cache:
 language: python
 
 python:
+  - 3.4
   - 3.5
+  - 3.6
+  - nightly
 
-env:
-  matrix:
-    - TOXENV=sanity
-    - TOXENV=py35
-    - TOXENV=py36
-    - TOXENV=nightly WITH_YARN=true
-    - TOXENV=nightly
-    # Meta
-    - TOXENV=flake8
-    - TOXENV=manifest
+matrix:
+  include:
+  - env: WITH_YARN=yes
+    python: "3.5"
+  - env: CHECK_INSTALL=yes
+    python: "3.5"
 
 before_install:
+  - pip --version
   - pip install codecov
+  - pip install -U pip setuptools
   - GIT_LFS_VERSION=1.5.4
   - |
     if [[ $TRAVIS_OS_NAME == 'linux' ]]; then
@@ -48,14 +49,21 @@ before_install:
     fi
 
 install:
-  - pip install tox
+  - pip install tox-travis
 
 before_script:
   - git lfs version
   - git lfs pull
 
 script:
-  - tox
+  - |
+    if [[ "$CHECK_INSTALL" == 'yes' ]]; then
+      pip install .
+      elm-doc --help
+      python -c 'import elm_doc; assert elm_doc.elm_package_overlayer_path()'
+    else
+      tox -v
+    fi
 
 after_success:
   - tox -e coverage-report

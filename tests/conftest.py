@@ -11,21 +11,21 @@ import elm_doc
 
 @pytest.fixture(scope='session')
 def overlayer():
-    elm_doc.__path__.append(os.path.normpath(os.path.dirname(__file__)))
+    elm_doc.__path__.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
 
 @pytest.fixture
 def elm_stuff_fixture_path():
     def for_version(elm_version):
         filename = '{}-core-elm-stuff.tar.gz'.format(elm_version)
-        return py.path.local(__file__).dirpath('tests', 'fixtures', filename)
+        return py.path.local(__file__).dirpath('fixtures', filename)
     return for_version
 
 
 @pytest.fixture
 def module_fixture_path():
     def for_version(elm_version):
-        return py.path.local(__file__).dirpath('tests', 'fixtures', elm_version)
+        return py.path.local(__file__).dirpath('fixtures', elm_version)
     return for_version
 
 

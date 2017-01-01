@@ -28,9 +28,9 @@ def main(output, elm_make, mount_at, exclude, project_path):
             elm_doc.__path__.append(os.path.abspath(os.environ['ELM_DOC_EXTENSION_PATH']))
         exclude_modules = exclude.split(',') if exclude else []
         return create_tasks(
-            project_path,
-            output,
-            elm_make=elm_make,
+            os.path.abspath(project_path),
+            os.path.abspath(output),
+            elm_make=os.path.abspath(elm_make) if elm_make is not None else None,
             exclude_modules=exclude_modules,
             mount_point=mount_at)
     result = DoitMain(ModuleTaskLoader(locals())).run(['--verbosity', '0'])
