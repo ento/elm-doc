@@ -9,11 +9,13 @@ import shutil
 from elm_doc import elm_platform
 from elm_doc import elm_package
 from elm_doc import node_modules
+from elm_doc.decorators import print_subprocess_error
 
 
 codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), 'native', 'prepend_mountpoint.js'))
 
 
+@print_subprocess_error
 def build_assets(output_path: Path, mount_point: str = ''):
     tarball = 'https://api.github.com/repos/elm-lang/package.elm-lang.org/tarball'
     with TemporaryDirectory() as tmpdir:
@@ -23,7 +25,9 @@ def build_assets(output_path: Path, mount_point: str = ''):
         subprocess.check_call(
             'curl -L -s {tarball} | tar xz --strip-components 1'.format(tarball=tarball),
             shell=True,
-            cwd=str(root_path))
+            cwd=str(root_path),
+            stderr=subprocess.STDOUT,
+        )
         package = elm_package.from_path(root_path)
 
         # install elm
@@ -31,7 +35,9 @@ def build_assets(output_path: Path, mount_point: str = ''):
         node_modules.add('jscodeshift', cwd=str(root_path))
         subprocess.check_call(
             ['./node_modules/.bin/elm-package', 'install', '--yes'],
-            cwd=str(root_path))
+            cwd=str(root_path),
+            stderr=subprocess.STDOUT,
+        )
 
         # make artifacts
         artifacts_path = root_path / 'artifacts'
@@ -46,7 +52,9 @@ def build_assets(output_path: Path, mount_point: str = ''):
                  str(main_elm),
                  '--output',
                  'artifacts/Page-{0}.js'.format(basename)],
-                cwd=str(root_path))
+                cwd=str(root_path),
+                stderr=subprocess.STDOUT,
+            )
 
         env = dict(ChainMap(
             os.environ,
