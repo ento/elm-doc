@@ -9,11 +9,19 @@ def runner():
     return CliRunner()
 
 
-def test_cli_missing_arg(runner, tmpdir):
+def test_cli_missing_arg(tmpdir, runner):
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main)
         assert result.exception
         assert result.exit_code == 2
+
+
+def test_cli_invalid_mount_at(tmpdir, runner):
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--mount-at', 'elm'])
+        assert result.exception
+        assert result.exit_code == 2
+        assert 'mount-at' in result.output
 
 
 def test_cli_in_empty_project(tmpdir, runner):
@@ -21,6 +29,20 @@ def test_cli_in_empty_project(tmpdir, runner):
         result = runner.invoke(cli.main, ['--output', 'docs', '.'])
         assert result.exception
         assert result.exit_code != 0
+
+
+def test_cli_doit_only_arg_in_real_project(tmpdir, runner, make_elm_project):
+    elm_version = '0.18.0'
+    project_path = tmpdir.mkdir('frontend')
+    make_elm_project(elm_version, project_path)
+
+    with tmpdir.as_cwd():
+        tmpdir.mkdir('docs')
+        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend', 'clean', '--dry-run'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        assert tmpdir.join('docs').check(exists=True)
 
 
 def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
@@ -73,7 +95,7 @@ def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', 'frontend'])
+        result = runner.invoke(cli.main, ['--validate', 'frontend'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 

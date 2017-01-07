@@ -104,7 +104,7 @@ def package_task_basename_factory(package):
 
 
 def create_package_tasks(
-        output_path: Path,
+        output_path: Optional[Path],
         package: ElmPackage,
         elm_make: Path = None,
         exclude_modules: List[str] = [],
@@ -112,11 +112,23 @@ def create_package_tasks(
         validate: bool = False):
     basename = package_task_basename_factory(package)
 
-    package_docs_root = output_path / 'packages' / package.user / package.project / package.version
     if package.is_dep:
         package_modules = package.exposed_modules
     else:
         package_modules = list(elm_package.glob_package_modules(package, exclude_modules))
+
+    if validate:
+        yield {
+            'basename': basename('validate_package_docs_json'),
+            'actions': [(build_package_docs_json,
+                         (package, package_modules),
+                         {'elm_make': elm_make, 'validate': True})],
+            'targets': [],
+            # 'file_dep': [all_elm_files_in_source_dirs] # todo
+        }
+        return
+
+    package_docs_root = output_path / 'packages' / package.user / package.project / package.version
 
     # package documentation.json
     docs_json_path = package_docs_root / 'documentation.json'
@@ -129,15 +141,6 @@ def create_package_tasks(
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
             'uptodate': [True],
         }
-    elif validate:
-        yield {
-            'basename': basename('validate_package_docs_json'),
-            'actions': [(build_package_docs_json,
-                         (package, package_modules),
-                         {'elm_make': elm_make, 'validate': True})],
-            'targets': [],
-            # 'file_dep': [all_elm_files_in_source_dirs] # todo
-        }
     else:
         yield {
             'basename': basename('build_package_docs_json'),
@@ -148,9 +151,6 @@ def create_package_tasks(
             'targets': [docs_json_path],
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
         }
-
-    if validate:
-        return
 
     # package index page
     package_index_output = package_docs_root / 'index.html'
