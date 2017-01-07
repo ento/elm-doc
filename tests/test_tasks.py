@@ -43,6 +43,19 @@ def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
         assert basenames_in_first_seen_order(result) == expected_task_names
 
 
+def test_create_tasks_for_validation(tmpdir, make_elm_project):
+    elm_version = '0.18.0'
+    make_elm_project(elm_version, tmpdir)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = list(tasks.create_tasks('.', str(output_dir), validate=True))
+
+        expected_task_names = [
+            'validate_package_docs_json',
+            ]
+        assert basenames_in_first_seen_order(result) == expected_task_names
+
+
 def basenames_in_first_seen_order(tasks):
     rv = []
     seen = set()

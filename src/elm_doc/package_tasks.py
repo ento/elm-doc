@@ -51,9 +51,10 @@ def copy_package_readme(package_readme: Path, output_path: Path):
 @capture_subprocess_error
 def build_package_docs_json(
         package: ElmPackage,
-        output_path: Path,
         package_modules: List[ModuleName],
-        elm_make: Path = None):
+        output_path: Path = None,
+        elm_make: Path = None,
+        validate: bool = False):
     elm_package_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': package_modules},
         package.description,
@@ -70,6 +71,9 @@ def build_package_docs_json(
         if elm_make is None:
             elm_platform.install(root_path, package.elm_version)
             elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
+
+        if validate:
+            output_path = '/dev/null'
 
         env = dict(ChainMap(
             {
@@ -102,7 +106,8 @@ def create_package_tasks(
         package: ElmPackage,
         elm_make: Path = None,
         exclude_modules: List[str] = [],
-        mount_point: str = ''):
+        mount_point: str = '',
+        validate: bool = False):
     basename = package_task_basename_factory(package)
 
     package_docs_root = output_path / 'packages' / package.user / package.project / package.version
@@ -122,14 +127,28 @@ def create_package_tasks(
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
             'uptodate': [True],
         }
+    elif validate:
+        yield {
+            'basename': basename('validate_package_docs_json'),
+            'actions': [(build_package_docs_json,
+                         (package, package_modules),
+                         {'elm_make': elm_make, 'validate': True})],
+            'targets': [],
+            # 'file_dep': [all_elm_files_in_source_dirs] # todo
+        }
     else:
         yield {
             'basename': basename('build_package_docs_json'),
             'actions': [(create_folder, (str(package_docs_root),)),
-                        (build_package_docs_json, (package, docs_json_path, package_modules, elm_make))],
+                        (build_package_docs_json,
+                         (package, package_modules),
+                         {'elm_make': elm_make, 'output_path': docs_json_path})],
             'targets': [docs_json_path],
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
         }
+
+    if validate:
+        return
 
     # package index page
     package_index_output = package_docs_root / 'index.html'

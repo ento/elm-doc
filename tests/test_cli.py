@@ -63,3 +63,43 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
         new_packages = output_dir.join('new-packages')
         assert new_packages.check()
         assert len(json.loads(new_packages.read())) > 0
+
+
+def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
+    elm_version = '0.18.0'
+    project_path = tmpdir.mkdir('frontend')
+    modules = ['Main.elm']
+    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        tmpdir.join('frontend', 'README.md').write('hello')
+        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', 'frontend'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        assert output_dir.check(exists=False)
+
+
+def test_cli_validate_invalid_project(capfd, tmpdir, runner, overlayer, make_elm_project):
+    elm_version = '0.18.0'
+    project_path = tmpdir.mkdir('frontend')
+    modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
+    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', 'frontend'])
+        out, err = capfd.readouterr()
+
+        problem_lines = [line for line in err.splitlines()
+                         if 'SYNTAX PROBLEM' in line or 'DOCUMENTATION ERROR' in line]
+        assert len(problem_lines) == 2
+
+        # traceback should be suppressed
+        assert 'CalledProcessError' not in result.output
+        assert 'CalledProcessError' not in out
+        assert 'CalledProcessError' not in err
+
+        assert result.exception, result.output
+        assert result.exit_code == 1
+
+        assert output_dir.check(exists=False)

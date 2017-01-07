@@ -15,7 +15,8 @@ def create_tasks(
         output_dir: str,
         elm_make: str = None,
         exclude_modules: List[str] = [],
-        mount_point: str = ''):
+        mount_point: str = '',
+        validate: bool = False):
     output_path = Path(os.path.normpath(output_dir))
     elm_make = Path(os.path.normpath(elm_make)) if elm_make is not None else None
     # todo: gracefully handle missing elm-package.json
@@ -29,8 +30,12 @@ def create_tasks(
             project_package,
             elm_make=elm_make,
             exclude_modules=exclude_modules,
-            mount_point=mount_point):
+            mount_point=mount_point,
+            validate=validate):
         yield task
+
+    if validate:
+        return
 
     for package in deps:
         for task in package_tasks.create_package_tasks(
