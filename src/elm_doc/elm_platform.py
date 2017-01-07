@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 
 from elm_doc import node_modules
-from elm_doc.decorators import print_subprocess_error
+from elm_doc.decorators import capture_subprocess_error
 
 
 def install(to: Path, elm_version: str):
@@ -17,14 +17,13 @@ def install(to: Path, elm_version: str):
     node_modules.install(cwd=str(to))
 
 
-@print_subprocess_error
+@capture_subprocess_error
 def get_npm_executable_path(project_root: Path, executable: str):
     script = 'console.log(require("elm/platform").executablePaths["{}"])'.format(
         executable)
     executable_path = subprocess.check_output(
         ['node', '-e', script],
         cwd=str(project_root),
-        stderr=subprocess.STDOUT,
     )
     return Path(executable_path.decode('utf-8').strip())
 
