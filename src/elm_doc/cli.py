@@ -20,7 +20,7 @@ def validate_mount_at(ctx, param, value):
     if len(value) == 0 or value.startswith('/'):
         return value
     else:
-        raise click.BadParameter('mount-at should be an absolute path, like /{}'.format(value))
+        raise click.BadParameter('should be an absolute path, like /{}'.format(value))
 
 
 def validate_elm_make(ctx, param, value):
