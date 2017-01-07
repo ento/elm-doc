@@ -24,9 +24,6 @@ class DoitException(click.ClickException):
 def main(output, elm_make, mount_at, exclude, validate, project_path):
     """Generate your own Elm package documentation site"""
     def task_build():
-        if 'ELM_DOC_EXTENSION_PATH' in os.environ:
-            import elm_doc
-            elm_doc.__path__.append(os.path.abspath(os.environ['ELM_DOC_EXTENSION_PATH']))
         exclude_modules = exclude.split(',') if exclude else []
         return create_tasks(
             os.path.abspath(project_path),
