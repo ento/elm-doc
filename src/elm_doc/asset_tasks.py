@@ -9,13 +9,13 @@ import shutil
 from elm_doc import elm_platform
 from elm_doc import elm_package
 from elm_doc import node_modules
-from elm_doc.decorators import print_subprocess_error
+from elm_doc.decorators import capture_subprocess_error
 
 
 codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), 'native', 'prepend_mountpoint.js'))
 
 
-@print_subprocess_error
+@capture_subprocess_error
 def build_assets(output_path: Path, mount_point: str = ''):
     tarball = 'https://api.github.com/repos/elm-lang/package.elm-lang.org/tarball'
     with TemporaryDirectory() as tmpdir:
@@ -26,7 +26,6 @@ def build_assets(output_path: Path, mount_point: str = ''):
             'curl -L -s {tarball} | tar xz --strip-components 1'.format(tarball=tarball),
             shell=True,
             cwd=str(root_path),
-            stderr=subprocess.STDOUT,
         )
         package = elm_package.from_path(root_path)
 
@@ -36,7 +35,6 @@ def build_assets(output_path: Path, mount_point: str = ''):
         subprocess.check_call(
             ['./node_modules/.bin/elm-package', 'install', '--yes'],
             cwd=str(root_path),
-            stderr=subprocess.STDOUT,
         )
 
         # make artifacts
@@ -53,24 +51,28 @@ def build_assets(output_path: Path, mount_point: str = ''):
                  '--output',
                  'artifacts/Page-{0}.js'.format(basename)],
                 cwd=str(root_path),
-                stderr=subprocess.STDOUT,
             )
 
         env = dict(ChainMap(
             os.environ,
             {'ELM_DOC_MOUNT_POINT': mount_point},
         ))
-        output = subprocess.check_output(
-            ['./node_modules/.bin/jscodeshift',
+        codeshift_command = ['./node_modules/.bin/jscodeshift',
              '--transform',
              codeshifter,
-             str(artifacts_path)],
+             str(artifacts_path)]
+        proc = subprocess.Popen(
+            codeshift_command,
             env=env,
             cwd=str(root_path),
-            stderr=subprocess.STDOUT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             universal_newlines=True)
+        out, err = proc.communicate()
         # todo: jscodeshift doesn't exit with 1 when there's an error
-        assert 'ERROR' not in output, output
+        if ('ERROR' in out) or ('ERROR' in err) or (proc.returncode != 0):
+            raise subprocess.CalledProcessError(
+                proc.returncode, codeshift_command, out, err)
 
         # copy artifacts
         shutil.rmtree(str(output_path / 'artifacts'), ignore_errors=True)

@@ -2,13 +2,14 @@ import sys
 import functools
 import subprocess
 
+from doit.exceptions import TaskFailed
 
-def print_subprocess_error(fn):
+
+def capture_subprocess_error(fn):
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
         except subprocess.CalledProcessError as e:
-            print(e.output, file=sys.stderr)
-            raise
+            return TaskFailed('Error while executing {}'.format(' '.join(e.cmd)))
     return wrapper

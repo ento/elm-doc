@@ -16,7 +16,7 @@ from elm_doc import elm_package_overlayer_path
 from elm_doc import elm_package
 from elm_doc.elm_package import ElmPackage, ModuleName
 from elm_doc import page_template
-from elm_doc.decorators import print_subprocess_error
+from elm_doc.decorators import capture_subprocess_error
 
 
 def get_page_package_flags(package: ElmPackage, module: Optional[str] = None):
@@ -48,7 +48,7 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(str(package_readme), str(output_path))
 
 
-@print_subprocess_error
+@capture_subprocess_error
 def build_package_docs_json(
         package: ElmPackage,
         output_path: Path,
@@ -83,7 +83,6 @@ def build_package_docs_json(
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(package.path),
-            stderr=subprocess.STDOUT,
             env=env)
 
 
