@@ -24,6 +24,23 @@ def test_cli_invalid_mount_at(tmpdir, runner):
         assert 'mount-at' in result.output
 
 
+def test_cli_non_binary_elm_make(tmpdir, runner):
+    with tmpdir.as_cwd():
+        tmpdir.join('elm-make').write('binwrapped elm!')
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--elm-make', 'elm-make'])
+        assert result.exception
+        assert result.exit_code == 2, result.output
+        assert 'elm-make' in result.output
+
+
+def test_cli_non_existent_elm_make(tmpdir, runner):
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--elm-make', 'elm-make'])
+        assert result.exception
+        assert result.exit_code == 2, result.output
+        assert 'elm-make' in result.output
+
+
 def test_cli_in_empty_project(tmpdir, runner):
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', '.'])

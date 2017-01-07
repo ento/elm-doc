@@ -26,6 +26,7 @@ setup(
     install_requires=[
         'click',
         'doit',
+        'python-magic',
         'typing ; python_version < "3.5"',
     ],
     packages=find_packages('src', exclude=['tests']),
