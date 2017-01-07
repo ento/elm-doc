@@ -73,8 +73,10 @@ def build_package_docs_json(
             elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
 
         if validate:
+            # todo: support windows if we want to
             output_path = '/dev/null'
 
+        # todo: make overlayer support windows if we want to (can we?)
         env = dict(ChainMap(
             {
                 'USE_ELM_PACKAGE': str(overlayed_elm_package_path),
