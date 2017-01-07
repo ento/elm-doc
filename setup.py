@@ -16,7 +16,7 @@ setup(
     name='elm-doc',
     version='0.1.0',
     url='https://github.com/ento/elm-doc',
-    license='BSD',
+    license='BSD 3-clause',
     author='Marica Odagaki',
     author_email='ento.entotto@gmail.com',
     description='Generate your own Elm package documentation site',
