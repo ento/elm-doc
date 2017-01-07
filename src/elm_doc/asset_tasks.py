@@ -57,10 +57,11 @@ def build_assets(output_path: Path, mount_point: str = ''):
             os.environ,
             {'ELM_DOC_MOUNT_POINT': mount_point},
         ))
-        codeshift_command = ['./node_modules/.bin/jscodeshift',
-             '--transform',
-             codeshifter,
-             str(artifacts_path)]
+        codeshift_command = [
+            './node_modules/.bin/jscodeshift',
+            '--transform',
+            codeshifter,
+            str(artifacts_path)]
         proc = subprocess.Popen(
             codeshift_command,
             env=env,
