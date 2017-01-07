@@ -4,7 +4,7 @@ Generate static documentation of your Elm project.
 
 # Installation
 
-Requires Python 3.
+Requires Python >= 3.4.
 
 Via [pipsi](https://github.com/mitsuhiko/pipsi#readme):
 
