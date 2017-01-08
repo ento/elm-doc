@@ -1,5 +1,5 @@
 """
-Generate your own Elm package documentation site
+Generate static documentation for your Elm project.
 """
 import sys
 from setuptools import find_packages, setup
@@ -16,16 +16,17 @@ setup(
     name='elm-doc',
     version='0.1.0',
     url='https://github.com/ento/elm-doc',
-    license='BSD',
+    license='BSD 3-clause',
     author='Marica Odagaki',
     author_email='ento.entotto@gmail.com',
-    description='Generate your own Elm package documentation site',
+    description='Generate static documentation for your Elm project',
     long_description=__doc__,
     zip_safe=False,
     platforms='any',
     install_requires=[
         'click',
         'doit',
+        'python-magic',
         'typing ; python_version < "3.5"',
     ],
     packages=find_packages('src', exclude=['tests']),
@@ -40,10 +41,8 @@ setup(
     },
     classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        # 'Development Status :: 1 - Planning',
-        # 'Development Status :: 2 - Pre-Alpha',
-        # 'Development Status :: 3 - Alpha',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
+        #'Development Status :: 4 - Beta',
         # 'Development Status :: 5 - Production/Stable',
         # 'Development Status :: 6 - Mature',
         # 'Development Status :: 7 - Inactive',

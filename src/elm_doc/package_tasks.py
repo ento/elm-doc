@@ -67,7 +67,6 @@ def build_package_docs_json(
         with open(str(overlayed_elm_package_path), 'w') as f:
             json.dump(elm_package_with_exposed_modules, f)
 
-        # todo: warn when elm_make is pointing at binwrapped elm-make
         if elm_make is None:
             elm_platform.install(root_path, package.elm_version)
             elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
