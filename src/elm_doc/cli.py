@@ -55,20 +55,28 @@ if you installed Elm through npm, then try {}'''.format(perhaps_binwrap_of))
 @click.command(context_settings=dict(
     ignore_unknown_options=True,
 ))
-@click.option('--output', '-o')
-@click.option('--elm-make', callback=validate_elm_make,
+@click.option('--output', '-o',
+              metavar='dir')
+@click.option('--elm-make',
+              metavar='path/to/elm-make',
+              callback=validate_elm_make,
               help=('specify which elm-make to use. if not specified, '
                     'elm will be installed afresh in a temporary directory'))
-@click.option('--mount-at', default='', callback=validate_mount_at,
+@click.option('--mount-at',
+              metavar='/path',
+              default='',
+              callback=validate_mount_at,
               help='url path at which the docs will be served')
 @click.option('--exclude', '-x',
+              metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude')
-@click.option('--validate/--no-validate', default=False,
+@click.option('--validate/--no-validate',
+              default=False,
               help='validate all doc comments are in place without generating docs')
 @click.argument('project_path')
 @click.argument('doit_args', nargs=-1, type=click.UNPROCESSED)
 def main(output, elm_make, mount_at, exclude, validate, project_path, doit_args):
-    """Generate your own Elm package documentation site"""
+    """Generate static documentation for your Elm project"""
 
     if not validate and output is None:
         raise click.BadParameter('please specify --output directory')

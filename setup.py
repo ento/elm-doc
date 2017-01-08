@@ -1,5 +1,5 @@
 """
-Generate your own Elm package documentation site
+Generate static documentation for your Elm project.
 """
 import sys
 from setuptools import find_packages, setup
@@ -19,7 +19,7 @@ setup(
     license='BSD 3-clause',
     author='Marica Odagaki',
     author_email='ento.entotto@gmail.com',
-    description='Generate your own Elm package documentation site',
+    description='Generate static documentation for your Elm project',
     long_description=__doc__,
     zip_safe=False,
     platforms='any',
