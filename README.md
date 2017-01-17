@@ -17,7 +17,8 @@ I personally use [spark](https://github.com/rif/spark):
 
     $ (cd doc && ~/go/bin/spark)
 
-You can further specify `--elm-make` to avoid the overhead of installing Elm:
+You can further point `--elm-make` at your existing installation of `elm-make` binary
+to avoid the overhead of installing Elm:
 
     $ elm-doc . --output docs \
         --elm-make ui/node_modules/elm/Elm-Platform/*/.cabal-sandbox/bin/elm-make
@@ -42,5 +43,11 @@ For a full list of options, see:
 
 ## Installation
 
-    $ pip install --upgrade pip
+Make sure you have [yarn](https://yarnpkg.com/en/docs/install).
+
+In a Python (>=3.4) [virtualenv](https://docs.python.org/3.6/library/venv.html#creating-virtual-environments) or globally:
+
+    $ pip install --upgrade pip setuptools
     $ pip install elm-doc
+
+Dependency on `python-magic` may require you to [install more stuff](https://github.com/ahupp/python-magic#dependencies).
