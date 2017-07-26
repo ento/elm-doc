@@ -12,7 +12,7 @@ import urllib.request
 from doit.tools import create_folder
 
 from elm_doc import elm_platform
-from elm_doc import elm_package_overlayer_path
+from elm_doc import elm_package_overlayer_env
 from elm_doc import elm_package
 from elm_doc.elm_package import ElmPackage, ModuleName
 from elm_doc import page_template
@@ -59,7 +59,6 @@ def build_package_docs_json(
         {'exposed-modules': package_modules},
         package.description,
     ))
-    overlayer_path = elm_package_overlayer_path()
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 
@@ -75,16 +74,10 @@ def build_package_docs_json(
             # todo: support windows if we want to
             output_path = '/dev/null'
 
-        # todo: make overlayer support windows if we want to (can we?)
-        env = dict(ChainMap(
-            {
-                'USE_ELM_PACKAGE': str(overlayed_elm_package_path),
-                'INSTEAD_OF_ELM_PACKAGE': str(elm_package.description_path(package)),
-                'DYLD_INSERT_LIBRARIES': overlayer_path,
-                'LD_PRELOAD': overlayer_path,
-            },
-            os.environ,
-        ))
+        env = elm_package_overlayer_env(
+            str(overlayed_elm_package_path),
+            str(elm_package.description_path(package)),
+            os.environ)
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(package.path),

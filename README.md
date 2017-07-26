@@ -51,3 +51,10 @@ In a Python (>=3.4) [virtualenv](https://docs.python.org/3.6/library/venv.html#c
     $ pip install elm-doc
 
 Dependency on `python-magic` may require you to [install more stuff](https://github.com/ahupp/python-magic#dependencies).
+
+## Development
+
+Running tests:
+
+    $ pip install -r dev-requirements.txt
+    $ tox -e py35,...

@@ -27,6 +27,7 @@ setup(
         'click',
         'doit',
         'python-magic',
+        'retrying',
         'typing ; python_version < "3.5"',
     ],
     packages=find_packages('src', exclude=['tests']),
