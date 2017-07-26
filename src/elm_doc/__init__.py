@@ -1,4 +1,3 @@
-import os
 from collections import ChainMap
 import imp
 from distutils.sysconfig import get_python_lib
