@@ -76,7 +76,8 @@ def build_package_docs_json(
 
         env = elm_package_overlayer_env(
             str(overlayed_elm_package_path),
-            str(elm_package.description_path(package)))
+            str(elm_package.description_path(package)),
+            os.environ)
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(package.path),
