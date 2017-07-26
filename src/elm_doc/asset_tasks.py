@@ -6,6 +6,8 @@ from pathlib import Path
 import subprocess
 import shutil
 
+from retrying import retry
+
 from elm_doc import elm_platform
 from elm_doc import elm_package
 from elm_doc import node_modules
@@ -32,10 +34,7 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # install elm
         elm_platform.install(root_path, package.elm_version)
         node_modules.add('jscodeshift', cwd=str(root_path))
-        subprocess.check_call(
-            ['./node_modules/.bin/elm-package', 'install', '--yes'],
-            cwd=str(root_path),
-        )
+        _install_elm_packages(str(root_path))
 
         # make artifacts
         artifacts_path = root_path / 'artifacts'
@@ -82,3 +81,15 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # copy assets
         shutil.rmtree(str(output_path / 'assets'), ignore_errors=True)
         shutil.copytree(str(root_path / 'assets'), str(output_path / 'assets'))
+
+
+@retry(
+    retry_on_exception=lambda e: isinstance(e, subprocess.CalledProcessError),
+    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
+    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
+    stop_max_attempt_number=10)
+def _install_elm_packages(root_path):
+    subprocess.check_call(
+        ['./node_modules/.bin/elm-package', 'install', '--yes'],
+        cwd=root_path,
+    )
