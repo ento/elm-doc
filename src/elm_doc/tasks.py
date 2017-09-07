@@ -14,6 +14,7 @@ def create_tasks(
         project_path: str,
         output_dir: Optional[str] = None,
         elm_make: Optional[str] = None,
+        include_paths: List[str] = [],
         exclude_modules: List[str] = [],
         mount_point: str = '',
         validate: bool = False):
@@ -29,6 +30,7 @@ def create_tasks(
             output_path,
             project_package,
             elm_make=elm_make,
+            include_paths=include_paths,
             exclude_modules=exclude_modules,
             mount_point=mount_point,
             validate=validate):

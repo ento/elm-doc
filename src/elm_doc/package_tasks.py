@@ -99,6 +99,7 @@ def create_package_tasks(
         output_path: Optional[Path],
         package: ElmPackage,
         elm_make: Path = None,
+        include_paths: List[str] = [],
         exclude_modules: List[str] = [],
         mount_point: str = '',
         validate: bool = False):
@@ -107,7 +108,8 @@ def create_package_tasks(
     if package.is_dep:
         package_modules = package.exposed_modules
     else:
-        package_modules = list(elm_package.glob_package_modules(package, exclude_modules))
+        package_modules = list(elm_package.glob_package_modules(
+            package, include_paths, exclude_modules))
 
     if validate:
         yield {
