@@ -11,17 +11,15 @@ from elm_doc import catalog_tasks
 
 
 def create_tasks(
-        project_path: str,
-        output_dir: Optional[str] = None,
-        elm_make: Optional[str] = None,
-        include_paths: List[str] = [],
+        project_path: Path,
+        output_path: Optional[Path] = None,
+        elm_make: Optional[Path] = None,
+        include_paths: List[Path] = [],
         exclude_modules: List[str] = [],
         mount_point: str = '',
         validate: bool = False):
-    output_path = Path(os.path.normpath(output_dir)) if output_dir is not None else None
-    elm_make = Path(os.path.normpath(elm_make)) if elm_make is not None else None
     # todo: gracefully handle missing elm-package.json
-    project_package = elm_package.from_path(Path(os.path.abspath(os.path.normpath(project_path))))
+    project_package = elm_package.from_path(project_path)
     # todo: gracefully handle missing exact-dependencies.json
     deps = list(elm_package.iter_dependencies(project_package))
     all_packages = [project_package] + deps

@@ -14,7 +14,7 @@ def test_glob_package_modules_includes_then_excludes(tmpdir, make_elm_project):
             'MissingModuleComment.elm',
             'PublicFunctionNotInAtDocs.elm',
         ])
-    package = elm_package.from_path(Path(tmpdir))
+    package = elm_package.from_path(Path(str(tmpdir)))
     include_patterns = ['Main.elm', 'MissingModuleComment.elm']
     exclude_patterns = ['MissingModuleComment']
     modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))
@@ -31,7 +31,7 @@ def test_glob_package_modules_includes_all_by_default(tmpdir, make_elm_project):
             'Main.elm',
             'MissingModuleComment.elm',
         ])
-    package = elm_package.from_path(Path(tmpdir))
+    package = elm_package.from_path(Path(str(tmpdir)))
     include_patterns = []
     exclude_patterns = []
     modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))

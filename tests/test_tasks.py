@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from elm_doc import tasks
 
 
@@ -6,7 +8,7 @@ def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks('.', str(output_dir)))
+        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
         expected_task_names = [
             'build_package_docs_json',
             'package_page',
@@ -28,7 +30,7 @@ def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         tmpdir.join('README.md').write('hello')
-        result = list(tasks.create_tasks('.', str(output_dir)))
+        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
 
         expected_task_names = [
             'build_package_docs_json',
@@ -48,7 +50,7 @@ def test_create_tasks_for_validation(tmpdir, make_elm_project):
     make_elm_project(elm_version, tmpdir)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks('.', str(output_dir), validate=True))
+        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir)), validate=True))
 
         expected_task_names = [
             'validate_package_docs_json',
