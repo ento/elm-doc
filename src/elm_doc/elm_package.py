@@ -74,12 +74,12 @@ def glob_package_modules(
         for elm_file in elm_files:
             if elm_file.relative_to(package.path).parts[0] == STUFF_DIRECTORY:
                 continue
-            rel_path = elm_file.relative_to(source_dir)
 
-            if include_paths and not any(_matches_include_path(rel_path, include_path)
+            if include_paths and not any(_matches_include_path(elm_file, include_path)
                                          for include_path in include_paths):
                 continue
 
+            rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
 
             if any(fnmatch.fnmatch(module_name, module_pattern)
