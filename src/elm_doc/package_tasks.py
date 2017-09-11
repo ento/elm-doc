@@ -7,9 +7,11 @@ import json
 import shutil
 from tempfile import TemporaryDirectory
 import subprocess
+import urllib.error
 import urllib.request
 
 from doit.tools import create_folder
+from retrying import retry
 
 from elm_doc import elm_platform
 from elm_doc import elm_package_overlayer_env
@@ -84,6 +86,11 @@ def build_package_docs_json(
             env=env)
 
 
+@retry(
+    retry_on_exception=lambda e: isinstance(e, urllib.error.URLError),
+    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
+    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
+    stop_max_attempt_number=10)
 def download_package_docs_json(package: ElmPackage, output_path: Path):
     url = 'http://package.elm-lang.org/packages/{name}/{version}/documentation.json'.format(
         name=package.name, version=package.version
