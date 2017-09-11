@@ -77,7 +77,7 @@ def glob_package_modules(
             rel_path = elm_file.relative_to(source_dir)
 
             if include_paths and not any(_matches_include_path(rel_path, include_path)
-                                            for include_path in include_paths):
+                                         for include_path in include_paths):
                 continue
 
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))

@@ -1,7 +1,6 @@
 '''
 '''
 from typing import List, Optional
-import os.path
 from pathlib import Path
 
 from elm_doc import elm_package
