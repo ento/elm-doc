@@ -67,7 +67,8 @@ def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
 def glob_package_modules(
         package: ElmPackage,
         include_paths: List[Path] = [],
-        exclude_patterns: List[str] = []) -> Iterator[ModuleName]:
+        exclude_patterns: List[str] = [],
+        force_exclusion: bool = False) -> Iterator[ModuleName]:
     for source_dir_name in package.source_directories:
         source_dir = package.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
@@ -82,8 +83,11 @@ def glob_package_modules(
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
 
-            if any(fnmatch.fnmatch(module_name, module_pattern)
-                   for module_pattern in exclude_patterns):
+            # check for excludes if there's no explicit includes, or if
+            # there are explicit includes and exclusion is requested specifically.
+            check_excludes = (not include_paths) or force_exclusion
+            if check_excludes and any(fnmatch.fnmatch(module_name, module_pattern)
+                                      for module_pattern in exclude_patterns):
                 continue
 
             yield module_name

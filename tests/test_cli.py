@@ -119,7 +119,7 @@ def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_subset_of_real_project(tmpdir, runner, overlayer, make_elm_project):
+def test_cli_validate_subset_of_real_project_with_forced_exclusion(tmpdir, runner, overlayer, make_elm_project):
     elm_version = '0.18.0'
     project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm', 'MissingModuleComment.elm']
@@ -127,14 +127,23 @@ def test_cli_validate_subset_of_real_project(tmpdir, runner, overlayer, make_elm
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--validate', 'frontend', 'Main.elm'])
+        result = runner.invoke(cli.main, [
+            'frontend',
+            'frontend/Main.elm',
+            'frontend/MissingModuleComment.elm',
+            '--validate',
+            '--exclude',
+            'MissingModuleComment',
+            '--force-exclusion',
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
+        # validation should not output anything
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_invalid_project(capfd, tmpdir, runner, overlayer, make_elm_project):
+def test_cli_validate_invalid_project_with_masked_exclude(capfd, tmpdir, runner, overlayer, make_elm_project):
     elm_version = '0.18.0'
     project_path = tmpdir.mkdir('frontend')
     modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']

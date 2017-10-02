@@ -77,6 +77,10 @@ def _resolve_path(path: str) -> Path:
 @click.option('--exclude', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
+@click.option('--force-exclusion/--no-force-exclusion',
+              default=False,
+              help=('force excluding modules specified by --exclude even if '
+                    'they are explicitly specified as include_paths'))
 @click.option('--validate/--no-validate',
               default=False,
               help='validate all doc comments are in place without generating docs')
@@ -84,7 +88,16 @@ def _resolve_path(path: str) -> Path:
               help='options to pass to doit.doit_cmd.DoitMain.run')
 @click.argument('project_path')
 @click.argument('include_paths', nargs=-1)
-def main(output, elm_make, mount_at, exclude, validate, doit_args, project_path, include_paths):
+def main(
+        output,
+        elm_make,
+        mount_at,
+        exclude,
+        force_exclusion,
+        validate,
+        doit_args,
+        project_path,
+        include_paths):
     """Generate static documentation for your Elm project"""
 
     if not validate and output is None:
@@ -99,6 +112,7 @@ def main(output, elm_make, mount_at, exclude, validate, doit_args, project_path,
             elm_make=_resolve_path(elm_make) if elm_make is not None else None,
             include_paths=resolved_include_paths,
             exclude_modules=exclude_modules,
+            force_exclusion=force_exclusion,
             mount_point=mount_at,
             validate=validate)
 

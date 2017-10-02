@@ -108,6 +108,7 @@ def create_package_tasks(
         elm_make: Path = None,
         include_paths: List[str] = [],
         exclude_modules: List[str] = [],
+        force_exclusion: bool = False,
         mount_point: str = '',
         validate: bool = False):
     basename = package_task_basename_factory(package)
@@ -116,7 +117,7 @@ def create_package_tasks(
         package_modules = package.exposed_modules
     else:
         package_modules = list(elm_package.glob_package_modules(
-            package, include_paths, exclude_modules))
+            package, include_paths, exclude_modules, force_exclusion))
 
     if validate:
         yield {
