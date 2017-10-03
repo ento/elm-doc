@@ -1,6 +1,7 @@
 import os
 import os.path
 import shutil
+from pathlib import Path
 
 import click
 import magic
@@ -52,6 +53,12 @@ def validate_elm_make(ctx, param, value):
 if you installed Elm through npm, then try {}'''.format(perhaps_binwrap_of))
 
 
+def _resolve_path(path: str) -> Path:
+    # not using Path.resolve() for now because we don't expect strict
+    # existence checking. maybe we should.
+    return Path(os.path.normpath(os.path.abspath(path)))
+
+
 @click.command(context_settings=dict(
     ignore_unknown_options=True,
 ))
@@ -69,29 +76,48 @@ if you installed Elm through npm, then try {}'''.format(perhaps_binwrap_of))
               help='url path at which the docs will be served')
 @click.option('--exclude', '-x',
               metavar='module1,module2.*',
-              help='comma-separated fnmatch pattern of modules to exclude')
+              help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
+@click.option('--force-exclusion/--no-force-exclusion',
+              default=False,
+              help=('force excluding modules specified by --exclude even if '
+                    'they are explicitly specified as include_paths'))
 @click.option('--validate/--no-validate',
               default=False,
               help='validate all doc comments are in place without generating docs')
+@click.option('--doit-args',
+              help='options to pass to doit.doit_cmd.DoitMain.run')
 @click.argument('project_path')
-@click.argument('doit_args', nargs=-1, type=click.UNPROCESSED)
-def main(output, elm_make, mount_at, exclude, validate, project_path, doit_args):
+@click.argument('include_paths', nargs=-1)
+def main(
+        output,
+        elm_make,
+        mount_at,
+        exclude,
+        force_exclusion,
+        validate,
+        doit_args,
+        project_path,
+        include_paths):
     """Generate static documentation for your Elm project"""
 
     if not validate and output is None:
         raise click.BadParameter('please specify --output directory')
 
     def task_build():
+        resolved_include_paths = [_resolve_path(path) for path in include_paths]
         exclude_modules = exclude.split(',') if exclude else []
         return create_tasks(
-            os.path.abspath(project_path),
-            os.path.abspath(output) if output is not None else None,
-            elm_make=os.path.abspath(elm_make) if elm_make is not None else None,
+            _resolve_path(project_path),
+            _resolve_path(output) if output is not None else None,
+            elm_make=_resolve_path(elm_make) if elm_make is not None else None,
+            include_paths=resolved_include_paths,
             exclude_modules=exclude_modules,
+            force_exclusion=force_exclusion,
             mount_point=mount_at,
             validate=validate)
 
-    result = DoitMain(ModuleTaskLoader(locals())).run(doit_args)
+    result = DoitMain(ModuleTaskLoader(locals())).run(
+        doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
         raise DoitException('', result)
 

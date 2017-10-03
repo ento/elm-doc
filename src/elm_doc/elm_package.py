@@ -64,16 +64,39 @@ def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
         yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version, is_dep=True)
 
 
-def glob_package_modules(package: ElmPackage, exclude_patterns: List[str] = []) -> Iterator[ModuleName]:
+def glob_package_modules(
+        package: ElmPackage,
+        include_paths: List[Path] = [],
+        exclude_patterns: List[str] = [],
+        force_exclusion: bool = False) -> Iterator[ModuleName]:
     for source_dir_name in package.source_directories:
         source_dir = package.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
         for elm_file in elm_files:
             if elm_file.relative_to(package.path).parts[0] == STUFF_DIRECTORY:
                 continue
+
+            if include_paths and not any(_matches_include_path(elm_file, include_path)
+                                         for include_path in include_paths):
+                continue
+
             rel_path = elm_file.relative_to(source_dir)
             module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
-            if any(fnmatch.fnmatch(module_name, pattern)
-                   for pattern in exclude_patterns):
+
+            # check for excludes if there's no explicit includes, or if
+            # there are explicit includes and exclusion is requested specifically.
+            check_excludes = (not include_paths) or force_exclusion
+            if check_excludes and any(fnmatch.fnmatch(module_name, module_pattern)
+                                      for module_pattern in exclude_patterns):
                 continue
+
             yield module_name
+
+
+def _matches_include_path(source_path: Path, include_path: Path):
+    try:
+        source_path.relative_to(include_path)
+    except ValueError:
+        return False
+    else:
+        return True

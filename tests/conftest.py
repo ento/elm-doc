@@ -31,8 +31,9 @@ def module_fixture_path():
 
 @pytest.fixture
 def make_elm_project(elm_stuff_fixture_path, module_fixture_path):
-    def for_version(elm_version, root_dir, package_overrides={}, copy_elm_stuff=False, modules=[]):
-        elm_package = dict(default_elm_package, **package_overrides)
+    def for_version(elm_version, root_dir, src_dir='.', package_overrides={}, copy_elm_stuff=False, modules=[]):
+        elm_package = dict(default_elm_package, **{'source-directories': [src_dir]})
+        elm_package.update(package_overrides)
         elm_package['elm-version'] = '{v} <= v <= {v}'.format(v=elm_version)
         root_dir.join('elm-package.json').write(json.dumps(elm_package))
         if copy_elm_stuff:
@@ -40,9 +41,10 @@ def make_elm_project(elm_stuff_fixture_path, module_fixture_path):
                 with tarfile.open(str(elm_stuff_fixture_path(elm_version))) as tar:
                     tar.extractall()
 
+        root_dir.ensure(src_dir, dir=True)
         module_root = module_fixture_path(elm_version)
         for module in modules:
-            root_dir.join(module).write(module_root.join(module).read())
+            root_dir.join(src_dir, module).write(module_root.join(module).read())
 
     return for_version
 

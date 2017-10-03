@@ -7,9 +7,11 @@ import json
 import shutil
 from tempfile import TemporaryDirectory
 import subprocess
+import urllib.error
 import urllib.request
 
 from doit.tools import create_folder
+from retrying import retry
 
 from elm_doc import elm_platform
 from elm_doc import elm_package_overlayer_env
@@ -84,6 +86,11 @@ def build_package_docs_json(
             env=env)
 
 
+@retry(
+    retry_on_exception=lambda e: isinstance(e, urllib.error.URLError),
+    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
+    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
+    stop_max_attempt_number=10)
 def download_package_docs_json(package: ElmPackage, output_path: Path):
     url = 'http://package.elm-lang.org/packages/{name}/{version}/documentation.json'.format(
         name=package.name, version=package.version
@@ -99,7 +106,9 @@ def create_package_tasks(
         output_path: Optional[Path],
         package: ElmPackage,
         elm_make: Path = None,
+        include_paths: List[str] = [],
         exclude_modules: List[str] = [],
+        force_exclusion: bool = False,
         mount_point: str = '',
         validate: bool = False):
     basename = package_task_basename_factory(package)
@@ -107,7 +116,8 @@ def create_package_tasks(
     if package.is_dep:
         package_modules = package.exposed_modules
     else:
-        package_modules = list(elm_package.glob_package_modules(package, exclude_modules))
+        package_modules = list(elm_package.glob_package_modules(
+            package, include_paths, exclude_modules, force_exclusion))
 
     if validate:
         yield {

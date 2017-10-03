@@ -26,16 +26,20 @@ to avoid the overhead of installing Elm:
 `--validate` can check if you have all the necessary documentation in place:
 
     $ elm-doc . \
-        --elm-make ui/node_modules/elm/Elm-Platform/*/.cabal-sandbox/bin/elm-make
+        --elm-make ui/node_modules/elm/Elm-Platform/*/.cabal-sandbox/bin/elm-make \
         --validate
 
 `elm-doc` assumes you're working on an app, not a package; it will try to generate
-documentation for all modules regardless of what you have in `exposed-modules`.
-You can `--exclude` modules from the list of all modules:
+documentation for all modules regardless of what you have in the `exposed-modules` of
+your `elm-package.json`.
+You can whitelist which files and directories to include in the list of modules,
+and then `--exclude` modules by using [fnmatch](https://docs.python.org/3/library/fnmatch.html)
+patterns:
 
     $ elm-doc . --output docs \
-        --elm-make ui/node_modules/elm/Elm-Platform/*/.cabal-sandbox/bin/elm-make
-        --exclude 'Page.*'
+        --elm-make ui/node_modules/elm/Elm-Platform/*/.cabal-sandbox/bin/elm-make \
+        --exclude '*.Private.*,Blacklist.*'
+        src/Whitelist src/Main.elm
 
 For a full list of options, see:
 
