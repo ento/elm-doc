@@ -42,6 +42,7 @@ def build_package_page(package: ElmPackage, output_path: Path, module: Optional[
 
 def link_latest_package_dir(package_dir: Path, link_path: Path):
     os.makedirs(str(package_dir), exist_ok=True)
+    # prefer relative path to make the built documentation directory relocatable
     link_path.symlink_to(package_dir.relative_to(link_path.parent), target_is_directory=True)
 
 
