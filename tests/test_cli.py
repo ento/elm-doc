@@ -1,5 +1,6 @@
 import pytest
 import json
+import os.path
 from click.testing import CliRunner
 from elm_doc import cli
 
@@ -82,7 +83,9 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
         assert elm_lang_html_docs_path.check()
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
-        assert package_dir.dirpath('latest').check(dir=True, link=True)
+        package_latest_link = package_dir.dirpath('latest')
+        assert package_latest_link.check(dir=True, link=True)
+        assert not os.path.isabs(package_latest_link.readlink())
         assert package_dir.join('README.md').check()
 
         package_index = package_dir.join('index.html')
