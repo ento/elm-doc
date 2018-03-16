@@ -14,7 +14,7 @@ ext = Extension('overlay_elm_package', sources=['src/elm_doc/native/overlay_elm_
 
 setup(
     name='elm-doc',
-    version='0.3.1',
+    version='0.3.2',
     url='https://github.com/ento/elm-doc',
     license='BSD 3-clause',
     author='Marica Odagaki',
