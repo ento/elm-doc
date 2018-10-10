@@ -74,5 +74,5 @@ Dependency on `python-magic` may require you to [install more stuff](https://git
 
 Running tests:
 
-    $ pip install -r dev-requirements.txt
-    $ tox -e py35,...
+    $ pipenv install --dev
+    $ pipenv run tox -e py35,...

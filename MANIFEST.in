@@ -2,6 +2,6 @@ include *.txt *.py LICENSE README.md tox.ini .travis.yml
 recursive-include src/elm_doc/native *.js
 
 exclude dependencies.yml
-exclude dev-requirements.in
+exclude Pipfile*
 exclude tests
 recursive-exclude tests *
