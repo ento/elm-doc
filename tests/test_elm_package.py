@@ -19,7 +19,7 @@ def test_glob_package_modules_includes_take_precedence_over_excludes(tmpdir, mak
     exclude_patterns = ['MissingModuleComment']
     modules = list(elm_package.glob_package_modules(
         package, include_patterns, exclude_patterns, force_exclusion=False))
-    assert modules == ['Main', 'MissingModuleComment']
+    assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
 def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(tmpdir, make_elm_project):
@@ -38,7 +38,7 @@ def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(t
     exclude_patterns = ['MissingModuleComment']
     modules = list(elm_package.glob_package_modules(
         package, include_patterns, exclude_patterns, force_exclusion=True))
-    assert modules == ['Main']
+    assert set(modules) == set(['Main'])
 
 
 def test_glob_package_modules_includes_all_by_default(tmpdir, make_elm_project):
@@ -55,7 +55,7 @@ def test_glob_package_modules_includes_all_by_default(tmpdir, make_elm_project):
     include_patterns = []
     exclude_patterns = []
     modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))
-    assert modules == ['Main', 'MissingModuleComment']
+    assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
 def test_glob_package_modules_can_include_path_in_non_dot_source_dir(tmpdir, make_elm_project):
@@ -73,7 +73,7 @@ def test_glob_package_modules_can_include_path_in_non_dot_source_dir(tmpdir, mak
     include_patterns = _resolve_paths(tmpdir, 'src/Main.elm')
     exclude_patterns = []
     modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))
-    assert modules == ['Main']
+    assert set(modules) == set(['Main'])
 
 
 def _resolve_paths(tmpdir, *paths):
