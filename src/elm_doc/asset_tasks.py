@@ -19,7 +19,7 @@ codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), 'native',
 
 @capture_subprocess_error
 def build_assets(output_path: Path, mount_point: str = ''):
-    tarball = 'https://api.github.com/repos/elm-lang/package.elm-lang.org/tarball/0.18.0'
+    tarball = 'https://api.github.com/repos/elm/package.elm-lang.org/tarball/0.18.0'
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 

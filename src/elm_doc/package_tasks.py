@@ -93,7 +93,7 @@ def build_package_docs_json(
     wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
     stop_max_attempt_number=10)
 def download_package_docs_json(package: ElmPackage, output_path: Path):
-    url = 'http://package.elm-lang.org/packages/{name}/{version}/documentation.json'.format(
+    url = 'https://package.elm-lang.org/packages/{name}/{version}/docs.json'.format(
         name=package.name, version=package.version
     )
     urllib.request.urlretrieve(url, str(output_path))
