@@ -1,4 +1,4 @@
-from typing import NamedTuple, Dict, List, Iterator
+from typing import NamedTuple, Dict, List, Iterator, Optional
 from pathlib import Path
 import fnmatch
 import json
@@ -43,8 +43,11 @@ class Elm18Package(ElmPackage):
     EXACT_DEPS_FILENAME = 'exact-dependencies.json'
 
     @classmethod
-    def from_path(cls, path: Path):
-        description = _load_json(path / cls.DESCRIPTION_FILENAME)
+    def from_path(cls, path: Path) -> Optional['Elm18Package']:
+        json_path = path / cls.DESCRIPTION_FILENAME
+        if not json_path.exists():
+            return
+        description = _load_json(json_path)
         repo_path = Path(urllib.parse.urlparse(description['repository']).path)
         user = repo_path.parent.stem
         project = repo_path.stem
@@ -68,8 +71,37 @@ class Elm18Package(ElmPackage):
             yield from_path(self.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
 
 
+class ElmApplication(ElmProject):
+    DESCRIPTION_FILENAME = 'elm.json'
+
+    @classmethod
+    def from_path(cls, path: Path) -> Optional['ElmApplication']:
+        json_path = path / cls.DESCRIPTION_FILENAME
+        if not json_path.exists():
+            return
+
+        description = _load_json(json_path)
+        if description['type'] != 'application':
+            return
+
+        return cls(
+            path=path,
+            description=description,
+            user='user',
+            project='project',
+        )
+
+
 def from_path(path: Path) -> ElmProject:
-    return Elm18Package.from_path(path)
+    # todo: Elm19Package
+    classes = [
+        Elm18Package,
+        ElmApplication,
+    ]
+    for cls in classes:
+        project = cls.from_path(path)
+        if project:
+            return project
 
 
 def _load_json(path: Path) -> Dict:
