@@ -18,7 +18,6 @@ ElmProjectBase = NamedTuple('ElmProjectBase', [
     ('name', str),
     ('user', str),
     ('project', str),
-    ('is_dep', bool),
 ])
 
 
@@ -35,7 +34,7 @@ class Elm18Package(ElmPackage):
     pass
 
 
-def from_path(path: Path, is_dep: bool = False) -> ElmProject:
+def from_path(path: Path) -> ElmProject:
     description = load_description(path / DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
@@ -46,7 +45,6 @@ def from_path(path: Path, is_dep: bool = False) -> ElmProject:
         name='{0}/{1}'.format(user, project),
         user=user,
         project=project,
-        is_dep=is_dep,
     )
 
 
@@ -69,7 +67,7 @@ def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
         # todo: warn about missing exact deps
         pass
     for name, version in exact_deps.items():
-        yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version, is_dep=True)
+        yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
 
 
 def glob_project_modules(
