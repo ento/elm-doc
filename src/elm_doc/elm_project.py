@@ -54,7 +54,7 @@ class Elm18Package(ElmPackage):
 
 
 def from_path(path: Path) -> ElmProject:
-    description = load_description(path / Elm18Package.DESCRIPTION_FILENAME)
+    description = _load_json(path / Elm18Package.DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
     project = repo_path.stem
@@ -67,7 +67,7 @@ def from_path(path: Path) -> ElmProject:
     )
 
 
-def load_description(path: Path) -> Dict:
+def _load_json(path: Path) -> Dict:
     with open(str(path)) as f:
         return json.load(f)
 
