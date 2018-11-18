@@ -46,7 +46,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         'basename': 'all_packages',
         'actions': [(write_all_packages, (packages, all_packages_path))],
         'targets': [all_packages_path],
-        'file_dep': list(map(elm_project.description_path, packages)),
+        'file_dep': [package.json_path for package in packages],
     }
 
     # new-packages
@@ -55,5 +55,5 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         'basename': 'new_packages',
         'actions': [(write_new_packages, (packages, new_packages_path))],
         'targets': [new_packages_path],
-        'file_dep': list(map(elm_project.description_path, packages)),
+        'file_dep': [package.json_path for package in packages],
     }

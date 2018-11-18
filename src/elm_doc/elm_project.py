@@ -6,7 +6,6 @@ import urllib.parse
 
 
 ModuleName = str
-DESCRIPTION_FILENAME = 'elm-package.json'
 STUFF_DIRECTORY = 'elm-stuff'
 PACKAGES_DIRECTORY = 'packages'
 
@@ -24,6 +23,11 @@ class ElmProject(ElmProjectBase):
     def __getattr__(self, name):
         return self.description[name.replace('_', '-')]
 
+    @property
+    def json_path(self) -> Path:
+        return self.path / self.DESCRIPTION_FILENAME
+
+
     def iter_dependencies(self) -> Iterator['ElmPackage']:
         raise NotImplemented
 
@@ -33,6 +37,7 @@ class ElmPackage(ElmProject):
 
 
 class Elm18Package(ElmPackage):
+    DESCRIPTION_FILENAME = 'elm-package.json'
     EXACT_DEPS_FILENAME = 'exact-dependencies.json'
 
     def iter_dependencies(self) -> Iterator[ElmPackage]:
@@ -49,7 +54,7 @@ class Elm18Package(ElmPackage):
 
 
 def from_path(path: Path) -> ElmProject:
-    description = load_description(path / DESCRIPTION_FILENAME)
+    description = load_description(path / Elm18Package.DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
     project = repo_path.stem
@@ -60,10 +65,6 @@ def from_path(path: Path) -> ElmProject:
         user=user,
         project=project,
     )
-
-
-def description_path(package: ElmPackage) -> Path:
-    return package.path / DESCRIPTION_FILENAME
 
 
 def load_description(path: Path) -> Dict:

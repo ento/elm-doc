@@ -65,7 +65,7 @@ def build_project_docs_json(
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 
-        overlayed_elm_project_path = root_path / elm_project.DESCRIPTION_FILENAME
+        overlayed_elm_project_path = root_path / project.DESCRIPTION_FILENAME
         with open(str(overlayed_elm_project_path), 'w') as f:
             json.dump(elm_project_with_exposed_modules, f)
 
@@ -79,7 +79,7 @@ def build_project_docs_json(
 
         env = elm_package_overlayer_env(
             str(overlayed_elm_project_path),
-            str(elm_project.description_path(project)),
+            str(project.json_path),
             os.environ)
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
