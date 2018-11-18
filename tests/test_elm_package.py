@@ -8,7 +8,7 @@ def test_glob_package_modules_includes_take_precedence_over_excludes(
     make_elm_project(
         elm_version,
         tmpdir,
-        copy_elm_stuff=True,
+        copy_elm_stuff=False,
         modules=[
             'Main.elm',
             'MissingModuleComment.elm',
@@ -27,7 +27,7 @@ def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(
     make_elm_project(
         elm_version,
         tmpdir,
-        copy_elm_stuff=True,
+        copy_elm_stuff=False,
         modules=[
             'Main.elm',
             'MissingModuleComment.elm',
