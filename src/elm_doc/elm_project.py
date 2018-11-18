@@ -35,7 +35,7 @@ class Elm18Package(ElmPackage):
     pass
 
 
-def from_path(path: Path, is_dep: bool = False) -> ElmPackage:
+def from_path(path: Path, is_dep: bool = False) -> ElmProject:
     description = load_description(path / DESCRIPTION_FILENAME)
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
@@ -72,16 +72,16 @@ def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
         yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version, is_dep=True)
 
 
-def glob_package_modules(
-        package: ElmPackage,
+def glob_project_modules(
+        project: ElmProject,
         include_paths: List[Path] = [],
         exclude_patterns: List[str] = [],
         force_exclusion: bool = False) -> Iterator[ModuleName]:
-    for source_dir_name in package.source_directories:
-        source_dir = package.path / source_dir_name
+    for source_dir_name in project.source_directories:
+        source_dir = project.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
         for elm_file in elm_files:
-            if elm_file.relative_to(package.path).parts[0] == STUFF_DIRECTORY:
+            if elm_file.relative_to(project.path).parts[0] == STUFF_DIRECTORY:
                 continue
 
             if include_paths and not any(_matches_include_path(elm_file, include_path)

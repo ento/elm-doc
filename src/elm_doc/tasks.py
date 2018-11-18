@@ -4,7 +4,7 @@ from typing import List, Optional
 from pathlib import Path
 
 from elm_doc import elm_project
-from elm_doc import package_tasks
+from elm_doc import project_tasks
 from elm_doc import asset_tasks
 from elm_doc import catalog_tasks
 
@@ -19,14 +19,14 @@ def create_tasks(
         mount_point: str = '',
         validate: bool = False):
     # todo: gracefully handle missing elm-package.json
-    project_package = elm_project.from_path(project_path)
+    project = elm_project.from_path(project_path)
     # todo: gracefully handle missing exact-dependencies.json
-    deps = list(elm_project.iter_dependencies(project_package))
-    all_packages = [project_package] + deps
+    deps = list(elm_project.iter_dependencies(project))
+    all_packages = [project] + deps
 
-    for task in package_tasks.create_package_tasks(
+    for task in project_tasks.create_project_tasks(
             output_path,
-            project_package,
+            project,
             elm_make=elm_make,
             include_paths=include_paths,
             exclude_modules=exclude_modules,
@@ -39,7 +39,7 @@ def create_tasks(
         return
 
     for package in deps:
-        for task in package_tasks.create_package_tasks(
+        for task in project_tasks.create_project_tasks(
                 output_path, package, elm_make=elm_make, mount_point=mount_point):
             yield task
 

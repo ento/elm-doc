@@ -9,11 +9,11 @@ def test_create_tasks_only_elm_stuff(tmpdir, elm_version, make_elm_project):
     with tmpdir.as_cwd():
         result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
         expected_task_names = [
-            'build_package_docs_json',
-            'package_page',
-            'package_latest_link',
-            'download_package_docs_json',
-            'package_readme',
+            'build_project_docs_json',
+            'project_page',
+            'project_latest_link',
+            'download_project_docs_json',
+            'project_readme',
             'module_page',
             'index',
             'all_packages',
@@ -32,10 +32,10 @@ def test_create_tasks_only_project_modules(
         result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
 
         expected_task_names = [
-            'build_package_docs_json',
-            'package_page',
-            'package_readme',
-            'package_latest_link',
+            'build_project_docs_json',
+            'project_page',
+            'project_readme',
+            'project_latest_link',
             'module_page',
             'index',
             'all_packages',
@@ -51,7 +51,7 @@ def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
         result = list(tasks.create_tasks(Path('.'), Path(str(output_dir)), validate=True))
 
         expected_task_names = [
-            'validate_package_docs_json',
+            'validate_project_docs_json',
             ]
         assert basenames_in_first_seen_order(result) == expected_task_names
 
