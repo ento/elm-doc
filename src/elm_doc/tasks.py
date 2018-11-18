@@ -24,7 +24,7 @@ def create_tasks(
     deps = list(elm_project.iter_dependencies(project))
     all_packages = [project] + deps
 
-    for task in project_tasks.create_project_tasks(
+    for task in project_tasks.create_main_project_tasks(
             output_path,
             project,
             elm_make=elm_make,
@@ -39,8 +39,8 @@ def create_tasks(
         return
 
     for package in deps:
-        for task in project_tasks.create_project_tasks(
-                output_path, package, elm_make=elm_make, mount_point=mount_point):
+        for task in project_tasks.create_dependency_tasks(
+                output_path, package, mount_point):
             yield task
 
     for task in catalog_tasks.create_catalog_tasks(all_packages, output_path, mount_point=mount_point):

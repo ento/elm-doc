@@ -103,7 +103,7 @@ def project_task_basename_factory(project):
     return lambda name: '{}:{}/{}'.format(name, project.name, project.version)
 
 
-def create_project_tasks(
+def create_main_project_tasks(
         output_path: Optional[Path],
         project: ElmProject,
         elm_make: Path = None,
@@ -114,11 +114,8 @@ def create_project_tasks(
         validate: bool = False):
     basename = project_task_basename_factory(project)
 
-    if project.is_dep:
-        project_modules = project.exposed_modules
-    else:
-        project_modules = list(elm_project.glob_project_modules(
-            project, include_paths, exclude_modules, force_exclusion))
+    project_modules = list(elm_project.glob_project_modules(
+        project, include_paths, exclude_modules, force_exclusion))
 
     if validate:
         yield {
@@ -135,25 +132,38 @@ def create_project_tasks(
 
     # project documentation.json
     docs_json_path = project_docs_root / 'documentation.json'
-    if project.is_dep:
-        yield {
-            'basename': basename('download_project_docs_json'),
-            'actions': [(create_folder, (str(project_docs_root),)),
-                        (download_project_docs_json, (project, docs_json_path))],
-            'targets': [docs_json_path],
-            # 'file_dep': [all_elm_files_in_source_dirs] # todo
-            'uptodate': [True],
-        }
-    else:
-        yield {
-            'basename': basename('build_project_docs_json'),
-            'actions': [(create_folder, (str(project_docs_root),)),
-                        (build_project_docs_json,
-                         (project, project_modules),
-                         {'elm_make': elm_make, 'output_path': docs_json_path})],
-            'targets': [docs_json_path],
-            # 'file_dep': [all_elm_files_in_source_dirs] # todo
-        }
+    yield {
+        'basename': basename('build_project_docs_json'),
+        'actions': [(create_folder, (str(project_docs_root),)),
+                    (build_project_docs_json,
+                     (project, project_modules),
+                     {'elm_make': elm_make, 'output_path': docs_json_path})],
+        'targets': [docs_json_path],
+        # 'file_dep': [all_elm_files_in_source_dirs] # todo
+    }
+
+    for page_task in _create_project_page_tasks(output_path, project, project_modules, mount_point):
+        yield page_task
+
+
+def create_dependency_tasks(
+        output_path: Optional[Path],
+        project: ElmProject,
+        mount_point: str = ''):
+    basename = project_task_basename_factory(project)
+    project_modules = project.exposed_modules
+    project_docs_root = _project_docs_root(output_path, project)
+
+    # project documentation.json
+    docs_json_path = project_docs_root / 'documentation.json'
+    yield {
+        'basename': basename('download_project_docs_json'),
+        'actions': [(create_folder, (str(project_docs_root),)),
+                    (download_project_docs_json, (project, docs_json_path))],
+        'targets': [docs_json_path],
+        # 'file_dep': [all_elm_files_in_source_dirs] # todo
+        'uptodate': [True],
+    }
 
     for page_task in _create_project_page_tasks(output_path, project, project_modules, mount_point):
         yield page_task
