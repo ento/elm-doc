@@ -9,6 +9,16 @@ import py
 import elm_doc
 
 
+def pytest_addoption(parser):
+    parser.addoption("--elm-version", default='0.18.0',
+        help="specify the version of Elm to test")
+
+
+def pytest_generate_tests(metafunc):
+    if 'elm_version' in metafunc.fixturenames:
+        metafunc.parametrize("elm_version", [metafunc.config.getoption('elm_version')])
+
+
 @pytest.fixture(scope='session')
 def overlayer():
     elm_doc.__path__.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))

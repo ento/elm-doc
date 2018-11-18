@@ -3,8 +3,7 @@ from pathlib import Path
 from elm_doc import tasks
 
 
-def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_create_tasks_only_elm_stuff(tmpdir, elm_version, make_elm_project):
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
@@ -23,8 +22,8 @@ def test_create_tasks_only_elm_stuff(tmpdir, make_elm_project):
         assert basenames_in_first_seen_order(result) == expected_task_names
 
 
-def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
-    elm_version = '0.18.0'
+def test_create_tasks_only_project_modules(
+        tmpdir, overlayer, elm_version, make_elm_project):
     modules = ['Main.elm']
     make_elm_project(elm_version, tmpdir, modules=modules)
     output_dir = tmpdir.join('docs')
@@ -45,8 +44,7 @@ def test_create_tasks_only_project_modules(tmpdir, overlayer, make_elm_project):
         assert basenames_in_first_seen_order(result) == expected_task_names
 
 
-def test_create_tasks_for_validation(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
     make_elm_project(elm_version, tmpdir)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():

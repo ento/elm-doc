@@ -49,8 +49,7 @@ def test_cli_in_empty_project(tmpdir, runner):
         assert result.exit_code != 0
 
 
-def test_cli_doit_only_arg_in_real_project(tmpdir, runner, make_elm_project):
-    elm_version = '0.18.0'
+def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
     project_path = tmpdir.mkdir('frontend')
     make_elm_project(elm_version, project_path)
 
@@ -63,8 +62,7 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, make_elm_project):
         assert tmpdir.join('docs').check(exists=True)
 
 
-def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
+def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_project):
     project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm']
     make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
@@ -107,8 +105,8 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
         assert len(json.loads(new_packages.read())) > 0
 
 
-def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
+def test_cli_validate_real_project(
+        tmpdir, runner, overlayer, elm_version, make_elm_project):
     project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm']
     make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
@@ -122,8 +120,8 @@ def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_subset_of_real_project_with_forced_exclusion(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
+def test_cli_validate_subset_of_real_project_with_forced_exclusion(
+        tmpdir, runner, overlayer, elm_version, make_elm_project):
     project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm', 'MissingModuleComment.elm']
     make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
@@ -146,8 +144,8 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(tmpdir, runne
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_invalid_project_with_masked_exclude(capfd, tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
+def test_cli_validate_invalid_project_with_masked_exclude(
+        capfd, tmpdir, runner, overlayer, elm_version, make_elm_project):
     project_path = tmpdir.mkdir('frontend')
     modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
     make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)

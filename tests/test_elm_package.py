@@ -3,8 +3,8 @@ from pathlib import Path
 from elm_doc import elm_package
 
 
-def test_glob_package_modules_includes_take_precedence_over_excludes(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_glob_package_modules_includes_take_precedence_over_excludes(
+        tmpdir, elm_version, make_elm_project):
     make_elm_project(
         elm_version,
         tmpdir,
@@ -22,8 +22,8 @@ def test_glob_package_modules_includes_take_precedence_over_excludes(tmpdir, mak
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
-def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(
+        tmpdir, elm_version, make_elm_project):
     make_elm_project(
         elm_version,
         tmpdir,
@@ -41,8 +41,8 @@ def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(t
     assert set(modules) == set(['Main'])
 
 
-def test_glob_package_modules_includes_all_by_default(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_glob_package_modules_includes_all_by_default(
+        tmpdir, elm_version, make_elm_project):
     make_elm_project(
         elm_version,
         tmpdir,
@@ -58,8 +58,8 @@ def test_glob_package_modules_includes_all_by_default(tmpdir, make_elm_project):
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
-def test_glob_package_modules_can_include_path_in_non_dot_source_dir(tmpdir, make_elm_project):
-    elm_version = '0.18.0'
+def test_glob_package_modules_can_include_path_in_non_dot_source_dir(
+        tmpdir, elm_version, make_elm_project):
     make_elm_project(
         elm_version,
         tmpdir,
