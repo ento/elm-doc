@@ -42,6 +42,19 @@ class Elm18Package(ElmPackage):
     DESCRIPTION_FILENAME = 'elm-package.json'
     EXACT_DEPS_FILENAME = 'exact-dependencies.json'
 
+    @classmethod
+    def from_path(cls, path: Path):
+        description = _load_json(path / cls.DESCRIPTION_FILENAME)
+        repo_path = Path(urllib.parse.urlparse(description['repository']).path)
+        user = repo_path.parent.stem
+        project = repo_path.stem
+        return cls(
+            path=path,
+            description=description,
+            user=user,
+            project=project,
+        )
+
     def iter_dependencies(self) -> Iterator[ElmPackage]:
         exact_deps_path = self.path / STUFF_DIRECTORY / self.EXACT_DEPS_FILENAME
         exact_deps = {}
@@ -56,17 +69,7 @@ class Elm18Package(ElmPackage):
 
 
 def from_path(path: Path) -> ElmProject:
-    description = _load_json(path / Elm18Package.DESCRIPTION_FILENAME)
-    repo_path = Path(urllib.parse.urlparse(description['repository']).path)
-    user = repo_path.parent.stem
-    project = repo_path.stem
-    return Elm18Package(
-        path=path,
-        description=description,
-        name='{0}/{1}'.format(user, project),
-        user=user,
-        project=project,
-    )
+    return Elm18Package.from_path(path)
 
 
 def _load_json(path: Path) -> Dict:
