@@ -15,8 +15,8 @@ from retrying import retry
 
 from elm_doc import elm_platform
 from elm_doc import elm_package_overlayer_env
-from elm_doc import elm_package
-from elm_doc.elm_package import ElmPackage, ModuleName
+from elm_doc import elm_project
+from elm_doc.elm_project import ElmPackage, ModuleName
 from elm_doc import page_template
 from elm_doc.decorators import capture_subprocess_error
 
@@ -65,7 +65,7 @@ def build_package_docs_json(
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 
-        overlayed_elm_package_path = root_path / elm_package.DESCRIPTION_FILENAME
+        overlayed_elm_package_path = root_path / elm_project.DESCRIPTION_FILENAME
         with open(str(overlayed_elm_package_path), 'w') as f:
             json.dump(elm_package_with_exposed_modules, f)
 
@@ -79,7 +79,7 @@ def build_package_docs_json(
 
         env = elm_package_overlayer_env(
             str(overlayed_elm_package_path),
-            str(elm_package.description_path(package)),
+            str(elm_project.description_path(package)),
             os.environ)
         subprocess.check_call(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
@@ -117,7 +117,7 @@ def create_package_tasks(
     if package.is_dep:
         package_modules = package.exposed_modules
     else:
-        package_modules = list(elm_package.glob_package_modules(
+        package_modules = list(elm_project.glob_package_modules(
             package, include_paths, exclude_modules, force_exclusion))
 
     if validate:

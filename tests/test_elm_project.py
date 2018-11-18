@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from elm_doc import elm_package
+from elm_doc import elm_project
 
 
 def test_glob_package_modules_includes_take_precedence_over_excludes(
@@ -14,10 +14,10 @@ def test_glob_package_modules_includes_take_precedence_over_excludes(
             'MissingModuleComment.elm',
             'PublicFunctionNotInAtDocs.elm',
         ])
-    package = elm_package.from_path(Path(str(tmpdir)))
+    package = elm_project.from_path(Path(str(tmpdir)))
     include_patterns = _resolve_paths(tmpdir, 'Main.elm', 'MissingModuleComment.elm')
     exclude_patterns = ['MissingModuleComment']
-    modules = list(elm_package.glob_package_modules(
+    modules = list(elm_project.glob_package_modules(
         package, include_patterns, exclude_patterns, force_exclusion=False))
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
@@ -33,10 +33,10 @@ def test_glob_package_modules_excludes_take_precedence_over_includes_if_forced(
             'MissingModuleComment.elm',
             'PublicFunctionNotInAtDocs.elm',
         ])
-    package = elm_package.from_path(Path(str(tmpdir)))
+    package = elm_project.from_path(Path(str(tmpdir)))
     include_patterns = _resolve_paths(tmpdir, 'Main.elm', 'MissingModuleComment.elm')
     exclude_patterns = ['MissingModuleComment']
-    modules = list(elm_package.glob_package_modules(
+    modules = list(elm_project.glob_package_modules(
         package, include_patterns, exclude_patterns, force_exclusion=True))
     assert set(modules) == set(['Main'])
 
@@ -51,10 +51,10 @@ def test_glob_package_modules_includes_all_by_default(
             'Main.elm',
             'MissingModuleComment.elm',
         ])
-    package = elm_package.from_path(Path(str(tmpdir)))
+    package = elm_project.from_path(Path(str(tmpdir)))
     include_patterns = []
     exclude_patterns = []
-    modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))
+    modules = list(elm_project.glob_package_modules(package, include_patterns, exclude_patterns))
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
@@ -69,10 +69,10 @@ def test_glob_package_modules_can_include_path_in_non_dot_source_dir(
             'Main.elm',
             'MissingModuleComment.elm',
         ])
-    package = elm_package.from_path(Path(str(tmpdir)))
+    package = elm_project.from_path(Path(str(tmpdir)))
     include_patterns = _resolve_paths(tmpdir, 'src/Main.elm')
     exclude_patterns = []
-    modules = list(elm_package.glob_package_modules(package, include_patterns, exclude_patterns))
+    modules = list(elm_project.glob_package_modules(package, include_patterns, exclude_patterns))
     assert set(modules) == set(['Main'])
 
 

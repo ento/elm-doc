@@ -3,7 +3,7 @@
 from typing import List, Optional
 from pathlib import Path
 
-from elm_doc import elm_package
+from elm_doc import elm_project
 from elm_doc import package_tasks
 from elm_doc import asset_tasks
 from elm_doc import catalog_tasks
@@ -19,9 +19,9 @@ def create_tasks(
         mount_point: str = '',
         validate: bool = False):
     # todo: gracefully handle missing elm-package.json
-    project_package = elm_package.from_path(project_path)
+    project_package = elm_project.from_path(project_path)
     # todo: gracefully handle missing exact-dependencies.json
-    deps = list(elm_package.iter_dependencies(project_package))
+    deps = list(elm_project.iter_dependencies(project_package))
     all_packages = [project_package] + deps
 
     for task in package_tasks.create_package_tasks(

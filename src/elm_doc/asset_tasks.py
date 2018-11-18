@@ -9,7 +9,7 @@ import shutil
 from retrying import retry
 
 from elm_doc import elm_platform
-from elm_doc import elm_package
+from elm_doc import elm_project
 from elm_doc import node_modules
 from elm_doc.decorators import capture_subprocess_error
 
@@ -29,7 +29,7 @@ def build_assets(output_path: Path, mount_point: str = ''):
             shell=True,
             cwd=str(root_path),
         )
-        package = elm_package.from_path(root_path)
+        package = elm_project.from_path(root_path)
 
         # install elm
         elm_platform.install(root_path, package.elm_version)
