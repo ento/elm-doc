@@ -57,8 +57,8 @@ def load_description(path: Path) -> Dict:
         return json.load(f)
 
 
-def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
-    exact_deps_path = package.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME
+def iter_dependencies(project: ElmProject) -> Iterator[ElmPackage]:
+    exact_deps_path = project.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME
     exact_deps = {}
     try:
         with open(str(exact_deps_path)) as f:
@@ -67,7 +67,7 @@ def iter_dependencies(package: ElmPackage) -> Iterator[ElmPackage]:
         # todo: warn about missing exact deps
         pass
     for name, version in exact_deps.items():
-        yield from_path(package.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
+        yield from_path(project.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
 
 
 def glob_project_modules(
