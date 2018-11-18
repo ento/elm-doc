@@ -131,7 +131,7 @@ def create_project_tasks(
         }
         return
 
-    project_docs_root = output_path / 'packages' / project.user / project.project / project.version
+    project_docs_root = _project_docs_root(output_path, project)
 
     # project documentation.json
     docs_json_path = project_docs_root / 'documentation.json'
@@ -154,6 +154,18 @@ def create_project_tasks(
             'targets': [docs_json_path],
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
         }
+
+    for page_task in _create_project_page_tasks(output_path, project, project_modules, mount_point):
+        yield page_task
+
+
+def _create_project_page_tasks(
+        output_path: Optional[Path],
+        project: ElmProject,
+        project_modules: List[ModuleName],
+        mount_point: str = '',):
+    basename = project_task_basename_factory(project)
+    project_docs_root = _project_docs_root(output_path, project)
 
     # project index page
     project_index_output = project_docs_root / 'index.html'
@@ -197,3 +209,7 @@ def create_project_tasks(
             # 'file_dep': [module['source_file']] #todo
             'uptodate': [True],
         }
+
+
+def _project_docs_root(output_path: Optional[Path], project: ElmProject) -> Path:
+    return output_path / 'packages' / project.user / project.project / project.version
