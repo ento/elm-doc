@@ -8,7 +8,6 @@ import urllib.parse
 ModuleName = str
 DESCRIPTION_FILENAME = 'elm-package.json'
 STUFF_DIRECTORY = 'elm-stuff'
-EXACT_DEPS_FILENAME = 'exact-dependencies.json'
 PACKAGES_DIRECTORY = 'packages'
 
 
@@ -25,13 +24,28 @@ class ElmProject(ElmProjectBase):
     def __getattr__(self, name):
         return self.description[name.replace('_', '-')]
 
+    def iter_dependencies(self) -> Iterator['ElmPackage']:
+        raise NotImplemented
+
 
 class ElmPackage(ElmProject):
     pass
 
 
 class Elm18Package(ElmPackage):
-    pass
+    EXACT_DEPS_FILENAME = 'exact-dependencies.json'
+
+    def iter_dependencies(self) -> Iterator[ElmPackage]:
+        exact_deps_path = self.path / STUFF_DIRECTORY / self.EXACT_DEPS_FILENAME
+        exact_deps = {}
+        try:
+            with open(str(exact_deps_path)) as f:
+                exact_deps = json.load(f)
+        except OSError:
+            # todo: warn about missing exact deps
+            pass
+        for name, version in exact_deps.items():
+            yield from_path(self.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
 
 
 def from_path(path: Path) -> ElmProject:
@@ -55,19 +69,6 @@ def description_path(package: ElmPackage) -> Path:
 def load_description(path: Path) -> Dict:
     with open(str(path)) as f:
         return json.load(f)
-
-
-def iter_dependencies(project: ElmProject) -> Iterator[ElmPackage]:
-    exact_deps_path = project.path / STUFF_DIRECTORY / EXACT_DEPS_FILENAME
-    exact_deps = {}
-    try:
-        with open(str(exact_deps_path)) as f:
-            exact_deps = json.load(f)
-    except OSError:
-        # todo: warn about missing exact deps
-        pass
-    for name, version in exact_deps.items():
-        yield from_path(project.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
 
 
 def glob_project_modules(
