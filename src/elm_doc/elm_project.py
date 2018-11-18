@@ -13,7 +13,6 @@ PACKAGES_DIRECTORY = 'packages'
 ElmProjectBase = NamedTuple('ElmProjectBase', [
     ('path', Path),
     ('description', Dict),
-    ('name', str),
     ('user', str),
     ('project', str),
 ])
@@ -27,6 +26,9 @@ class ElmProject(ElmProjectBase):
     def json_path(self) -> Path:
         return self.path / self.DESCRIPTION_FILENAME
 
+    @property
+    def name(self) -> str:
+        return '{}/{}'.format(self.user, self.project)
 
     def iter_dependencies(self) -> Iterator['ElmPackage']:
         raise NotImplemented
