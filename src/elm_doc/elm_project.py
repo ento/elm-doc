@@ -12,7 +12,7 @@ EXACT_DEPS_FILENAME = 'exact-dependencies.json'
 PACKAGES_DIRECTORY = 'packages'
 
 
-ElmPackageBase = NamedTuple('ElmPackageBase', [
+ElmProjectBase = NamedTuple('ElmProjectBase', [
     ('path', Path),
     ('description', Dict),
     ('name', str),
@@ -22,9 +22,17 @@ ElmPackageBase = NamedTuple('ElmPackageBase', [
 ])
 
 
-class ElmPackage(ElmPackageBase):
+class ElmProject(ElmProjectBase):
     def __getattr__(self, name):
         return self.description[name.replace('_', '-')]
+
+
+class ElmPackage(ElmProject):
+    pass
+
+
+class Elm18Package(ElmPackage):
+    pass
 
 
 def from_path(path: Path, is_dep: bool = False) -> ElmPackage:
@@ -32,7 +40,7 @@ def from_path(path: Path, is_dep: bool = False) -> ElmPackage:
     repo_path = Path(urllib.parse.urlparse(description['repository']).path)
     user = repo_path.parent.stem
     project = repo_path.stem
-    return ElmPackage(
+    return Elm18Package(
         path=path,
         description=description,
         name='{0}/{1}'.format(user, project),
