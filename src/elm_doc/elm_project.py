@@ -31,7 +31,7 @@ class ElmProject(ElmProjectBase):
         return '{}/{}'.format(self.user, self.project)
 
     def iter_dependencies(self) -> Iterator['ElmPackage']:
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class ElmPackage(ElmProject):
