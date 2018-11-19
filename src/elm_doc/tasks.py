@@ -11,11 +11,9 @@ from elm_doc import catalog_tasks
 
 def create_tasks(
         project_path: Path,
+        project_config: elm_project.ProjectConfig,
         output_path: Optional[Path] = None,
         elm_make: Optional[Path] = None,
-        include_paths: List[Path] = [],
-        exclude_modules: List[str] = [],
-        force_exclusion: bool = False,
         mount_point: str = '',
         validate: bool = False):
     # todo: gracefully handle missing elm-package.json
@@ -25,12 +23,10 @@ def create_tasks(
     all_packages = [project] + deps
 
     for task in project_tasks.create_main_project_tasks(
-            output_path,
             project,
+            project_config,
+            output_path,
             elm_make=elm_make,
-            include_paths=include_paths,
-            exclude_modules=exclude_modules,
-            force_exclusion=force_exclusion,
             mount_point=mount_point,
             validate=validate):
         yield task

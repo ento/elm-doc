@@ -16,7 +16,7 @@ from retrying import retry
 from elm_doc import elm_platform
 from elm_doc import elm_package_overlayer_env
 from elm_doc import elm_project
-from elm_doc.elm_project import ElmProject, ModuleName
+from elm_doc.elm_project import ElmProject, ProjectConfig, ModuleName
 from elm_doc import page_template
 from elm_doc.decorators import capture_subprocess_error
 
@@ -104,18 +104,16 @@ def project_task_basename_factory(project):
 
 
 def create_main_project_tasks(
-        output_path: Optional[Path],
         project: ElmProject,
+        project_config: ProjectConfig,
+        output_path: Optional[Path],
         elm_make: Path = None,
-        include_paths: List[str] = [],
-        exclude_modules: List[str] = [],
-        force_exclusion: bool = False,
         mount_point: str = '',
         validate: bool = False):
     basename = project_task_basename_factory(project)
 
     project_modules = list(elm_project.glob_project_modules(
-        project, include_paths, exclude_modules, force_exclusion))
+        project, project_config))
 
     if validate:
         yield {

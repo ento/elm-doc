@@ -1,13 +1,14 @@
 from pathlib import Path
 
 from elm_doc import tasks
+from elm_doc.elm_project import ProjectConfig
 
 
 def test_create_tasks_only_elm_stuff(tmpdir, elm_version, make_elm_project):
     make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
+        result = list(tasks.create_tasks(Path('.'), ProjectConfig(), Path(str(output_dir))))
         expected_task_names = [
             'build_project_docs_json',
             'project_page',
@@ -29,7 +30,7 @@ def test_create_tasks_only_project_modules(
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         tmpdir.join('README.md').write('hello')
-        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir))))
+        result = list(tasks.create_tasks(Path('.'), ProjectConfig(), Path(str(output_dir))))
 
         expected_task_names = [
             'build_project_docs_json',
@@ -48,7 +49,7 @@ def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
     make_elm_project(elm_version, tmpdir)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = list(tasks.create_tasks(Path('.'), Path(str(output_dir)), validate=True))
+        result = list(tasks.create_tasks(Path('.'), ProjectConfig(), Path(str(output_dir)), validate=True))
 
         expected_task_names = [
             'validate_project_docs_json',

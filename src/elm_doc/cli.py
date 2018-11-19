@@ -9,6 +9,7 @@ from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 
 from elm_doc.tasks import create_tasks
+from elm_doc.elm_project import ProjectConfig
 
 
 class DoitException(click.ClickException):
@@ -106,13 +107,16 @@ def main(
     def task_build():
         resolved_include_paths = [_resolve_path(path) for path in include_paths]
         exclude_modules = exclude.split(',') if exclude else []
-        return create_tasks(
-            _resolve_path(project_path),
-            _resolve_path(output) if output is not None else None,
-            elm_make=_resolve_path(elm_make) if elm_make is not None else None,
+        project_config = ProjectConfig(
             include_paths=resolved_include_paths,
             exclude_modules=exclude_modules,
             force_exclusion=force_exclusion,
+        )
+        return create_tasks(
+            _resolve_path(project_path),
+            project_config,
+            _resolve_path(output) if output is not None else None,
+            elm_make=_resolve_path(elm_make) if elm_make is not None else None,
             mount_point=mount_at,
             validate=validate)
 

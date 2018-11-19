@@ -181,11 +181,15 @@ def _load_json(path: Path) -> Dict:
         return json.load(f)
 
 
+@attr.s(auto_attribs=True)
+class ProjectConfig:
+    include_paths: List[str] = attr.Factory(list)
+    exclude_modules: List[str] = attr.Factory(list)
+    force_exclusion: bool = False
+
+
 def glob_project_modules(
-        project: ElmProject,
-        include_paths: List[Path] = [],
-        exclude_patterns: List[str] = [],
-        force_exclusion: bool = False) -> Iterator[ModuleName]:
+        project: ElmProject, config: ProjectConfig) -> Iterator[ModuleName]:
     for source_dir_name in project.source_directories:
         source_dir = project.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
@@ -193,8 +197,8 @@ def glob_project_modules(
             if elm_file.relative_to(project.path).parts[0] == STUFF_DIRECTORY:
                 continue
 
-            if include_paths and not any(_matches_include_path(elm_file, include_path)
-                                         for include_path in include_paths):
+            if config.include_paths and not any(_matches_include_path(elm_file, include_path)
+                                         for include_path in config.include_paths):
                 continue
 
             rel_path = elm_file.relative_to(source_dir)
@@ -202,9 +206,9 @@ def glob_project_modules(
 
             # check for excludes if there's no explicit includes, or if
             # there are explicit includes and exclusion is requested specifically.
-            check_excludes = (not include_paths) or force_exclusion
+            check_excludes = (not config.include_paths) or config.force_exclusion
             if check_excludes and any(fnmatch.fnmatch(module_name, module_pattern)
-                                      for module_pattern in exclude_patterns):
+                                      for module_pattern in config.exclude_modules):
                 continue
 
             yield module_name
