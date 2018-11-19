@@ -9,6 +9,7 @@ doit = "*"
 python-magic = "*"
 retrying = "*"
 typing = "*"
+attrs = "*"
 
 [dev-packages]
 tox = "*"
