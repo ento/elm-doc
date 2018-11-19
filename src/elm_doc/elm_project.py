@@ -72,6 +72,9 @@ class Elm18Package(ElmPackage):
             elm_version=description['elm-version'],
         )
 
+    def as_package(self, config):
+        return self
+
     def as_json(self):
         fields = [
             ('version', 'version'),

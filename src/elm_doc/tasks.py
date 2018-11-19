@@ -5,6 +5,7 @@ from pathlib import Path
 
 from elm_doc import elm_project
 from elm_doc import project_tasks
+from elm_doc import package_tasks
 from elm_doc import asset_tasks
 from elm_doc import catalog_tasks
 
@@ -35,7 +36,7 @@ def create_tasks(
         return
 
     for package in deps:
-        for task in project_tasks.create_dependency_tasks(
+        for task in package_tasks.create_dependency_tasks(
                 output_path, package, mount_point):
             yield task
 
