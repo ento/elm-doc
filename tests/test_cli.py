@@ -50,12 +50,11 @@ def test_cli_in_empty_project(tmpdir, runner):
 
 
 def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
-    project_path = tmpdir.mkdir('frontend')
-    make_elm_project(elm_version, project_path)
+    project_dir = make_elm_project(elm_version, tmpdir)
 
     with tmpdir.as_cwd():
         tmpdir.mkdir('docs')
-        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend', '--doit-args', 'clean', '--dry-run'])
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--doit-args', 'clean', '--dry-run'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -63,13 +62,12 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
 
 
 def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_project):
-    project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend'])
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -107,13 +105,12 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_pr
 
 def test_cli_validate_real_project(
         tmpdir, runner, overlayer, elm_version, make_elm_project):
-    project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--validate', 'frontend'])
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--validate', project_dir.basename])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -122,16 +119,15 @@ def test_cli_validate_real_project(
 
 def test_cli_validate_subset_of_real_project_with_forced_exclusion(
         tmpdir, runner, overlayer, elm_version, make_elm_project):
-    project_path = tmpdir.mkdir('frontend')
     modules = ['Main.elm', 'MissingModuleComment.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
+        project_dir.join('README.md').write('hello')
         result = runner.invoke(cli.main, [
-            'frontend',
-            'frontend/Main.elm',
-            'frontend/MissingModuleComment.elm',
+            project_dir.basename,
+            os.path.join(project_dir.basename, 'Main.elm'),
+            os.path.join(project_dir.basename, 'MissingModuleComment.elm'),
             '--validate',
             '--exclude',
             'MissingModuleComment',
@@ -146,12 +142,11 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
 
 def test_cli_validate_invalid_project_with_masked_exclude(
         capfd, tmpdir, runner, overlayer, elm_version, make_elm_project):
-    project_path = tmpdir.mkdir('frontend')
     modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', 'frontend'])
+        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', project_dir.basename])
         out, err = capfd.readouterr()
 
         problem_lines = [line for line in err.splitlines()
