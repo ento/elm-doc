@@ -17,6 +17,8 @@ STUFF_DIRECTORY = 'elm-stuff'
 @attr.s(auto_attribs=True)
 class ElmProject:
     path: Path
+    elm_version: str
+    source_directories: [str]
 
     @property
     def json_path(self) -> Path:
@@ -38,10 +40,8 @@ class ElmPackage(ElmProject):
     summary: str
     repository: str
     license: str
-    source_directories: [str]
     exposed_modules: [str]
     dependencies: Dict[str, str]
-    elm_version: str
 
 
 class Elm18Package(ElmPackage):
@@ -98,9 +98,15 @@ class Elm18Package(ElmPackage):
             yield from_path(self.path / STUFF_DIRECTORY / self.PACKAGES_DIRECTORY / name / version)
 
 
+@attr.s(auto_attribs=True)
 class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
     PACKAGES_DIRECTORY = 'package'
+
+    direct_dependencies: Dict[str, str]
+    indirect_dependencies: Dict[str, str]
+    direct_test_dependencies: Dict[str, str]
+    indirect_test_dependencies: Dict[str, str]
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmApplication']:
@@ -114,17 +120,44 @@ class ElmApplication(ElmProject):
 
         return cls(
             path=path,
-            description=description,
-            user='user',
-            project='project',
+            source_directories=description['source-directories'],
+            elm_version=description['elm-version'],
+            direct_dependencies=description['dependencies'].get('direct', {}),
+            indirect_dependencies=description['dependencies'].get('indirect', {}),
+            direct_test_dependencies=description['test-dependencies'].get('direct', {}),
+            indirect_test_dependencies=description['test-dependencies'].get('indirect', {}),
         )
+
+    def as_json(self):
+        json = {
+            'type': 'application',
+            'name': self.name,
+            'source-directories': self.source_directories,
+            'elm-version': self.elm_version,
+        }
+
+        if self.direct_dependencies or self.indirect_dependencies:
+            json['dependencies'] = {}
+            if self.direct_dependencies:
+                json['dependencies']['direct'] = self.direct_dependencies
+            if self.indirect_dependencies:
+                json['dependencies']['indirect'] = self.indirect_dependencies
+
+        if self.direct_test_dependencies or self.indirect_test_dependencies:
+            json['test-dependencies'] = {}
+            if self.direct_test_dependencies:
+                json['test-dependencies']['direct'] = self.direct_test_dependencies
+            if self.indirect_test_dependencies:
+                json['test-dependencies']['indirect'] = self.indirect_test_dependencies
+
+        return json
 
     def iter_dependencies(self) -> Iterator[ElmPackage]:
         deps = itertools.chain(
-            self.dependencies.get('direct', {}).items(),
-            self.dependencies.get('indirect', {}).items(),
-            self.test_dependencies.get('direct', {}).items(),
-            self.test_dependencies.get('indirect', {}).items(),
+            self.direct_dependencies.items(),
+            self.indirect_dependencies.items(),
+            self.direct_test_dependencies.items(),
+            self.indirect_test_dependencies.items(),
         )
         for name, version in deps:
             # e.g. ~/.elm/0.19.0/package/elm/core/1.0.0
