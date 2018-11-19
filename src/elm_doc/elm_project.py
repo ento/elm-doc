@@ -1,9 +1,11 @@
-from typing import NamedTuple, Dict, List, Iterator, Optional
+from typing import Dict, List, Iterator, Optional
 from pathlib import Path
 import fnmatch
 import itertools
 import json
 import urllib.parse
+
+import attr
 
 from elm_doc import elm_platform
 
@@ -12,15 +14,13 @@ ModuleName = str
 STUFF_DIRECTORY = 'elm-stuff'
 
 
-ElmProjectBase = NamedTuple('ElmProjectBase', [
-    ('path', Path),
-    ('description', Dict),
-    ('user', str),
-    ('project', str),
-])
+@attr.s(auto_attribs=True)
+class ElmProject:
+    path: Path
+    description: Dict
+    user: str
+    project: str
 
-
-class ElmProject(ElmProjectBase):
     def __getattr__(self, name):
         return self.description[name.replace('_', '-')]
 
