@@ -60,7 +60,7 @@ def build_project_docs_json(
         validate: bool = False):
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': project_modules},
-        project.description,
+        project.as_json(),
     ))
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)

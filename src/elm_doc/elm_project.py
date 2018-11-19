@@ -17,12 +17,6 @@ STUFF_DIRECTORY = 'elm-stuff'
 @attr.s(auto_attribs=True)
 class ElmProject:
     path: Path
-    description: Dict
-    user: str
-    project: str
-
-    def __getattr__(self, name):
-        return self.description[name.replace('_', '-')]
 
     @property
     def json_path(self) -> Path:
@@ -36,8 +30,18 @@ class ElmProject:
         raise NotImplementedError
 
 
+@attr.s(auto_attribs=True)
 class ElmPackage(ElmProject):
-    pass
+    user: str
+    project: str
+    version: str
+    summary: str
+    repository: str
+    license: str
+    source_directories: [str]
+    exposed_modules: [str]
+    dependencies: Dict[str, str]
+    elm_version: str
 
 
 class Elm18Package(ElmPackage):
@@ -56,10 +60,30 @@ class Elm18Package(ElmPackage):
         project = repo_path.stem
         return cls(
             path=path,
-            description=description,
             user=user,
             project=project,
+            version=description['version'],
+            summary=description['summary'],
+            repository=description['repository'],
+            license=description['license'],
+            source_directories=description['source-directories'],
+            exposed_modules=description['exposed-modules'],
+            dependencies=description['dependencies'],
+            elm_version=description['elm-version'],
         )
+
+    def as_json(self):
+        fields = [
+            ('version', 'version'),
+            ('summary', 'summary'),
+            ('repository', 'repository'),
+            ('license', 'license'),
+            ('source-directories', 'source_directories'),
+            ('exposed-modules', 'exposed_modules'),
+            ('dependencies', 'dependencies'),
+            ('elm-version', 'elm_version'),
+        ]
+        return {json_prop: getattr(self, attr) for json_prop, attr in fields}
 
     def iter_dependencies(self) -> Iterator[ElmPackage]:
         exact_deps_path = self.path / STUFF_DIRECTORY / self.EXACT_DEPS_FILENAME
