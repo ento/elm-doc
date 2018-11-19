@@ -1,13 +1,15 @@
 from typing import NamedTuple, Dict, List, Iterator, Optional
 from pathlib import Path
 import fnmatch
+import itertools
 import json
 import urllib.parse
+
+from elm_doc import elm_platform
 
 
 ModuleName = str
 STUFF_DIRECTORY = 'elm-stuff'
-PACKAGES_DIRECTORY = 'packages'
 
 
 ElmProjectBase = NamedTuple('ElmProjectBase', [
@@ -41,6 +43,7 @@ class ElmPackage(ElmProject):
 class Elm18Package(ElmPackage):
     DESCRIPTION_FILENAME = 'elm-package.json'
     EXACT_DEPS_FILENAME = 'exact-dependencies.json'
+    PACKAGES_DIRECTORY = 'packages'
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['Elm18Package']:
@@ -68,11 +71,12 @@ class Elm18Package(ElmPackage):
             # todo: warn about missing exact deps
             pass
         for name, version in exact_deps.items():
-            yield from_path(self.path / STUFF_DIRECTORY / PACKAGES_DIRECTORY / name / version)
+            yield from_path(self.path / STUFF_DIRECTORY / self.PACKAGES_DIRECTORY / name / version)
 
 
 class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
+    PACKAGES_DIRECTORY = 'package'
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmApplication']:
@@ -90,6 +94,17 @@ class ElmApplication(ElmProject):
             user='user',
             project='project',
         )
+
+    def iter_dependencies(self) -> Iterator[ElmPackage]:
+        deps = itertools.chain(
+            self.dependencies.get('direct', {}).items(),
+            self.dependencies.get('indirect', {}).items(),
+            self.test_dependencies.get('direct', {}).items(),
+            self.test_dependencies.get('indirect', {}).items(),
+        )
+        for name, version in deps:
+            # e.g. ~/.elm/0.19.0/package/elm/core/1.0.0
+            yield from_path(elm_platform.ELM_HOME / self.elm_version / self.PACKAGES_DIRECTORY / name / version)
 
 
 def from_path(path: Path) -> ElmProject:
