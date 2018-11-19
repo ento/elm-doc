@@ -13,6 +13,7 @@ attrs = "*"
 
 [dev-packages]
 tox = "*"
+pytest-mock = "*"
 
 [requires]
 python_version = "3.6"
