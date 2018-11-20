@@ -34,7 +34,7 @@ def create_tasks(
         return
 
     deps = list(project.iter_dependencies())
-    all_packages = [project] + deps
+    all_packages = [project.as_package(project_config)] + deps
 
     for package in deps:
         for task in package_tasks.create_dependency_tasks(
