@@ -12,25 +12,26 @@ from elm_doc import elm_platform
 from elm_doc import elm_package_overlayer_env
 from elm_doc import elm_project
 from elm_doc import package_tasks
-from elm_doc.elm_project import ElmProject, ProjectConfig, ModuleName
+from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 from elm_doc.decorators import capture_subprocess_error
 
 @capture_subprocess_error
 def build_project_docs_json(
         project: ElmProject,
+        project_config: ProjectConfig,
         project_modules: List[ModuleName],
         output_path: Path = None,
         elm_make: Path = None,
         validate: bool = False):
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': project_modules},
-        project.as_json(),
+        project.as_package(project_config).as_json(),
     ))
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 
-        overlayed_elm_project_path = root_path / project.DESCRIPTION_FILENAME
-        with open(str(overlayed_elm_project_path), 'w') as f:
+        elm_json_path = root_path / ElmPackage.DESCRIPTION_FILENAME
+        with open(str(elm_json_path), 'w') as f:
             json.dump(elm_project_with_exposed_modules, f)
 
         if elm_make is None:
@@ -40,14 +41,9 @@ def build_project_docs_json(
         if validate:
             output_path = root_path / 'docs.json'
 
-        env = elm_package_overlayer_env(
-            str(overlayed_elm_project_path),
-            str(project.json_path),
-            os.environ)
         subprocess.run(
             [str(elm_make), 'make', '--docs', str(output_path), '--output', '/dev/null'],
-            cwd=str(project.path),
-            env=env,
+            cwd=str(root_path),
             check=True,
             capture_output=True,
         )
@@ -73,7 +69,7 @@ def create_main_project_tasks(
         yield {
             'basename': basename('validate_project_docs_json'),
             'actions': [(build_project_docs_json,
-                         (project, project_modules),
+                         (project, project_config, project_modules),
                          {'elm_make': elm_make, 'validate': True})],
             'targets': [],
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
