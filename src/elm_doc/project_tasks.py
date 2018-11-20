@@ -90,7 +90,7 @@ def create_main_project_tasks(
         'basename': basename('build_project_docs_json'),
         'actions': [(create_folder, (str(project_output_path),)),
                     (build_project_docs_json,
-                     (project, project_modules),
+                     (project, project_config, project_modules),
                      {'elm_make': elm_make, 'output_path': docs_json_path})],
         'targets': [docs_json_path],
         # 'file_dep': [all_elm_files_in_source_dirs] # todo
