@@ -38,8 +38,7 @@ def build_project_docs_json(
             elm_make = elm_platform.get_node_modules_elm_path(root_path)
 
         if validate:
-            # todo: support windows if we want to
-            output_path = '/dev/null'
+            output_path = root_path / 'docs.json'
 
         env = elm_package_overlayer_env(
             str(overlayed_elm_project_path),
