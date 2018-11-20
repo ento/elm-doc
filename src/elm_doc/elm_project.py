@@ -172,6 +172,7 @@ def _as_package_dependencies(*app_dependencies: Dict[str, ExactVersion]) -> Dict
     for app_deps in app_dependencies:
         for package_name, exact_version in app_deps.items():
             package_deps[package_name] = _as_version_range(exact_version)
+    return package_deps
 
 
 def _as_version_range(exact_version: ExactVersion) -> VersionRange:
