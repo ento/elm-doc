@@ -1,8 +1,8 @@
-module PublicFunctionNotInAtDocs exposing (publicFunc)
+module PublicFunctionNotInAtDocs exposing (anotherPublicFunc, publicFunc)
 
 {-|
 
-@docs
+@docs anotherPublicFunc
 -}
 
 
@@ -10,3 +10,9 @@ module PublicFunctionNotInAtDocs exposing (publicFunc)
 -}
 publicFunc x =
     x + 1
+
+
+{-|
+-}
+anotherPublicFunc x =
+    x - 1

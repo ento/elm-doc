@@ -1,1 +1,4 @@
-module MissingModuleComment exposing (..)
+module MissingModuleComment exposing (x)
+
+
+x = 5
