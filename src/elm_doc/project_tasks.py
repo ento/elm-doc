@@ -45,7 +45,7 @@ def build_project_docs_json(
             str(project.json_path),
             os.environ)
         subprocess.run(
-            [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
+            [str(elm_make), 'make', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(project.path),
             env=env,
             check=True,
