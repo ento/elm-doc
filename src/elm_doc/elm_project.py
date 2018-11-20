@@ -24,10 +24,6 @@ class ElmProject:
     def json_path(self) -> Path:
         return self.path / self.DESCRIPTION_FILENAME
 
-    @property
-    def name(self) -> str:
-        return '{}/{}'.format(self.user, self.project)
-
     def iter_dependencies(self) -> Iterator['ElmPackage']:
         raise NotImplementedError
 
@@ -70,6 +66,10 @@ class ElmPackage(ElmProject):
             test_dependencies=description['test-dependencies'],
             elm_version=description['elm-version'],
         )
+
+    @property
+    def name(self) -> str:
+        return '{}/{}'.format(self.user, self.project)
 
     def as_package(self, config):
         return self
@@ -139,7 +139,6 @@ class ElmApplication(ElmProject):
     def as_json(self):
         json = {
             'type': 'application',
-            'name': self.name,
             'source-directories': self.source_directories,
             'elm-version': self.elm_version,
         }
