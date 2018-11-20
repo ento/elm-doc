@@ -34,88 +34,21 @@ class ElmProject:
 
 @attr.s(auto_attribs=True)
 class ElmPackage(ElmProject):
+    DESCRIPTION_FILENAME = 'elm.json'
+    PACKAGES_DIRECTORY = 'packages'
+
     user: str
     project: str
     version: str
     summary: str
     license: str
     elm_version: VersionRange
-    dependencies: Dict[str, VersionRange]
-
-
-@attr.s(auto_attribs=True)
-class Elm18Package(ElmPackage):
-    DESCRIPTION_FILENAME = 'elm-package.json'
-    EXACT_DEPS_FILENAME = 'exact-dependencies.json'
-    PACKAGES_DIRECTORY = 'packages'
-
-    repository: str
-    source_directories: [str]
-    exposed_modules: [ModuleName]
-
-    @classmethod
-    def from_path(cls, path: Path) -> Optional['Elm18Package']:
-        json_path = path / cls.DESCRIPTION_FILENAME
-        if not json_path.exists():
-            return
-        description = _load_json(json_path)
-        repo_path = Path(urllib.parse.urlparse(description['repository']).path)
-        user = repo_path.parent.stem
-        project = repo_path.stem
-        return cls(
-            path=path,
-            user=user,
-            project=project,
-            version=description['version'],
-            summary=description['summary'],
-            repository=description['repository'],
-            license=description['license'],
-            source_directories=description['source-directories'],
-            exposed_modules=description['exposed-modules'],
-            dependencies=description['dependencies'],
-            elm_version=description['elm-version'],
-        )
-
-    def as_package(self, config):
-        return self
-
-    def as_json(self):
-        fields = [
-            ('version', 'version'),
-            ('summary', 'summary'),
-            ('repository', 'repository'),
-            ('license', 'license'),
-            ('source-directories', 'source_directories'),
-            ('exposed-modules', 'exposed_modules'),
-            ('dependencies', 'dependencies'),
-            ('elm-version', 'elm_version'),
-        ]
-        return {json_prop: getattr(self, attr) for json_prop, attr in fields}
-
-    def iter_dependencies(self) -> Iterator[ElmPackage]:
-        exact_deps_path = self.path / STUFF_DIRECTORY / self.EXACT_DEPS_FILENAME
-        exact_deps = {}
-        try:
-            with open(str(exact_deps_path)) as f:
-                exact_deps = json.load(f)
-        except OSError:
-            # todo: warn about missing exact deps
-            pass
-        for name, version in exact_deps.items():
-            yield from_path(self.path / STUFF_DIRECTORY / self.PACKAGES_DIRECTORY / name / version)
-
-
-@attr.s(auto_attribs=True)
-class Elm19Package(ElmPackage):
-    DESCRIPTION_FILENAME = 'elm.json'
-    PACKAGES_DIRECTORY = 'packages'
-
-    elm_version: ExactVersion
     exposed_modules: Union[List[ModuleName], Dict[str, List[ModuleName]]]
+    dependencies: Dict[str, VersionRange]
     test_dependencies: Dict[str, VersionRange]
 
     @classmethod
-    def from_path(cls, path: Path) -> Optional['Elm19Package']:
+    def from_path(cls, path: Path) -> Optional['ElmPackage']:
         json_path = path / cls.DESCRIPTION_FILENAME
         if not json_path.exists():
             return
@@ -187,8 +120,8 @@ class ElmApplication(ElmProject):
             indirect_test_dependencies=description['test-dependencies'].get('indirect', {}),
         )
 
-    def as_package(self, overrides: 'ProjectConfig') -> 'Elm19Package':
-        return Elm19Package(
+    def as_package(self, overrides: 'ProjectConfig') -> 'ElmPackage':
+        return ElmPackage(
             path=self.path,
             user=overrides.fake_user,
             project=overrides.fake_project,
@@ -253,11 +186,9 @@ def _as_version_range(exact_version: ExactVersion) -> VersionRange:
 
 
 def from_path(path: Path) -> ElmProject:
-    # todo: Elm19Package
     classes = [
-        Elm18Package,
         ElmApplication,
-        Elm19Package,
+        ElmPackage,
     ]
     for cls in classes:
         project = cls.from_path(path)

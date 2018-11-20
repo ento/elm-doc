@@ -23,10 +23,10 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
         assert basenames_in_first_seen_order(result) == expected_task_names
 
 
-def test_create_tasks_only_project_modules(
+def test_create_tasks_project_modules_and_dependencies(
         tmpdir, overlayer, elm_version, make_elm_project):
     modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, modules=modules, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
         project_dir.join('README.md').write('hello')
@@ -38,10 +38,12 @@ def test_create_tasks_only_project_modules(
             'package_readme',
             'package_latest_link',
             'module_page',
+            'download_package_docs_json',
             'index',
             'all_packages',
             'new_packages',
-            'assets']
+            'assets',
+        ]
         assert basenames_in_first_seen_order(result) == expected_task_names
 
 
