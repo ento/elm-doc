@@ -145,19 +145,13 @@ class ElmApplication(ElmProject):
             'elm-version': self.elm_version,
         }
 
-        if self.direct_dependencies or self.indirect_dependencies:
-            json['dependencies'] = {}
-            if self.direct_dependencies:
-                json['dependencies']['direct'] = self.direct_dependencies
-            if self.indirect_dependencies:
-                json['dependencies']['indirect'] = self.indirect_dependencies
+        json['dependencies'] = {}
+        json['dependencies']['direct'] = self.direct_dependencies
+        json['dependencies']['indirect'] = self.indirect_dependencies
 
-        if self.direct_test_dependencies or self.indirect_test_dependencies:
-            json['test-dependencies'] = {}
-            if self.direct_test_dependencies:
-                json['test-dependencies']['direct'] = self.direct_test_dependencies
-            if self.indirect_test_dependencies:
-                json['test-dependencies']['indirect'] = self.indirect_test_dependencies
+        json['test-dependencies'] = {}
+        json['test-dependencies']['direct'] = self.direct_test_dependencies
+        json['test-dependencies']['indirect'] = self.indirect_test_dependencies
 
         return json
 
