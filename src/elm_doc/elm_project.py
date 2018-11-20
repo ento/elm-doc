@@ -76,16 +76,18 @@ class ElmPackage(ElmProject):
 
     def as_json(self):
         fields = [
+            ('name', 'name'),
             ('version', 'version'),
             ('summary', 'summary'),
-            ('repository', 'repository'),
             ('license', 'license'),
             ('exposed-modules', 'exposed_modules'),
             ('dependencies', 'dependencies'),
             ('test-dependencies', 'test_dependencies'),
             ('elm-version', 'elm_version'),
         ]
-        return {json_prop: getattr(self, attr) for json_prop, attr in fields}
+        props = {json_prop: getattr(self, attr) for json_prop, attr in fields}
+        props['type'] = 'package'
+        return props
 
 
 @attr.s(auto_attribs=True)
