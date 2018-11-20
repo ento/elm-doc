@@ -1,3 +1,4 @@
+import sys
 import os
 import os.path
 import shutil
@@ -60,6 +61,11 @@ def _resolve_path(path: str) -> Path:
     return Path(os.path.normpath(os.path.abspath(path)))
 
 
+class LazyOutfile:
+    def write(self, *args, **kwargs):
+        sys.stdout.write(*args, **kwargs)
+
+
 @click.command(context_settings=dict(
     ignore_unknown_options=True,
 ))
@@ -120,7 +126,8 @@ def main(
             mount_point=mount_at,
             validate=validate)
 
-    result = DoitMain(ModuleTaskLoader(locals())).run(
+    extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
+    result = DoitMain(ModuleTaskLoader(locals()), extra_config=extra_config).run(
         doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
         raise DoitException('', result)

@@ -141,22 +141,18 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
 
 
 def test_cli_validate_invalid_project_with_masked_exclude(
-        capfd, tmpdir, runner, overlayer, elm_version, make_elm_project):
+        tmpdir, runner, overlayer, elm_version, make_elm_project, request):
     modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', '--validate', project_dir.basename])
-        out, err = capfd.readouterr()
-
-        problem_lines = [line for line in err.splitlines()
-                         if 'SYNTAX PROBLEM' in line or 'DOCUMENTATION ERROR' in line]
+        problem_lines = [line for line in result.output.splitlines()
+                         if 'NO DOCS' in line or 'DOCS MISTAKE' in line]
         assert len(problem_lines) == 2
 
         # traceback should be suppressed
         assert 'CalledProcessError' not in result.output
-        assert 'CalledProcessError' not in out
-        assert 'CalledProcessError' not in err
 
         assert result.exception, result.output
         assert result.exit_code == 1
