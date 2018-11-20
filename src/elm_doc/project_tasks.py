@@ -6,6 +6,7 @@ import json
 from tempfile import TemporaryDirectory
 import subprocess
 
+from dirsync import sync
 from doit.tools import create_folder
 
 from elm_doc import elm_platform
@@ -33,6 +34,10 @@ def build_project_docs_json(
         elm_json_path = root_path / ElmPackage.DESCRIPTION_FILENAME
         with open(str(elm_json_path), 'w') as f:
             json.dump(elm_project_with_exposed_modules, f)
+
+        package_src_dir = root_path / 'src'
+        for source_dir in project.source_directories:
+            sync(project.path / source_dir, package_src_dir, 'sync', create=True, purge=True)
 
         if elm_make is None:
             elm_platform.install(root_path, project.elm_version)
