@@ -50,7 +50,7 @@ def test_cli_in_empty_project(tmpdir, runner):
 
 
 def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
-    project_dir = make_elm_project(elm_version, tmpdir)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
 
     with tmpdir.as_cwd():
         tmpdir.mkdir('docs')
