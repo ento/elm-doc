@@ -111,8 +111,14 @@ default_elm_package['0.19.0'] = {
         "direct": {
             "elm/core": "1.0.2",
             "elm/html": "1.0.0"
+        },
+        "indirect": {
+            "elm/json": "1.1.2",
+            "elm/virtual-dom": "1.0.2"
         }
     },
     "test-dependencies": {
+        "direct": {},
+        "indirect": {}
     }
 }
