@@ -25,6 +25,7 @@ setup(
     platforms='any',
     install_requires=[
         'click',
+        'dirsync',
         'doit',
         'python-magic',
         'retrying',

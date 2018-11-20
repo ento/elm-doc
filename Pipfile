@@ -10,6 +10,7 @@ python-magic = "*"
 retrying = "*"
 typing = "*"
 attrs = "*"
+dirsync = "*"
 
 [dev-packages]
 tox = "*"
