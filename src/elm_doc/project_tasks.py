@@ -35,7 +35,7 @@ def build_project_docs_json(
 
         if elm_make is None:
             elm_platform.install(root_path, project.elm_version)
-            elm_make = elm_platform.get_npm_executable_path(root_path, 'elm-make')
+            elm_make = elm_platform.get_node_modules_elm_path(root_path)
 
         if validate:
             # todo: support windows if we want to

@@ -28,14 +28,17 @@ def install(to: Path, elm_version: str):
 
 
 @capture_subprocess_error
-def get_npm_executable_path(project_root: Path, executable: str):
-    script = 'console.log(require("elm/platform").executablePaths["{}"])'.format(
-        executable)
-    executable_path = subprocess.check_output(
+def get_node_modules_elm_path(project_root: Path):
+    script = 'console.log(require.resolve("elm"))'
+    # e.g. path/to/node_modules/elm/index.js
+    elm_index_path = subprocess.run(
         ['node', '-e', script],
         cwd=str(project_root),
-    )
-    return Path(executable_path.decode('utf-8').strip())
+        check=True,
+        capture_output=True,
+    ).stdout
+    # e.g. path/to/node_modules/elm/unpacked_bin/elm
+    return Path(elm_index_path.decode('utf-8').strip()).parent / 'unpacked_bin' / 'elm'
 
 
 def get_npm_version_range(elm_version: str) -> str:
