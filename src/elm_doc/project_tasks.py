@@ -45,10 +45,13 @@ def build_project_docs_json(
             str(overlayed_elm_project_path),
             str(project.json_path),
             os.environ)
-        subprocess.check_call(
+        subprocess.run(
             [str(elm_make), '--yes', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(project.path),
-            env=env)
+            env=env,
+            check=True,
+            capture_output=True,
+        )
 
 
 def _project_task_basename_factory(_project):

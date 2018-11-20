@@ -24,10 +24,12 @@ def build_assets(output_path: Path, mount_point: str = ''):
         root_path = Path(tmpdir)
 
         # download package.elm-lang.org repo
-        subprocess.check_call(
+        subprocess.run(
             'curl -L -s {tarball} | tar xz --strip-components 1'.format(tarball=tarball),
             shell=True,
             cwd=str(root_path),
+            check=True,
+            capture_output=True,
         )
         package = elm_project.from_path(root_path)
 
@@ -44,12 +46,14 @@ def build_assets(output_path: Path, mount_point: str = ''):
         frontend_pages = Path(package.source_directories[0]) / 'Page'
         for main_elm in root_path.glob(str(frontend_pages / '*.elm')):
             basename = main_elm.stem
-            subprocess.check_call(
+            subprocess.run(
                 ['./node_modules/.bin/elm-make',
                  str(main_elm),
                  '--output',
                  'artifacts/Page-{0}.js'.format(basename)],
                 cwd=str(root_path),
+                check=True,
+                capture_output=True,
             )
 
         env = dict(ChainMap(
@@ -89,7 +93,9 @@ def build_assets(output_path: Path, mount_point: str = ''):
     wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
     stop_max_attempt_number=10)
 def _install_elm_packages(root_path):
-    subprocess.check_call(
+    subprocess.run(
         ['./node_modules/.bin/elm-package', 'install', '--yes'],
         cwd=root_path,
+        check=True,
+        capture_output=True,
     )
