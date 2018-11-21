@@ -22,7 +22,7 @@ def build_project_docs_json(
         project_config: ProjectConfig,
         project_modules: List[ModuleName],
         output_path: Path = None,
-        elm_make: Path = None,
+        elm_path: Path = None,
         validate: bool = False):
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': project_modules},
@@ -39,15 +39,15 @@ def build_project_docs_json(
         for source_dir in project.source_directories:
             sync(project.path / source_dir, package_src_dir, 'sync', create=True, purge=True)
 
-        if elm_make is None:
+        if elm_path is None:
             elm_platform.install(root_path, project.elm_version)
-            elm_make = elm_platform.get_node_modules_elm_path(root_path)
+            elm_path = elm_platform.get_node_modules_elm_path(root_path)
 
         if validate:
             output_path = root_path / 'docs.json'
 
         subprocess.run(
-            [str(elm_make), 'make', '--docs', str(output_path), '--output', '/dev/null'],
+            [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(root_path),
             check=True,
             capture_output=True,
@@ -62,7 +62,7 @@ def create_main_project_tasks(
         project: ElmProject,
         project_config: ProjectConfig,
         output_path: Optional[Path],
-        elm_make: Path = None,
+        elm_path: Path = None,
         mount_point: str = '',
         validate: bool = False):
     basename = _project_task_basename_factory(project)
@@ -75,7 +75,7 @@ def create_main_project_tasks(
             'basename': basename('validate_project_docs_json'),
             'actions': [(build_project_docs_json,
                          (project, project_config, project_modules),
-                         {'elm_make': elm_make, 'validate': True})],
+                         {'elm_path': elm_path, 'validate': True})],
             'targets': [],
             # 'file_dep': [all_elm_files_in_source_dirs] # todo
         }
@@ -91,7 +91,7 @@ def create_main_project_tasks(
         'actions': [(create_folder, (str(project_output_path),)),
                     (build_project_docs_json,
                      (project, project_config, project_modules),
-                     {'elm_make': elm_make, 'output_path': docs_json_path})],
+                     {'elm_path': elm_path, 'output_path': docs_json_path})],
         'targets': [docs_json_path],
         # 'file_dep': [all_elm_files_in_source_dirs] # todo
     }

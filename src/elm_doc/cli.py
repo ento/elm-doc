@@ -26,7 +26,7 @@ def validate_mount_at(ctx, param, value):
         raise click.BadParameter('should be an absolute path, like /{}'.format(value))
 
 
-def validate_elm_make(ctx, param, value):
+def validate_elm_path(ctx, param, value):
     if value is None:
         return value
 
@@ -54,10 +54,10 @@ class LazyOutfile:
 ))
 @click.option('--output', '-o',
               metavar='dir')
-@click.option('--elm-make',
-              metavar='path/to/elm-make',
-              callback=validate_elm_make,
-              help=('specify which elm-make to use. if not specified, '
+@click.option('--elm-path',
+              metavar='path/to/elm',
+              callback=validate_elm_path,
+              help=('specify which elm binary to use. if not specified, '
                     'elm will be installed afresh in a temporary directory'))
 @click.option('--mount-at',
               metavar='/path',
@@ -80,7 +80,7 @@ class LazyOutfile:
 @click.argument('include_paths', nargs=-1)
 def main(
         output,
-        elm_make,
+        elm_path,
         mount_at,
         exclude,
         force_exclusion,
@@ -105,7 +105,7 @@ def main(
             _resolve_path(project_path),
             project_config,
             _resolve_path(output) if output is not None else None,
-            elm_make=_resolve_path(elm_make) if elm_make is not None else None,
+            elm_path=_resolve_path(elm_path) if elm_path is not None else None,
             mount_point=mount_at,
             validate=validate)
 

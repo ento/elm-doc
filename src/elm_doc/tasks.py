@@ -14,7 +14,7 @@ def create_tasks(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
         output_path: Optional[Path] = None,
-        elm_make: Optional[Path] = None,
+        elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     # todo: gracefully handle missing elm-package.json
@@ -25,7 +25,7 @@ def create_tasks(
             project,
             project_config,
             output_path,
-            elm_make=elm_make,
+            elm_path=elm_path,
             mount_point=mount_point,
             validate=validate):
         yield task
