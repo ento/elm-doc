@@ -4,6 +4,7 @@ from collections import ChainMap
 from pathlib import Path
 import json
 from tempfile import TemporaryDirectory
+import glob
 import subprocess
 
 from dirsync import sync
@@ -11,6 +12,7 @@ from doit.tools import create_folder
 
 from elm_doc import elm_platform
 from elm_doc import elm_project
+from elm_doc import elm_codeshift
 from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 from elm_doc.decorators import capture_subprocess_error
@@ -48,6 +50,9 @@ def build_project_docs_json(
 
         if validate:
             output_path = build_path / 'docs.json'
+
+        for elm_file in glob.glob(str(package_src_dir / '**/*.elm'), recursive=True):
+            elm_codeshift.strip_ports(Path(elm_file))
 
         subprocess.run(
             [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
