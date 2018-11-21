@@ -75,7 +75,7 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_pr
         assert output_dir.join('artifacts').check(dir=True)
 
         elm_lang_html_docs_path = output_dir.join(
-            'packages', 'elm-lang', 'html', '2.0.0', 'documentation.json')
+            'packages', 'elm', 'html', '1.0.0', 'documentation.json')
         assert elm_lang_html_docs_path.check()
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
