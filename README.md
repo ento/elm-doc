@@ -63,7 +63,7 @@ For a full list of options, see:
 
 Make sure you have [yarn](https://yarnpkg.com/en/docs/install).
 
-In a Python (>=3.4) [virtualenv](https://docs.python.org/3.6/library/venv.html#creating-virtual-environments) or globally:
+In a Python (>=3.5) [virtualenv](https://docs.python.org/3.6/library/venv.html#creating-virtual-environments) or globally:
 
     $ pip install --upgrade pip setuptools
     $ pip install elm-doc
