@@ -17,9 +17,17 @@ from elm_doc.decorators import capture_subprocess_error
 codeshifter = os.path.normpath(os.path.join(os.path.dirname(__file__), 'native', 'prepend_mountpoint.js'))
 
 
+def _package_elm_lang_org_ref_to_download(elm_version):
+    refs = {
+        '0.19.0': 'a8b9f08c66ddc2a5f784bedbc943f48f6efa9be3'
+    }
+    return refs.get(elm_version, refs['0.19.0'])
+
+
 @capture_subprocess_error
-def build_assets(output_path: Path, mount_point: str = ''):
-    tarball = 'https://api.github.com/repos/elm/package.elm-lang.org/tarball/0.18.0'
+def build_assets(elm_version: elm_project.ExactVersion, output_path: Path, mount_point: str = ''):
+    ref = _package_elm_lang_org_ref_to_download(elm_version)
+    tarball = 'https://api.github.com/repos/elm/package.elm-lang.org/tarball/{}'.format(ref)
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
 
@@ -36,25 +44,25 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # install elm
         elm_platform.install(root_path, package.elm_version)
         node_modules.add('jscodeshift', cwd=str(root_path))
-        _install_elm_packages(str(root_path))
 
         # make artifacts
         artifacts_path = root_path / 'artifacts'
         os.makedirs(str(artifacts_path))
 
-        # I know there's only one source directory!
-        frontend_pages = Path(package.source_directories[0]) / 'Page'
-        for main_elm in root_path.glob(str(frontend_pages / '*.elm')):
-            basename = main_elm.stem
-            subprocess.run(
-                ['./node_modules/.bin/elm-make',
-                 str(main_elm),
-                 '--output',
-                 'artifacts/Page-{0}.js'.format(basename)],
-                cwd=str(root_path),
-                check=True,
-                capture_output=True,
-            )
+        # see:
+        # https://github.com/elm/package.elm-lang.org/blob/a8b9f08c66ddc2a5f784bedbc943f48f6efa9be3/src/backend/Artifacts.hs#L34
+        subprocess.run(
+            ['./node_modules/.bin/elm',
+             'make',
+             'src/frontend/Main.elm',
+             '--optimize',
+             '--output',
+             'artifacts/elm.js',
+             ],
+            cwd=str(root_path),
+            check=True,
+            capture_output=True,
+        )
 
         env = dict(ChainMap(
             os.environ,
@@ -85,17 +93,3 @@ def build_assets(output_path: Path, mount_point: str = ''):
         # copy assets
         shutil.rmtree(str(output_path / 'assets'), ignore_errors=True)
         shutil.copytree(str(root_path / 'assets'), str(output_path / 'assets'))
-
-
-@retry(
-    retry_on_exception=lambda e: isinstance(e, subprocess.CalledProcessError),
-    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
-    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
-    stop_max_attempt_number=10)
-def _install_elm_packages(root_path):
-    subprocess.run(
-        ['./node_modules/.bin/elm-package', 'install', '--yes'],
-        cwd=root_path,
-        check=True,
-        capture_output=True,
-    )

@@ -46,7 +46,7 @@ def create_tasks(
 
     yield {
         'basename': 'assets',
-        'actions': [(asset_tasks.build_assets, (output_path, mount_point))],
+        'actions': [(asset_tasks.build_assets, (project.elm_version, output_path, mount_point))],
         'targets': [output_path / 'assets', output_path / 'artifacts'],
         'uptodate': [True],
     }
