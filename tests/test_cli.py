@@ -78,7 +78,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
             'packages', 'elm', 'html', '1.0.0', 'documentation.json')
         assert elm_lang_html_docs_path.check()
 
-        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
         package_latest_link = package_dir.dirpath('latest')
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())

@@ -15,6 +15,7 @@ from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 from elm_doc.decorators import capture_subprocess_error
 
+
 @capture_subprocess_error
 def build_project_docs_json(
         project: ElmProject,
