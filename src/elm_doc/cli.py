@@ -54,6 +54,10 @@ class LazyOutfile:
 ))
 @click.option('--output', '-o',
               metavar='dir')
+@click.option('--build-dir',
+              metavar='dir',
+              help=('temporary build directory. source files will be copied here. '
+                    'default: <project_path>/.elm-doc/'))
 @click.option('--elm-path',
               metavar='path/to/elm',
               callback=validate_elm_path,
@@ -80,6 +84,7 @@ class LazyOutfile:
 @click.argument('include_paths', nargs=-1)
 def main(
         output,
+        build_dir,
         elm_path,
         mount_at,
         exclude,
@@ -105,6 +110,7 @@ def main(
             _resolve_path(project_path),
             project_config,
             _resolve_path(output) if output is not None else None,
+            build_path=_resolve_path(build_dir) if build_dir is not None else None,
             elm_path=_resolve_path(elm_path) if elm_path is not None else None,
             mount_point=mount_at,
             validate=validate)

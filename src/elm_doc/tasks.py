@@ -14,17 +14,20 @@ def create_tasks(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
         output_path: Optional[Path] = None,
+        build_path: Optional[Path] = None,
         elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     # todo: gracefully handle missing elm-package.json
     project = elm_project.from_path(project_path)
-    # todo: gracefully handle missing exact-dependencies.json
+    if build_path is None:
+        build_path = project_path / '.elm-doc'
 
     for task in project_tasks.create_main_project_tasks(
             project,
             project_config,
             output_path,
+            build_path=build_path,
             elm_path=elm_path,
             mount_point=mount_point,
             validate=validate):
