@@ -113,7 +113,7 @@ def main(
     result = DoitMain(ModuleTaskLoader(locals()), extra_config=extra_config).run(
         doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
-        raise DoitException('', result)
+        raise DoitException('see output above', result)
 
 
 if __name__ == '__main__':
