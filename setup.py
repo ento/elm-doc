@@ -20,7 +20,6 @@ setup(
         'click',
         'dirsync',
         'doit',
-        'python-magic',
         'retrying',
     ],
     packages=find_packages('src', exclude=['tests']),

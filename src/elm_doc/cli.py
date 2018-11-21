@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 
 import click
-import magic
 from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 

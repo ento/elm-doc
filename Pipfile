@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 click = "*"
 doit = "*"
-python-magic = "*"
 retrying = "*"
 typing = "*"
 attrs = "*"
