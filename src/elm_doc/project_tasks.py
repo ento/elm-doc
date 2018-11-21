@@ -10,7 +10,6 @@ from dirsync import sync
 from doit.tools import create_folder
 
 from elm_doc import elm_platform
-from elm_doc import elm_package_overlayer_env
 from elm_doc import elm_project
 from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName

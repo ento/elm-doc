@@ -61,7 +61,7 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
         assert tmpdir.join('docs').check(exists=True)
 
 
-def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_project):
+def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
@@ -104,7 +104,7 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, elm_version, make_elm_pr
 
 
 def test_cli_validate_real_project(
-        tmpdir, runner, overlayer, elm_version, make_elm_project):
+        tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
@@ -118,7 +118,7 @@ def test_cli_validate_real_project(
 
 
 def test_cli_validate_subset_of_real_project_with_forced_exclusion(
-        tmpdir, runner, overlayer, elm_version, make_elm_project):
+        tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm', 'MissingModuleComment.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
@@ -141,7 +141,7 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
 
 
 def test_cli_validate_invalid_project_with_masked_exclude(
-        tmpdir, runner, overlayer, elm_version, make_elm_project, request):
+        tmpdir, runner, elm_version, make_elm_project, request):
     modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')

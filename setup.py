@@ -3,14 +3,7 @@ Generate static documentation for your Elm project.
 """
 import sys
 from setuptools import find_packages, setup
-from setuptools.extension import Extension
 
-if sys.platform == 'darwin':
-    from distutils import sysconfig
-    vars = sysconfig.get_config_vars()
-    vars['LDSHARED'] = vars['LDSHARED'].replace('-bundle', '-dynamiclib')
-
-ext = Extension('overlay_elm_package', sources=['src/elm_doc/native/overlay_elm_package.c'], libraries=["dl"])
 
 setup(
     name='elm-doc',
@@ -34,7 +27,6 @@ setup(
     package_dir={'': 'src'},
     package_data={'': ['elm_doc/native/*.js']},
     include_package_data=True,
-    ext_modules=[ext],
     entry_points={
         'console_scripts': [
             'elm-doc = elm_doc.cli:main',

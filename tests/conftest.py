@@ -20,11 +20,6 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("elm_version", [metafunc.config.getoption('elm_version')])
 
 
-@pytest.fixture(scope='session')
-def overlayer():
-    elm_doc.__path__.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-
-
 @pytest.fixture
 def elm_stuff_fixture_path():
     def for_version(elm_version):
