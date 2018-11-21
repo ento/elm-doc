@@ -10,6 +10,7 @@ retrying = "*"
 typing = "*"
 attrs = "*"
 dirsync = "*"
+parsy = "*"
 
 [dev-packages]
 tox = "*"

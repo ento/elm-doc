@@ -20,6 +20,7 @@ setup(
         'click',
         'dirsync',
         'doit',
+        'parsy',
         'retrying',
     ],
     packages=find_packages('src', exclude=['tests']),
