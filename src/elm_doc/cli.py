@@ -37,23 +37,6 @@ def validate_elm_make(ctx, param, value):
     if realpath is None or not os.path.isfile(realpath):
         raise click.BadParameter('{} not found'.format(value))
 
-    elm_make_mimetype = magic.from_file(realpath, mime=True)
-    if not elm_make_mimetype.startswith('text'):
-        return value
-
-    perhaps_binwrap_of = os.path.normpath(
-        os.path.join(
-            os.path.dirname(realpath),
-            os.pardir,
-            'elm',
-            'Elm-Platform',
-            '*',
-            '.cabal-sandbox',
-            'bin',
-            'elm-make'))
-    raise click.BadParameter('''should be the real elm-make binary; this looks like a text file.
-if you installed Elm through npm, then try {}'''.format(perhaps_binwrap_of))
-
 
 def _resolve_path(path: str) -> Path:
     # not using Path.resolve() for now because we don't expect strict
