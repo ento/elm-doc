@@ -12,6 +12,7 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
         expected_task_names = [
             'build_project_docs_json',
             'package_page',
+            'package_releases',
             'package_latest_link',
             'copy_package_docs_json',
             'package_readme',
@@ -36,6 +37,7 @@ def test_create_tasks_project_modules_and_dependencies(
             'build_project_docs_json',
             'package_page',
             'package_readme',
+            'package_releases',
             'package_latest_link',
             'module_page',
             'copy_package_docs_json',

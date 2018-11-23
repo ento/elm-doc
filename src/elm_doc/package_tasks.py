@@ -2,6 +2,7 @@ from typing import List, Optional
 import os
 import os.path
 from pathlib import Path
+import json
 import shutil
 import urllib.error
 import urllib.request
@@ -17,6 +18,12 @@ def build_package_page(output_path: Path, mount_point: str = ''):
     os.makedirs(os.path.dirname(str(output_path)), exist_ok=True)
     with open(str(output_path), 'w') as f:
         f.write(page_template.render(mount_point=mount_point))
+
+
+def build_package_releases(output_path: Path, version: str, timestamp: int):
+    releases = {version: timestamp}
+    with open(str(output_path), 'w') as f:
+        json.dump(releases, f)
 
 
 def link_latest_package_dir(package_dir: Path, link_path: Path):
@@ -91,6 +98,15 @@ def create_package_page_tasks(
             'targets': [output_readme_path],
             'file_dep': [package_readme],
         }
+
+    # package releases
+    package_releases_output = package_output_path.parent / 'releases.json'
+    timestamp = 1
+    yield {
+        'basename': basename('package_releases'),
+        'actions': [(build_package_releases, (package_releases_output,), {'version': package.version, 'timestamp': timestamp})],
+        'targets': [package_releases_output],
+    }
 
     # link from /latest
     latest_path = package_output_path.parent / 'latest'

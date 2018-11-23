@@ -65,15 +65,17 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert output_dir.join('assets').check(dir=True)
         assert output_dir.join('artifacts').check(dir=True)
 
-        elm_lang_html_docs_path = output_dir.join(
-            'packages', 'elm', 'html', '1.0.0', 'docs.json')
-        assert elm_lang_html_docs_path.check()
+        elm_lang_html_path = output_dir.join(
+            'packages', 'elm', 'html', '1.0.0')
+        assert elm_lang_html_path.join('docs.json').check()
+        assert elm_lang_html_path.join('..', 'releases.json').check()
 
         package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
         package_latest_link = package_dir.dirpath('latest')
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())
         assert package_dir.join('README.md').check()
+        assert package_dir.join('..', 'releases.json').check()
 
         package_index = package_dir.join('index.html')
         assert package_index.check()
