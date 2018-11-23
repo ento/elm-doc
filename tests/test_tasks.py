@@ -18,7 +18,7 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
             'package_readme',
             'module_page',
             'index',
-            'all_packages',
+            'search_json',
             'new_packages',
             'assets']
         assert basenames_in_first_seen_order(result) == expected_task_names
@@ -42,7 +42,7 @@ def test_create_tasks_project_modules_and_dependencies(
             'module_page',
             'copy_package_docs_json',
             'index',
-            'all_packages',
+            'search_json',
             'new_packages',
             'assets',
         ]

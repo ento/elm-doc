@@ -87,9 +87,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert package_docs.check()
         assert json.loads(package_docs.read())[0]['name'] == 'Main'
 
-        all_packages = output_dir.join('all-packages')
-        assert all_packages.check()
-        assert len(json.loads(all_packages.read())) > 0
+        search_json = output_dir.join('search.json')
+        assert search_json.check()
+        assert len(json.loads(search_json.read())) > 0
 
         new_packages = output_dir.join('new-packages')
         assert new_packages.check()
