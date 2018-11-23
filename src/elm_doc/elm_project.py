@@ -91,6 +91,14 @@ class ElmPackage(ElmProject):
         props['type'] = 'package'
         return props
 
+    def sorted_exposed_modules(self):
+        if isinstance(self.exposed_modules, dict):
+            modules = [module for modules in self.exposed_modules.values()
+                       for module in modules]
+        else:
+            modules = list(self.exposed_modules)
+        return sorted(modules)
+
 
 @attr.s(auto_attribs=True)
 class ElmApplication(ElmProject):

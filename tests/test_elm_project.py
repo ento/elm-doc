@@ -3,6 +3,41 @@ from pathlib import Path
 from elm_doc import elm_project
 
 
+def test_sorted_exposed_modules_of_flat_exposed_modules():
+    package = elm_project.ElmPackage(
+        path=Path(),
+        user='',
+        project='',
+        version='',
+        summary='',
+        license='',
+        elm_version='',
+        exposed_modules=['Module.C', 'Module.B'],
+        dependencies={},
+        test_dependencies={},
+    )
+    assert list(package.sorted_exposed_modules()) == ['Module.B', 'Module.C']
+
+
+def test_sorted_exposed_modules_flattens_groups():
+    package = elm_project.ElmPackage(
+        path=Path(),
+        user='',
+        project='',
+        version='',
+        summary='',
+        license='',
+        elm_version='',
+        exposed_modules={
+            'Group A': ['Module.A'],
+            'Group B': ['Module.C', 'Module.B'],
+        },
+        dependencies={},
+        test_dependencies={},
+    )
+    assert list(package.sorted_exposed_modules()) == ['Module.A', 'Module.B', 'Module.C']
+
+
 def test_glob_project_modules_includes_take_precedence_over_excludes(
         tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(

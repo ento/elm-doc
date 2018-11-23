@@ -51,7 +51,7 @@ def create_dependency_tasks(
         package: ElmPackage,
         mount_point: str = ''):
     basename = _package_task_basename_factory(package)
-    package_modules = package.exposed_modules
+    package_modules = package.sorted_exposed_modules()
     package_output_path = package_docs_root(output_path, package)
 
     # package docs.json
