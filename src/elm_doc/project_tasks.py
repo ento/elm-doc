@@ -93,8 +93,8 @@ def create_main_project_tasks(
     project_as_package = project.as_package(project_config)
     project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
 
-    # project documentation.json
-    docs_json_path = project_output_path / 'documentation.json'
+    # project docs.json
+    docs_json_path = project_output_path / 'docs.json'
     yield {
         'basename': basename('build_project_docs_json'),
         'actions': [(create_folder, (str(project_output_path),)),

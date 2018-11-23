@@ -30,16 +30,9 @@ def copy_package_readme(package_readme: Path, output_path: Path):
         shutil.copy(str(package_readme), str(output_path))
 
 
-@retry(
-    retry_on_exception=lambda e: isinstance(e, urllib.error.URLError),
-    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
-    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
-    stop_max_attempt_number=10)
-def download_package_docs_json(package: ElmPackage, output_path: Path):
-    url = 'https://package.elm-lang.org/packages/{name}/{version}/docs.json'.format(
-        name=package.name, version=package.version
-    )
-    urllib.request.urlretrieve(url, str(output_path))
+def copy_package_docs_json(package: ElmPackage, output_path: Path):
+    source = package.path / 'docs.json'
+    shutil.copy(str(source), str(output_path))
 
 
 def _package_task_basename_factory(package):
@@ -54,12 +47,12 @@ def create_dependency_tasks(
     package_modules = package.exposed_modules
     package_output_path = package_docs_root(output_path, package)
 
-    # package documentation.json
-    docs_json_path = package_output_path / 'documentation.json'
+    # package docs.json
+    docs_json_path = package_output_path / 'docs.json'
     yield {
-        'basename': basename('download_package_docs_json'),
+        'basename': basename('copy_package_docs_json'),
         'actions': [(create_folder, (str(package_output_path),)),
-                    (download_package_docs_json, (package, docs_json_path))],
+                    (copy_package_docs_json, (package, docs_json_path))],
         'targets': [docs_json_path],
         # 'file_dep': [all_elm_files_in_source_dirs] # todo
         'uptodate': [True],

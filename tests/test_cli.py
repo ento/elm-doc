@@ -66,7 +66,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert output_dir.join('artifacts').check(dir=True)
 
         elm_lang_html_docs_path = output_dir.join(
-            'packages', 'elm', 'html', '1.0.0', 'documentation.json')
+            'packages', 'elm', 'html', '1.0.0', 'docs.json')
         assert elm_lang_html_docs_path.check()
 
         package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
@@ -81,7 +81,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         package_main = package_dir.join('Main')
         assert package_main.check()
 
-        package_docs = package_dir.join('documentation.json')
+        package_docs = package_dir.join('docs.json')
         assert package_docs.check()
         assert json.loads(package_docs.read())[0]['name'] == 'Main'
 
