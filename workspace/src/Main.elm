@@ -1,5 +1,7 @@
 module Main exposing(main)
 
+{-| @docs main -}
+
 import Html exposing (Html, text)
 
 {-| main function -}

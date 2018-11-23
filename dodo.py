@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from elm_doc import elm_platform, elm_project
+from elm_doc import elm_platform, elm_project, tasks
 from tests import conftest
 
 
@@ -88,11 +88,15 @@ def task_package_elm_lang_org_elm_js():
     }
 
 
+def _read_elm_version(elm_json_path: Path) -> str:
+    with open(elm_json_path) as f:
+        elm_json = json.load(f)
+    return elm_json['elm-version']
+
+
 def _create_package_elm_lang_org_elm_js(output_path: Path):
     repo_path = Path(__file__).parent / 'vendor' / 'package.elm-lang.org'
-    with open(repo_path / 'elm.json') as f:
-        elm_json = json.load(f)
-    elm_version = elm_json['elm-version']
+    elm_version = _read_elm_version(repo_path / 'elm.json')
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
         elm_platform.install(root_path, elm_version)
@@ -114,3 +118,29 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
             print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
+
+
+def task_build_workspace_docs():
+    workspace_path = Path(__file__).parent / 'workspace'
+    output_path = workspace_path / 'build' / 'docs'
+    elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
+    config = elm_project.ProjectConfig()
+    yield {
+        'name': 'install_elm',
+        'file_dep': [workspace_path / 'elm.json'],
+        'targets': [elm_path],
+        'actions': [(_install_elm, (workspace_path,))]
+    }
+    for task in tasks.create_tasks(
+            workspace_path,
+            config,
+            output_path,
+            elm_path=elm_path,
+            mount_point='/docs',
+    ):
+        yield task
+
+
+def _install_elm(project_path: Path):
+    elm_version = _read_elm_version(project_path / 'elm.json')
+    elm_platform.install(project_path, elm_version)

@@ -1,4 +1,8 @@
 .elm/
+.elm-doc/
 elm-stuff/
 node_modules/
 index.html
+package.json
+package-lock.json
+yarn.lock
