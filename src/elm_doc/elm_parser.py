@@ -1,5 +1,7 @@
 '''
-note: this is by no means a complete Elm syntax parser.
+note: this is by no means a complete Elm syntax parser. In fact,
+it can only do little more than splitting a port declaration
+at meaningful boundaries.
 '''
 import enum
 from parsy import generate, regex, string
@@ -29,25 +31,25 @@ def lexeme(p):
 
 
 func_name = regex(r'[a-z][a-zA-Z0-9_]*').desc('function name')
-simple_parens_argument = lexeme(regex(r'[^(){}]+')).desc('no parens expression')
-closing_parens = {'(': ')', '{': '}'}
+no_parens_argument = lexeme(regex(r'[^({][^-]+')).desc('arg without outer parens')
 
 
 @generate
-def nested_parens_argument():
+def parens_argument():
     opening = yield lexeme(regex(r'[({]')).desc('opening brace')
 
-    content = yield parens_argument.many()
+    content = yield parens_content.many()
 
-    expected_closing = lexeme(closing_parens[opening]).desc('closing brace')
+    parens_pairs = {'(': ')', '{': '}'}
+    expected_closing = lexeme(parens_pairs[opening]).desc('closing brace')
     closing = yield expected_closing
 
     return opening + ''.join(content) + closing
 
 
-parens_argument = lexeme('()') | simple_parens_argument | nested_parens_argument
-no_parens_argument = lexeme(regex(r'[^({][^-]+')).desc('arg without parens')
-argument = lexeme('()') | no_parens_argument | nested_parens_argument
+string_without_parens = lexeme(regex(r'[^(){}]+')).desc('string w/o parens')
+parens_content = lexeme('()') | string_without_parens | parens_argument
+argument = lexeme('()') | no_parens_argument | parens_argument
 
 
 @generate
