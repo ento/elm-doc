@@ -29,9 +29,9 @@ def elm_stuff_fixture_path():
 
 
 @pytest.fixture
-def elm_home_fixture_path():
+def elm_core_fixture_path():
     def for_version(elm_version):
-        filename = '{}-elm-home.tar.gz'.format(elm_version)
+        filename = '{}-elm-core.tar.gz'.format(elm_version)
         return py.path.local(__file__).dirpath('fixtures', filename)
     return for_version
 
@@ -44,7 +44,7 @@ def module_fixture_path():
 
 
 @pytest.fixture
-def make_elm_project(mocker, elm_stuff_fixture_path, elm_home_fixture_path, module_fixture_path):
+def make_elm_project(mocker, elm_stuff_fixture_path, elm_core_fixture_path, module_fixture_path):
     def for_version(elm_version, root_dir, src_dir='.', package_overrides={}, copy_elm_stuff=False, modules=[]):
         root_dir.ensure('project', dir=True)
         project_dir = root_dir.join('project')
@@ -58,7 +58,7 @@ def make_elm_project(mocker, elm_stuff_fixture_path, elm_home_fixture_path, modu
                 tarball = elm_stuff_fixture_path(elm_version)
                 _extract_tarball(tarball, project_dir)
             else:
-                tarball = elm_home_fixture_path(elm_version)
+                tarball = elm_core_fixture_path(elm_version)
                 _extract_tarball(tarball, root_dir)
 
         project_dir.ensure(src_dir, dir=True)
