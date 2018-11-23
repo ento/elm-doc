@@ -31,7 +31,7 @@ def copy_package_readme(package_readme: Path, output_path: Path):
 
 
 def copy_package_docs_json(package: ElmPackage, output_path: Path):
-    source = package.path / 'docs.json'
+    source = package.path / package.DOCS_FILENAME
     shutil.copy(str(source), str(output_path))
 
 
@@ -48,7 +48,7 @@ def create_dependency_tasks(
     package_output_path = package_docs_root(output_path, package)
 
     # package docs.json
-    docs_json_path = package_output_path / 'docs.json'
+    docs_json_path = package_output_path / package.DOCS_FILENAME
     yield {
         'basename': basename('copy_package_docs_json'),
         'actions': [(create_folder, (str(package_output_path),)),

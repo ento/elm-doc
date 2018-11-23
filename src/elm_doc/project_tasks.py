@@ -49,7 +49,8 @@ def build_project_docs_json(
             elm_path = elm_platform.get_node_modules_elm_path(tmp_path)
 
         if validate:
-            output_path = build_path / 'docs.json'
+            # don't update the final artifact; write to build dir instead
+            output_path = build_path / project.DOCS_FILENAME
 
         for elm_file in glob.glob(str(package_src_dir / '**/*.elm'), recursive=True):
             elm_codeshift.strip_ports(Path(elm_file))
@@ -94,7 +95,7 @@ def create_main_project_tasks(
     project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
 
     # project docs.json
-    docs_json_path = project_output_path / 'docs.json'
+    docs_json_path = project_output_path / project.DOCS_FILENAME
     yield {
         'basename': basename('build_project_docs_json'),
         'actions': [(create_folder, (str(project_output_path),)),

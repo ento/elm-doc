@@ -18,6 +18,8 @@ STUFF_DIRECTORY = 'elm-stuff'
 
 @attr.s(auto_attribs=True)
 class ElmProject:
+    DOCS_FILENAME = 'docs.json'
+
     path: Path
 
     @property
