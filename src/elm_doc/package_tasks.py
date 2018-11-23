@@ -13,23 +13,10 @@ from elm_doc import page_template
 from elm_doc.elm_project import ElmPackage, ModuleName
 
 
-def get_page_package_flags(package: ElmPackage, module: Optional[str] = None):
-    flags = {
-        'user': package.user,
-        'project': package.project,
-        'version': package.version,
-        'allVersions': [package.version],
-        'moduleName': module,
-    }
-    return flags
-
-
-def build_package_page(package: ElmPackage, output_path: Path, module: Optional[str] = None, mount_point: str = ''):
+def build_package_page(output_path: Path, mount_point: str = ''):
     os.makedirs(os.path.dirname(str(output_path)), exist_ok=True)
     with open(str(output_path), 'w') as f:
-        f.write(page_template.render(
-            'Package', flags=get_page_package_flags(package, module), mount_point=mount_point
-        ))
+        f.write(page_template.render(mount_point=mount_point))
 
 
 def link_latest_package_dir(package_dir: Path, link_path: Path):
@@ -94,7 +81,7 @@ def create_package_page_tasks(
     package_index_output = package_output_path / 'index.html'
     yield {
         'basename': basename('package_page'),
-        'actions': [(build_package_page, (package, package_index_output), {'mount_point': mount_point})],
+        'actions': [(build_package_page, (package_index_output,), {'mount_point': mount_point})],
         'targets': [package_index_output],
         # 'file_dep': [module['source_file']] #todo
         'uptodate': [True],
@@ -127,7 +114,7 @@ def create_package_page_tasks(
         module_output = package_output_path / module.replace('.', '-')
         yield {
             'basename': basename('module_page') + ':' + module,
-            'actions': [(build_package_page, (package, module_output, module), {'mount_point': mount_point})],
+            'actions': [(build_package_page, (module_output,), {'mount_point': mount_point})],
             'targets': [module_output],
             # 'file_dep': [module['source_file']] #todo
             'uptodate': [True],

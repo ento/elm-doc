@@ -9,7 +9,7 @@ from elm_doc import page_template
 
 def write_index_page(output_path: Path, mount_point: str = ''):
     with open(str(output_path), 'w') as f:
-        f.write(page_template.render('Catalog', mount_point=mount_point))
+        f.write(page_template.render(mount_point=mount_point))
 
 
 def write_all_packages(packages: List[ElmPackage], output_path: Path):
