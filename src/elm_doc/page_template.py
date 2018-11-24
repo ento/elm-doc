@@ -14,7 +14,7 @@ PAGE_TEMPLATE = '''
   </head>
   <body>
   <script>
-    Elm.Main.init();
+    Elm.Main.init({init});
   </script>
   </body>
 </html>
@@ -22,4 +22,11 @@ PAGE_TEMPLATE = '''
 
 
 def render(mount_point: str = ''):
-    return PAGE_TEMPLATE.format(mount_point=mount_point)
+    if mount_point and mount_point[-1] == '/':
+        mount_point = mount_point[:-1]
+    init = {
+        'flags': {
+            'mountedAt': mount_point,
+        },
+    }
+    return PAGE_TEMPLATE.format(mount_point=mount_point, init=json.dumps(init))
