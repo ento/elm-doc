@@ -1,6 +1,7 @@
 from typing import List, Optional
 import os
 import os.path
+import enum
 from pathlib import Path
 import json
 import shutil
@@ -57,7 +58,7 @@ def create_dependency_tasks(
     # package docs.json
     docs_json_path = package_output_path / package.DOCS_FILENAME
     yield {
-        'basename': 'copy_package_docs_json',
+        'basename': Context.Dependency.basename('copy_docs_json'),
         'name': task_name,
         'actions': [(create_folder, (str(package_output_path),)),
                     (copy_package_docs_json, (package, docs_json_path))],
@@ -66,11 +67,27 @@ def create_dependency_tasks(
         'uptodate': [True],
     }
 
-    for page_task in create_package_page_tasks(output_path, package, package_modules, mount_point):
+    for page_task in create_package_page_tasks(Context.Dependency, output_path, package, package_modules, mount_point):
         yield page_task
 
 
+class Context(enum.Enum):
+    '''In order to delay the creation of tasks for project dependencies,
+    the basenames of the delayed tasks need to be different than those
+    for the main project tasks for doit to correctly pick up.
+
+    This enum provides a way for differentiating those two contexts when
+    creating tasks in this module, which are shared between the two.
+    '''
+    Project = 'project'
+    Dependency = 'dep'
+
+    def basename(self, suffix):
+        return '{}_{}'.format(self.value, suffix)
+
+
 def create_package_page_tasks(
+        context: Context,
         output_path: Optional[Path],
         package: ElmPackage,
         package_modules: List[ModuleName],
@@ -81,7 +98,7 @@ def create_package_page_tasks(
     # package index page
     package_index_output = package_output_path / 'index.html'
     yield {
-        'basename': 'package_page',
+        'basename': context.basename('top_page'),
         'name': task_name,
         'actions': [(build_package_page, (package_index_output,), {'mount_point': mount_point})],
         'targets': [package_index_output],
@@ -95,7 +112,7 @@ def create_package_page_tasks(
     output_readme_path = package_output_path / readme_filename
     if package_readme.is_file():
         yield {
-            'basename': 'package_readme',
+            'basename': context.basename('readme'),
             'name': task_name,
             'actions': [(copy_package_readme, (package_readme, output_readme_path))],
             'targets': [output_readme_path],
@@ -106,7 +123,7 @@ def create_package_page_tasks(
     package_releases_output = package_output_path.parent / 'releases.json'
     timestamp = 1
     yield {
-        'basename': 'package_releases',
+        'basename': context.basename('releases'),
         'name': task_name,
         'actions': [(build_package_releases, (package_releases_output,), {'version': package.version, 'timestamp': timestamp})],
         'targets': [package_releases_output],
@@ -115,7 +132,7 @@ def create_package_page_tasks(
     # link from /latest
     latest_path = package_output_path.parent / 'latest'
     yield {
-        'basename': 'package_latest_link',
+        'basename': context.basename('latest_link'),
         'name': task_name,
         'actions': [(link_latest_package_dir, (package_output_path, latest_path))],
         'targets': [latest_path],
@@ -127,7 +144,7 @@ def create_package_page_tasks(
     for module in package_modules:
         module_output = package_output_path / module.replace('.', '-')
         yield {
-            'basename': 'module_page',
+            'basename': context.basename('module_page'),
             'name': '{}:{}'.format(task_name, module),
             'actions': [(build_package_page, (module_output,), {'mount_point': mount_point})],
             'targets': [module_output],

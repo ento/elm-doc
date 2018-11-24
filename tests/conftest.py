@@ -66,7 +66,9 @@ def make_elm_project(mocker, elm_stuff_fixture_path, elm_core_fixture_path, modu
         for module in modules:
             project_dir.join(src_dir, module).write(module_root.join(module).read())
 
-        mocker.patch('elm_doc.elm_platform.ELM_HOME', Path(str(root_dir.join('.elm'))))
+        elm_home = str(root_dir.join('.elm'))
+        mocker.patch('elm_doc.elm_platform.ELM_HOME', Path(elm_home))
+        mocker.patch.dict(os.environ, {'ELM_HOME': elm_home})
         return project_dir
 
     return for_version

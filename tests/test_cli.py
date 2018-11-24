@@ -54,7 +54,7 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
 
 def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')

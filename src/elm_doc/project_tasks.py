@@ -104,5 +104,9 @@ def create_main_project_tasks(
     }
 
     for page_task in package_tasks.create_package_page_tasks(
-            output_path, project_as_package, project_modules, mount_point):
+            package_tasks.Context.Project,
+            output_path,
+            project_as_package,
+            project_modules,
+            mount_point):
         yield page_task

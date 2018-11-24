@@ -3,6 +3,8 @@
 from typing import List, Optional
 from pathlib import Path
 
+from doit import create_after
+
 from elm_doc import elm_project
 from elm_doc import project_tasks
 from elm_doc import package_tasks
@@ -75,6 +77,13 @@ def build_dependencies_task_creator(
         project_config: elm_project.ProjectConfig,
         output_path: Optional[Path] = None,
         mount_point: str = ''):
+    @create_after(executed='build_docs_json', creates=[
+        # package tasks
+        'dep_copy_docs_json', 'dep_top_page', 'dep_readme',
+        'dep_releases', 'dep_latest_link', 'dep_module_page',
+        # catalog tasks
+        'index', 'search_json', 'new_packages',
+    ])
     def task_dependencies():
         deps = list(project.iter_dependencies())
         all_packages = [project.as_package(project_config)] + deps
