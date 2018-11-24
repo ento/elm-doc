@@ -63,10 +63,6 @@ def build_project_docs_json(
         )
 
 
-def _project_task_basename_factory(_project):
-    return lambda name: '{}:project'.format(name)
-
-
 def create_main_project_tasks(
         project: ElmProject,
         project_config: ProjectConfig,
@@ -75,14 +71,14 @@ def create_main_project_tasks(
         elm_path: Path = None,
         mount_point: str = '',
         validate: bool = False):
-    basename = _project_task_basename_factory(project)
-
+    task_name = '{}/{}'.format(project_config.fake_user, project_config.fake_project)
     project_modules = list(elm_project.glob_project_modules(
         project, project_config))
 
     if validate:
         yield {
-            'basename': basename('validate_project_docs_json'),
+            'basename': 'validate_docs_json',
+            'name': task_name,
             'actions': [(build_project_docs_json,
                          (project, project_config, project_modules),
                          {'build_path': build_path, 'elm_path': elm_path, 'validate': True})],
@@ -97,7 +93,8 @@ def create_main_project_tasks(
     # project docs.json
     docs_json_path = project_output_path / project.DOCS_FILENAME
     yield {
-        'basename': basename('build_project_docs_json'),
+        'basename': 'build_docs_json',
+        'name': task_name,
         'actions': [(create_folder, (str(project_output_path),)),
                     (build_project_docs_json,
                      (project, project_config, project_modules),

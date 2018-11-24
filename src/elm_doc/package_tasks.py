@@ -42,22 +42,23 @@ def copy_package_docs_json(package: ElmPackage, output_path: Path):
     shutil.copy(str(source), str(output_path))
 
 
-def _package_task_basename_factory(package):
-    return lambda name: '{}:{}/{}'.format(name, package.name, package.version)
+def _package_task_name(package):
+    return '{}/{}'.format(package.name, package.version)
 
 
 def create_dependency_tasks(
         output_path: Optional[Path],
         package: ElmPackage,
         mount_point: str = ''):
-    basename = _package_task_basename_factory(package)
+    task_name = _package_task_name(package)
     package_modules = package.sorted_exposed_modules()
     package_output_path = package_docs_root(output_path, package)
 
     # package docs.json
     docs_json_path = package_output_path / package.DOCS_FILENAME
     yield {
-        'basename': basename('copy_package_docs_json'),
+        'basename': 'copy_package_docs_json',
+        'name': task_name,
         'actions': [(create_folder, (str(package_output_path),)),
                     (copy_package_docs_json, (package, docs_json_path))],
         'targets': [docs_json_path],
@@ -74,13 +75,14 @@ def create_package_page_tasks(
         package: ElmPackage,
         package_modules: List[ModuleName],
         mount_point: str = '',):
-    basename = _package_task_basename_factory(package)
+    task_name = _package_task_name(package)
     package_output_path = package_docs_root(output_path, package)
 
     # package index page
     package_index_output = package_output_path / 'index.html'
     yield {
-        'basename': basename('package_page'),
+        'basename': 'package_page',
+        'name': task_name,
         'actions': [(build_package_page, (package_index_output,), {'mount_point': mount_point})],
         'targets': [package_index_output],
         # 'file_dep': [module['source_file']] #todo
@@ -93,7 +95,8 @@ def create_package_page_tasks(
     output_readme_path = package_output_path / readme_filename
     if package_readme.is_file():
         yield {
-            'basename': basename('package_readme'),
+            'basename': 'package_readme',
+            'name': task_name,
             'actions': [(copy_package_readme, (package_readme, output_readme_path))],
             'targets': [output_readme_path],
             'file_dep': [package_readme],
@@ -103,7 +106,8 @@ def create_package_page_tasks(
     package_releases_output = package_output_path.parent / 'releases.json'
     timestamp = 1
     yield {
-        'basename': basename('package_releases'),
+        'basename': 'package_releases',
+        'name': task_name,
         'actions': [(build_package_releases, (package_releases_output,), {'version': package.version, 'timestamp': timestamp})],
         'targets': [package_releases_output],
     }
@@ -111,7 +115,8 @@ def create_package_page_tasks(
     # link from /latest
     latest_path = package_output_path.parent / 'latest'
     yield {
-        'basename': basename('package_latest_link'),
+        'basename': 'package_latest_link',
+        'name': task_name,
         'actions': [(link_latest_package_dir, (package_output_path, latest_path))],
         'targets': [latest_path],
         # 'file_dep': [], # todo
@@ -122,7 +127,8 @@ def create_package_page_tasks(
     for module in package_modules:
         module_output = package_output_path / module.replace('.', '-')
         yield {
-            'basename': basename('module_page') + ':' + module,
+            'basename': 'module_page',
+            'name': '{}:{}'.format(task_name, module),
             'actions': [(build_package_page, (module_output,), {'mount_point': mount_point})],
             'targets': [module_output],
             # 'file_dep': [module['source_file']] #todo

@@ -11,7 +11,7 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
         result = _create_tasks(Path('.'), ProjectConfig(), Path(str(output_dir)))
         expected_task_names = {
             'task_main_project': [
-                'build_project_docs_json',
+                'build_docs_json',
                 'package_page',
                 'package_releases',
                 'package_latest_link',
@@ -43,7 +43,7 @@ def test_create_tasks_project_modules_and_dependencies(
 
         expected_task_names = {
             'task_main_project': [
-                'build_project_docs_json',
+                'build_docs_json',
                 'package_page',
                 'package_readme',
                 'package_releases',
@@ -74,7 +74,7 @@ def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
 
         expected_task_names = {
             'task_main_project': [
-                'validate_project_docs_json',
+                'validate_docs_json',
             ],
         }
         assert _basenames_in_first_seen_order(result) == expected_task_names
@@ -91,7 +91,7 @@ def _basenames_in_first_seen_order(create_tasks_result):
         rv[creator_name] = []
         seen = set()
         for task in tasks:
-            basename = task['basename'].split(':')[0]
+            basename = task['basename']
             if basename not in seen:
                 seen.add(basename)
                 rv[creator_name].append(basename)
