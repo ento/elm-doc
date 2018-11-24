@@ -19,7 +19,7 @@ def task_create_elm_core_fixture():
     for elm_version in elm_versions:
         tarball = str(elm_core_fixture_path(elm_version))
         yield {
-            'basename': 'create_elm_core_fixutre:' + elm_version,
+            'basename': 'create_elm_core_fixture:' + elm_version,
             'actions': [(_create_elm_core_fixture, (elm_version, tarball))],
             'targets': [tarball],
             'uptodate': [True],
