@@ -80,7 +80,7 @@ def task_package_elm_lang_org_elm_js():
     root_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org')
     output_path = Path(__file__).parent.joinpath('build', 'package.elm-lang.org', 'artifacts', 'elm.js')
     return {
-        'file_dep': list(root_path.glob('src/frontend/**/*.elm')) + [root_path / 'elm.json'],
+        'file_dep': list(root_path.joinpath('src/frontend').glob('**/*.elm')) + [root_path / 'elm.json'],
         'targets': [
             'build/package.elm-lang.org/artifacts/elm.js',
         ],
