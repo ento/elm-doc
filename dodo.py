@@ -128,27 +128,31 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
             raise e
 
 
+workspace_path = Path(__file__).parent / 'workspace'
+output_path = workspace_path / 'build' / 'docs'
+elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
+config = elm_project.ProjectConfig()
+
+
 def task_build_workspace_docs():
-    workspace_path = Path(__file__).parent / 'workspace'
-    output_path = workspace_path / 'build' / 'docs'
-    elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
-    config = elm_project.ProjectConfig()
     yield {
         'name': 'install_elm',
         'file_dep': [workspace_path / 'elm.json'],
         'targets': [elm_path],
         'actions': [(_install_elm, (workspace_path,))]
     }
-    for task in tasks.create_tasks(
-            workspace_path,
-            config,
-            output_path,
-            elm_path=elm_path,
-            mount_point='/docs',
-    ):
-        yield task
 
 
 def _install_elm(project_path: Path):
     elm_version = _read_elm_version(project_path / 'elm.json')
     elm_platform.install(project_path, elm_version)
+
+
+for creator_name, creator_func in tasks.build_task_creators(
+        workspace_path,
+        config,
+        output_path,
+        elm_path=elm_path,
+        mount_point='/docs',
+).items():
+    globals()[creator_name] = creator_func

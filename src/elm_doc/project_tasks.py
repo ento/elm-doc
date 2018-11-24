@@ -87,7 +87,7 @@ def create_main_project_tasks(
                          (project, project_config, project_modules),
                          {'build_path': build_path, 'elm_path': elm_path, 'validate': True})],
             'targets': [],
-            # 'file_dep': [all_elm_files_in_source_dirs] # todo
+            'file_dep': [elm_path] if elm_path else [], # todo: add all_elm_files_in_source_dirs
         }
         return
 
@@ -103,7 +103,7 @@ def create_main_project_tasks(
                      (project, project_config, project_modules),
                      {'build_path': build_path, 'elm_path': elm_path, 'output_path': docs_json_path})],
         'targets': [docs_json_path],
-        # 'file_dep': [all_elm_files_in_source_dirs] # todo
+        'file_dep': [elm_path] if elm_path else [], # todo: add all_elm_files_in_source_dirs
     }
 
     for page_task in package_tasks.create_package_page_tasks(

@@ -8,7 +8,7 @@ import click
 from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 
-from elm_doc.tasks import create_tasks
+from elm_doc.tasks import build_task_creators
 from elm_doc.elm_project import ProjectConfig
 
 
@@ -97,25 +97,25 @@ def main(
     if not validate and output is None:
         raise click.BadParameter('please specify --output directory')
 
-    def task_build():
-        resolved_include_paths = [_resolve_path(path) for path in include_paths]
-        exclude_modules = exclude.split(',') if exclude else []
-        project_config = ProjectConfig(
-            include_paths=resolved_include_paths,
-            exclude_modules=exclude_modules,
-            force_exclusion=force_exclusion,
-        )
-        return create_tasks(
-            _resolve_path(project_path),
-            project_config,
-            _resolve_path(output) if output is not None else None,
-            build_path=_resolve_path(build_dir) if build_dir is not None else None,
-            elm_path=_resolve_path(elm_path) if elm_path is not None else None,
-            mount_point=mount_at,
-            validate=validate)
+    resolved_include_paths = [_resolve_path(path) for path in include_paths]
+    exclude_modules = exclude.split(',') if exclude else []
+    project_config = ProjectConfig(
+        include_paths=resolved_include_paths,
+        exclude_modules=exclude_modules,
+        force_exclusion=force_exclusion,
+    )
+
+    task_creators = build_task_creators(
+        _resolve_path(project_path),
+        project_config,
+        _resolve_path(output) if output is not None else None,
+        build_path=_resolve_path(build_dir) if build_dir is not None else None,
+        elm_path=_resolve_path(elm_path) if elm_path is not None else None,
+        mount_point=mount_at,
+        validate=validate)
 
     extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
-    result = DoitMain(ModuleTaskLoader(locals()), extra_config=extra_config).run(
+    result = DoitMain(ModuleTaskLoader(task_creators), extra_config=extra_config).run(
         doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
         raise DoitException('see output above', result)
