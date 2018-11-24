@@ -55,6 +55,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
 
 
 def task_create_package_elm_lang_org_artifact_tarball():
+    tarball_path = Path(__file__).parent.joinpath('src', 'elm_doc', 'assets', 'assets.tar.gz')
     return {
         'file_dep': [
             'build/package.elm-lang.org/artifacts/elm.js',
@@ -66,14 +67,21 @@ def task_create_package_elm_lang_org_artifact_tarball():
             'vendor/package.elm-lang.org/assets/help/documentation-format.md',
             'vendor/package.elm-lang.org/assets/help/design-guidelines.md',
         ],
-        'targets': [
-            'build/assets.tar.gz',
-        ],
-        'actions': [
-            'tar cf %(targets)s -C build/package.elm-lang.org/ artifacts',
-            'tar rf %(targets)s -C vendor/package.elm-lang.org/ assets',
-        ]
+        'targets': [tarball_path],
+        'actions': [(_create_package_elm_lang_org_artifact_tarball, (tarball_path,))],
     }
+
+
+def _create_package_elm_lang_org_artifact_tarball(output_path: Path):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    build_artifacts_path = Path(__file__).parent.joinpath('build', 'package.elm-lang.org', 'artifacts')
+    vendor_assets_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'assets')
+    vendor_license_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'LICENSE')
+    with tarfile.open(output_path, "w:gz") as tar:
+        tar.add(str(build_artifacts_path), arcname=build_artifacts_path.name)
+        tar.add(str(vendor_assets_path), arcname=vendor_assets_path.name)
+        tar.add(str(vendor_license_path), arcname='assets/LICENSE')
+        tar.add(str(vendor_license_path), arcname='artifacts/LICENSE')
 
 
 def task_package_elm_lang_org_elm_js():

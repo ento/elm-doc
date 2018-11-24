@@ -25,7 +25,7 @@ setup(
     ],
     packages=find_packages('src', exclude=['tests']),
     package_dir={'': 'src'},
-    package_data={'': ['elm_doc/native/*.js']},
+    package_data={'': ['elm_doc/assets/assets.tar.gz']},
     include_package_data=True,
     entry_points={
         'console_scripts': [
