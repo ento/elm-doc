@@ -15,6 +15,7 @@ parsy = "*"
 [dev-packages]
 tox = "*"
 pytest-mock = "*"
+check-manifest = "*"
 
 [requires]
 python_version = "3.6"
