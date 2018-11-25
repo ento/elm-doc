@@ -1,6 +1,7 @@
 import sys
 import os.path
 import io
+import contextlib
 from tempfile import TemporaryDirectory
 import tarfile
 import gzip
@@ -21,12 +22,16 @@ def task_create_elm_core_fixture():
     elm_core_fixture_path = conftest.elm_core_fixture_path()
     elm_versions = ['0.19.0']
     for elm_version in elm_versions:
-        tarball = str(elm_core_fixture_path(elm_version))
+        build_tarball_path = Path(__file__).parent / 'build' / 'elm-core-fixture-{}.tar.gz'.format(elm_version)
+        dist_tarball_path = str(elm_core_fixture_path(elm_version))
         yield {
             'basename': 'create_elm_core_fixture',
             'name': elm_version,
-            'actions': [(_create_elm_core_fixture, (elm_version, tarball))],
-            'targets': [tarball],
+            'actions': [
+                (_create_elm_core_fixture, (elm_version, build_tarball_path)),
+                (_copy_if_tarball_changed, (build_tarball_path, dist_tarball_path)),
+            ],
+            'targets': [dist_tarball_path],
             'file_dep': [workspace_path / 'elm.json'],
         }
 
@@ -55,7 +60,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
             print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
-        with tarfile.open(tarball, "w:gz") as tar:
+        with _create_tarball(tarball) as tar:
             tar.add(str(elm_home_path), arcname=elm_home_path.name)
 
 
@@ -112,16 +117,22 @@ def _get_tarball_md5(path: Path) -> str:
 
 
 def _create_package_elm_lang_org_artifact_tarball(output_path: Path):
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     build_artifacts_path = Path(__file__).parent.joinpath('build', 'package.elm-lang.org', 'artifacts')
     vendor_assets_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'assets')
     vendor_license_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'LICENSE')
-    tar_bytes = io.BytesIO()
-    with tarfile.open(fileobj=tar_bytes, mode="w") as tar:
+    with _create_tarball(output_path) as tar:
         tar.add(str(build_artifacts_path), arcname=build_artifacts_path.name)
         tar.add(str(vendor_assets_path), arcname=vendor_assets_path.name)
         tar.add(str(vendor_license_path), arcname='assets/LICENSE')
         tar.add(str(vendor_license_path), arcname='artifacts/LICENSE')
+
+
+@contextlib.contextmanager
+def _create_tarball(output_path: Path):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    tar_bytes = io.BytesIO()
+    with tarfile.open(fileobj=tar_bytes, mode="w") as tar:
+        yield tar
     tar_bytes.seek(0)
     # Hardcode filename and mtime so that the output is deterministic
     # as much as possible.  This is equivalent to doing `tar .. | gzip
