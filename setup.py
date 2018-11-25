@@ -21,6 +21,7 @@ setup(
         'dirsync',
         'doit',
         'parsy',
+        'requests',
         'retrying',
     ],
     packages=find_packages('src', exclude=['tests']),

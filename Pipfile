@@ -11,6 +11,7 @@ typing = "*"
 attrs = "*"
 dirsync = "*"
 parsy = "*"
+requests = "*"
 
 [dev-packages]
 tox = "*"
