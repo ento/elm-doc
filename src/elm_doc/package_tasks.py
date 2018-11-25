@@ -11,14 +11,8 @@ import urllib.request
 from doit.tools import create_folder
 from retrying import retry
 
-from elm_doc import page_template
+from elm_doc import page_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
-
-
-def build_package_page(output_path: Path, mount_point: str = ''):
-    os.makedirs(os.path.dirname(str(output_path)), exist_ok=True)
-    with open(str(output_path), 'w') as f:
-        f.write(page_template.render(mount_point=mount_point))
 
 
 def build_package_releases(output_path: Path, version: str, timestamp: int):
@@ -100,7 +94,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('top_page'),
         'name': task_name,
-        'actions': [(build_package_page, (package_index_output,), {'mount_point': mount_point})],
+        'actions': [(page_tasks.write_page, (package_index_output,), {'mount_point': mount_point})],
         'targets': [package_index_output],
         # 'file_dep': [module['source_file']] #todo
         'uptodate': [True],
@@ -146,7 +140,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('module_page'),
             'name': '{}:{}'.format(task_name, module),
-            'actions': [(build_package_page, (module_output,), {'mount_point': mount_point})],
+            'actions': [(page_tasks.write_page, (module_output,), {'mount_point': mount_point})],
             'targets': [module_output],
             # 'file_dep': [module['source_file']] #todo
             'uptodate': [True],

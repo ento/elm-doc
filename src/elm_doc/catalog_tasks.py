@@ -4,12 +4,7 @@ import json
 
 from elm_doc.elm_project import ElmPackage
 from elm_doc import elm_project
-from elm_doc import page_template
-
-
-def write_index_page(output_path: Path, mount_point: str = ''):
-    with open(str(output_path), 'w') as f:
-        f.write(page_template.render(mount_point=mount_point))
+from elm_doc import page_tasks
 
 
 def write_search_json(packages: List[ElmPackage], output_path: Path):
@@ -36,7 +31,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     index_path = output_path / 'index.html'
     yield {
         'basename': 'index',
-        'actions': [(write_index_page, (index_path, mount_point))],
+        'actions': [(page_tasks.write_page, (index_path, mount_point))],
         'targets': [index_path],
         'uptodate': [True],
     }
