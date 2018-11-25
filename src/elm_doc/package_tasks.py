@@ -9,7 +9,6 @@ import urllib.error
 import urllib.request
 
 from doit.tools import create_folder
-from retrying import retry
 
 from elm_doc import page_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName

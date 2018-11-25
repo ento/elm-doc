@@ -1,11 +1,42 @@
-from typing import List
+from typing import List, Iterator, Tuple
 from pathlib import Path
 import json
 
-from elm_doc.elm_project import ElmPackage
+import requests
+from retrying import retry
+
+from elm_doc.elm_project import ElmPackage, ExactVersion
 from elm_doc import elm_project
 from elm_doc import asset_tasks
 from elm_doc import page_tasks
+
+
+popular_packages = [
+    'elm/core',
+    'elm/html',
+    'elm/json',
+    'elm/browser',
+    'elm/url',
+    'elm/http',
+]
+
+
+def missing_popular_packages(package_names: List[str]) -> Iterator[Tuple[str, ExactVersion]]:
+    missing_names = set(popular_packages) - set(package_names)
+    for missing_name in missing_names:
+        latest_version = _fetch_latest_version(missing_name)
+        yield (missing_name, latest_version)
+
+
+@retry(
+    retry_on_exception=lambda e: isinstance(e, requests.RequestException),
+    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
+    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
+    stop_max_attempt_number=10)
+def _fetch_latest_version(package_name: str) -> ExactVersion:
+    releases_url = 'https://package.elm-lang.org/packages/{}/releases.json'.format(package_name)
+    releases = requests.get(releases_url).json()
+    return sorted(releases.keys())[-1]
 
 
 def write_search_json(packages: List[ElmPackage], output_path: Path):

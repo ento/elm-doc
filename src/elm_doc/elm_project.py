@@ -1,4 +1,4 @@
-from typing import Dict, List, Iterator, Optional, Union
+from typing import Dict, List, Iterator, Optional, Tuple, Union
 from pathlib import Path
 import re
 import fnmatch
@@ -166,6 +166,18 @@ class ElmApplication(ElmProject):
         json['test-dependencies']['indirect'] = self.indirect_test_dependencies
 
         return json
+
+    def add_direct_dependencies(self, deps: List[Tuple[str, ExactVersion]]):
+        for name, version in deps:
+            self.direct_dependencies[name] = version
+
+    def all_dependency_names(self) -> Iterator[str]:
+        return itertools.chain(
+            self.direct_dependencies.keys(),
+            self.indirect_dependencies.keys(),
+            self.direct_test_dependencies.keys(),
+            self.indirect_test_dependencies.keys(),
+        )
 
     def iter_dependencies(self) -> Iterator[ElmPackage]:
         deps = itertools.chain(

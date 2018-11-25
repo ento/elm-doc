@@ -2,7 +2,9 @@ import pytest
 import json
 import os.path
 from click.testing import CliRunner
+
 from elm_doc import cli
+from elm_doc import catalog_tasks
 
 
 @pytest.fixture
@@ -88,6 +90,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         package_docs = package_dir.join('docs.json')
         assert package_docs.check()
         assert json.loads(package_docs.read())[0]['name'] == 'Main'
+
+        for popular_package in catalog_tasks.popular_packages:
+            assert output_dir.join('packages', popular_package).check(dir=True)
 
         search_json = output_dir.join('search.json')
         assert search_json.check()
