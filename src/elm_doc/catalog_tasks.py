@@ -20,12 +20,6 @@ def write_search_json(packages: List[ElmPackage], output_path: Path):
         json.dump(list(all_packages), f)
 
 
-def write_new_packages(packages: List[ElmPackage], output_path: Path):
-    new_packages = map(lambda package: package.name, packages)
-    with open(str(output_path), 'w') as f:
-        json.dump(list(new_packages), f)
-
-
 def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
     # index
     index_path = output_path / 'index.html'
@@ -42,14 +36,5 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         'basename': 'search_json',
         'actions': [(write_search_json, (packages, search_json_path))],
         'targets': [search_json_path],
-        'file_dep': [package.json_path for package in packages],
-    }
-
-    # new-packages
-    new_packages_path = output_path / 'new-packages'
-    yield {
-        'basename': 'new_packages',
-        'actions': [(write_new_packages, (packages, new_packages_path))],
-        'targets': [new_packages_path],
         'file_dep': [package.json_path for package in packages],
     }

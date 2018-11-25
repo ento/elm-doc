@@ -82,7 +82,7 @@ def build_dependencies_task_creator(
         'dep_copy_docs_json', 'dep_top_page', 'dep_readme',
         'dep_releases', 'dep_latest_link', 'dep_module_page',
         # catalog tasks
-        'index', 'search_json', 'new_packages',
+        'index', 'search_json',
     ])
     def task_dependencies():
         deps = list(project.iter_dependencies())

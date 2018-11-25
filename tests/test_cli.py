@@ -93,10 +93,6 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert search_json.check()
         assert len(json.loads(search_json.read())) > 0
 
-        new_packages = output_dir.join('new-packages')
-        assert new_packages.check()
-        assert len(json.loads(new_packages.read())) > 0
-
 
 def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
     modules = ['PortModuleA.elm', 'PortModuleB.elm']

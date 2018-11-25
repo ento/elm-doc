@@ -25,7 +25,6 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
                 'dep_module_page',
                 'index',
                 'search_json',
-                'new_packages',
                 ],
             'task_assets': ['assets'],
         }
@@ -59,7 +58,6 @@ def test_create_tasks_project_modules_and_dependencies(
                 'dep_module_page',
                 'index',
                 'search_json',
-                'new_packages',
                 ],
             'task_assets': ['assets'],
         }
