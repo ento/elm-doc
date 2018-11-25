@@ -1,7 +1,10 @@
 import sys
 import os.path
+import io
 from tempfile import TemporaryDirectory
 import tarfile
+import gzip
+import hashlib
 import json
 import subprocess
 import shutil
@@ -55,7 +58,8 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
 
 
 def task_create_package_elm_lang_org_artifact_tarball():
-    tarball_path = Path(__file__).parent.joinpath('src', 'elm_doc', 'assets', 'assets.tar.gz')
+    build_tarball_path = Path(__file__).parent.joinpath('build', 'assets.tar.gz')
+    dist_tarball_path = Path(__file__).parent.joinpath('src', 'elm_doc', 'assets', 'assets.tar.gz')
     return {
         'file_dep': [
             'build/package.elm-lang.org/artifacts/elm.js',
@@ -68,9 +72,41 @@ def task_create_package_elm_lang_org_artifact_tarball():
             'vendor/package.elm-lang.org/assets/help/design-guidelines.md',
             'vendor/package.elm-lang.org/LICENSE',
         ],
-        'targets': [tarball_path],
-        'actions': [(_create_package_elm_lang_org_artifact_tarball, (tarball_path,))],
+        'targets': [dist_tarball_path],
+        'actions': [
+            (_create_package_elm_lang_org_artifact_tarball, (build_tarball_path,)),
+            (_copy_if_tarball_changed, (build_tarball_path, dist_tarball_path)),
+        ],
     }
+
+
+def _copy_if_tarball_changed(source_path: Path, target_path: Path):
+    if _is_tarball_different(source_path, target_path):
+        shutil.copyfile(source_path, target_path)
+
+
+def _is_tarball_different(source_path: Path, target_path: Path) -> bool:
+    if not target_path.exists():
+        return True
+    if _get_tarball_md5(source_path) != _get_tarball_md5(target_path):
+        return True
+    return False
+
+
+def _get_tarball_md5(path: Path) -> str:
+    with tarfile.open(path, 'r') as tar:
+        md5 = hashlib.md5()
+        block_size = 128 * md5.block_size
+        for member in tar.getmembers():
+            if not member.isfile():
+                continue
+            f = tar.extractfile(member)
+            while True:
+                data = f.read(block_size)
+                if not data:
+                    break
+                md5.update(data)
+    return md5.hexdigest()
 
 
 def _create_package_elm_lang_org_artifact_tarball(output_path: Path):
@@ -78,11 +114,22 @@ def _create_package_elm_lang_org_artifact_tarball(output_path: Path):
     build_artifacts_path = Path(__file__).parent.joinpath('build', 'package.elm-lang.org', 'artifacts')
     vendor_assets_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'assets')
     vendor_license_path = Path(__file__).parent.joinpath('vendor', 'package.elm-lang.org', 'LICENSE')
-    with tarfile.open(output_path, "w:gz") as tar:
+    tar_bytes = io.BytesIO()
+    with tarfile.open(fileobj=tar_bytes, mode="w") as tar:
         tar.add(str(build_artifacts_path), arcname=build_artifacts_path.name)
         tar.add(str(vendor_assets_path), arcname=vendor_assets_path.name)
         tar.add(str(vendor_license_path), arcname='assets/LICENSE')
         tar.add(str(vendor_license_path), arcname='artifacts/LICENSE')
+    tar_bytes.seek(0)
+    # Hardcode filename and mtime so that the output is deterministic
+    # as much as possible.  This is equivalent to doing `tar .. | gzip
+    # -n` on the command line.  We *could* strip mtime from the
+    # tarball entries as well, but having that information included
+    # may be useful for debugging in the future, so we avoid updating
+    # the tarball by checking the md5 of the contents above instead.
+    with open(output_path, 'wb') as f:
+        with gzip.GzipFile(filename='', mode='wb', fileobj=f, mtime=0) as z:
+            z.write(tar_bytes.read())
 
 
 def task_package_elm_lang_org_elm_js():
