@@ -177,6 +177,7 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
             print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
+# build docs for the workspace project
 
 workspace_path = Path(__file__).parent / 'workspace'
 output_path = workspace_path / 'build' / 'docs'
@@ -184,7 +185,7 @@ elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
 config = elm_project.ProjectConfig()
 
 
-def task_build_workspace_docs():
+def task_install_workspace_elm():
     yield {
         'name': 'install_elm',
         'file_dep': [workspace_path / 'elm.json'],
