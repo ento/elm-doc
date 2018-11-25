@@ -66,6 +66,7 @@ def task_create_package_elm_lang_org_artifact_tarball():
             'vendor/package.elm-lang.org/assets/style.css',
             'vendor/package.elm-lang.org/assets/help/documentation-format.md',
             'vendor/package.elm-lang.org/assets/help/design-guidelines.md',
+            'vendor/package.elm-lang.org/LICENSE',
         ],
         'targets': [tarball_path],
         'actions': [(_create_package_elm_lang_org_artifact_tarball, (tarball_path,))],

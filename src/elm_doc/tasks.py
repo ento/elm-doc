@@ -103,7 +103,7 @@ def build_assets_task_creator(output_path: Optional[Path] = None):
         yield {
             'basename': 'assets',
             'actions': [(asset_tasks.extract_assets, (output_path,))],
-            'targets': [output_path / 'assets', output_path / 'artifacts'],
+            'targets': [output_path / path for path in asset_tasks.bundled_assets],
             'file_dep': [asset_tasks.tarball]
         }
     return task_assets
