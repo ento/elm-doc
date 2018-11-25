@@ -41,8 +41,14 @@ def build_project_docs_json(
             json.dump(elm_project_with_exposed_modules, f)
 
         package_src_dir = build_path / 'src'
+        changed_files = set()
         for source_dir in project.source_directories:
-            sync(project.path / source_dir, package_src_dir, 'sync', create=True)
+            changed_files |= sync(project.path / source_dir, package_src_dir, 'sync', create=True)
+
+        for elm_file in changed_files:
+            elm_file_path = Path(elm_file)
+            if elm_file_path.suffix == '.elm' and elm_file_path.exists():
+                elm_codeshift.strip_ports(Path(elm_file))
 
         if elm_path is None:
             elm_platform.install(tmp_path, project.elm_version)
@@ -51,9 +57,6 @@ def build_project_docs_json(
         if validate:
             # don't update the final artifact; write to build dir instead
             output_path = build_path / project.DOCS_FILENAME
-
-        for elm_file in glob.glob(str(package_src_dir / '**/*.elm'), recursive=True):
-            elm_codeshift.strip_ports(Path(elm_file))
 
         subprocess.run(
             [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],

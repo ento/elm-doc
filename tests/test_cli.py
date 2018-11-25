@@ -53,7 +53,7 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
 
 
 def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm']
+    modules = ['Main.elm', 'PortModuleA.elm']
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
@@ -76,6 +76,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())
         assert package_dir.join('README.md').check()
+        assert package_dir.join('docs.json').check()
         assert package_dir.join('..', 'releases.json').check()
 
         package_index = package_dir.join('index.html')
@@ -95,6 +96,31 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         new_packages = output_dir.join('new-packages')
         assert new_packages.check()
         assert len(json.loads(new_packages.read())) > 0
+
+
+def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    modules = ['PortModuleA.elm', 'PortModuleB.elm']
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        port_module_a = project_dir / 'PortModuleA.elm'
+        source = port_module_a.read_text('utf8')
+        port_module_a.write_text(source.replace('portA', 'portC'), 'utf8')
+
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
+        docs = package_dir.join('docs.json').read_text('utf8')
+        assert 'portC' in docs
 
 
 def test_cli_validate_real_project(

@@ -121,5 +121,28 @@ def test_glob_project_modules_can_include_path_in_non_dot_source_dir(
     assert set(modules) == set(['Main'])
 
 
+def test_glob_project_modules_ignores_dot_directories(
+        tmpdir, elm_version, make_elm_project):
+    project_dir = make_elm_project(
+        elm_version,
+        tmpdir,
+        src_dir='.',
+        copy_elm_stuff=False,
+        modules=[
+            'Main.elm',
+        ])
+    dot_dir_file = Path(str(project_dir / '.elm-doc' / 'Extra.elm'))
+    dot_dir_file.parent.mkdir()
+    dot_dir_file.touch()
+    project = elm_project.from_path(Path(str(project_dir)))
+    config = elm_project.ProjectConfig(
+        include_paths=[],
+        exclude_modules=[],
+        force_exclusion=False,
+    )
+    modules = list(elm_project.glob_project_modules(project, config))
+    assert set(modules) == set(['Main'])
+
+
 def _resolve_paths(tmpdir, *paths):
     return [str(tmpdir.join(path)) for path in paths]

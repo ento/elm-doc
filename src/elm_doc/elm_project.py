@@ -1,5 +1,6 @@
 from typing import Dict, List, Iterator, Optional, Union
 from pathlib import Path
+import re
 import fnmatch
 import itertools
 import json
@@ -14,6 +15,7 @@ ModuleName = str
 ExactVersion = str
 VersionRange = str
 STUFF_DIRECTORY = 'elm-stuff'
+module_name_re = re.compile(r'^[A-Z][a-zA-Z0-9_]*$')
 
 
 @attr.s(auto_attribs=True)
@@ -234,7 +236,11 @@ def glob_project_modules(
                 continue
 
             rel_path = elm_file.relative_to(source_dir)
-            module_name = '.'.join(rel_path.parent.parts + (rel_path.stem,))
+            module_name_parts = rel_path.parent.parts + (rel_path.stem,)
+            if not all(map(_valid_module_name, module_name_parts)):
+                continue
+
+            module_name = '.'.join(module_name_parts)
 
             # check for excludes if there's no explicit includes, or if
             # there are explicit includes and exclusion is requested specifically.
@@ -244,6 +250,10 @@ def glob_project_modules(
                 continue
 
             yield module_name
+
+
+def _valid_module_name(name):
+    return module_name_re.match(name)
 
 
 def _matches_include_path(source_path: Path, include_path: Path):
