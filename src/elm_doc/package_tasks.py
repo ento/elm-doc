@@ -134,11 +134,11 @@ def create_package_page_tasks(
     }
 
     # module pages
-    for module in package_modules:
-        module_output = package_output_path / module.replace('.', '-')
+    for module_name in package_modules:
+        module_output = package_output_path / module_name.replace('.', '-')
         yield {
             'basename': context.basename('module_page'),
-            'name': '{}:{}'.format(task_name, module),
+            'name': '{}:{}'.format(task_name, module_name),
             'actions': [(page_tasks.write_page, (module_output,), {'mount_point': mount_point})],
             'targets': [module_output],
             # 'file_dep': [module['source_file']] #todo

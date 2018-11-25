@@ -55,7 +55,7 @@ def test_glob_project_modules_includes_take_precedence_over_excludes(
         exclude_modules=['MissingModuleComment'],
         force_exclusion=False,
     )
-    modules = list(elm_project.glob_project_modules(project, config))
+    modules = list(_glob_project_modules(project, config))
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
@@ -76,7 +76,7 @@ def test_glob_project_modules_excludes_take_precedence_over_includes_if_forced(
         exclude_modules=['MissingModuleComment'],
         force_exclusion=True,
     )
-    modules = list(elm_project.glob_project_modules(project, config))
+    modules = list(_glob_project_modules(project, config))
     assert set(modules) == set(['Main'])
 
 
@@ -96,7 +96,7 @@ def test_glob_project_modules_includes_all_by_default(
         exclude_modules=[],
         force_exclusion=False,
     )
-    modules = list(elm_project.glob_project_modules(project, config))
+    modules = list(_glob_project_modules(project, config))
     assert set(modules) == set(['Main', 'MissingModuleComment'])
 
 
@@ -117,7 +117,7 @@ def test_glob_project_modules_can_include_path_in_non_dot_source_dir(
         exclude_modules=[],
         force_exclusion=False,
     )
-    modules = list(elm_project.glob_project_modules(project, config))
+    modules = list(_glob_project_modules(project, config))
     assert set(modules) == set(['Main'])
 
 
@@ -140,8 +140,13 @@ def test_glob_project_modules_ignores_dot_directories(
         exclude_modules=[],
         force_exclusion=False,
     )
-    modules = list(elm_project.glob_project_modules(project, config))
+    modules = list(_glob_project_modules(project, config))
     assert set(modules) == set(['Main'])
+
+
+def _glob_project_modules(*args, **kwargs):
+    '''Return only the module names from the result of elm_project.glob_project_modules'''
+    return [module.name for module in elm_project.glob_project_modules(*args, **kwargs)]
 
 
 def _resolve_paths(tmpdir, *paths):

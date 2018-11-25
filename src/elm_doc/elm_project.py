@@ -234,8 +234,14 @@ class ProjectConfig:
     fake_license: str = 'BSD-3-Clause'
 
 
+@attr.s(auto_attribs=True)
+class ElmModule:
+    path: Path
+    name: ModuleName
+
+
 def glob_project_modules(
-        project: ElmProject, config: ProjectConfig) -> Iterator[ModuleName]:
+        project: ElmProject, config: ProjectConfig) -> Iterator[ElmModule]:
     for source_dir_name in project.source_directories:
         source_dir = project.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
@@ -261,7 +267,7 @@ def glob_project_modules(
                                       for module_pattern in config.exclude_modules):
                 continue
 
-            yield module_name
+            yield ElmModule(path=elm_file, name=module_name)
 
 
 def _valid_module_name(name):

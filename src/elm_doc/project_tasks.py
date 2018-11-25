@@ -8,13 +8,13 @@ import glob
 import subprocess
 
 from dirsync import sync
-from doit.tools import create_folder
+from doit.tools import create_folder, config_changed
 
 from elm_doc import elm_platform
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
 from elm_doc import package_tasks
-from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
+from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ElmModule, ModuleName
 from elm_doc.decorators import capture_subprocess_error
 
 
@@ -28,7 +28,7 @@ def build_project_docs_json(
         elm_path: Path = None,
         validate: bool = False):
     elm_project_with_exposed_modules = dict(ChainMap(
-        {'exposed-modules': project_modules},
+        {'exposed-modules': [module for module in project_modules]},
         project.as_package(project_config).as_json(),
     ))
     with TemporaryDirectory() as tmpdir:
@@ -77,20 +77,24 @@ def create_main_project_tasks(
     task_name = '{}/{}'.format(project_config.fake_user, project_config.fake_project)
     project_modules = list(elm_project.glob_project_modules(
         project, project_config))
+    project_as_package = project.as_package(project_config)
+    file_dep = [elm_path] if elm_path else []
+    file_dep.extend([module.path for module in project_modules])
+    uptodate_config = {'elm_json': project_as_package.as_json()}
 
     if validate:
         yield {
             'basename': 'validate_docs_json',
             'name': task_name,
             'actions': [(build_project_docs_json,
-                         (project, project_config, project_modules),
+                         (project, project_config, [module.name for module in project_modules]),
                          {'build_path': build_path, 'elm_path': elm_path, 'validate': True})],
             'targets': [],
-            'file_dep': [elm_path] if elm_path else [], # todo: add all_elm_files_in_source_dirs
+            'file_dep': file_dep,
+            'uptodate': [config_changed(uptodate_config)],
         }
         return
 
-    project_as_package = project.as_package(project_config)
     project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
 
     # project docs.json
@@ -100,16 +104,17 @@ def create_main_project_tasks(
         'name': task_name,
         'actions': [(create_folder, (str(project_output_path),)),
                     (build_project_docs_json,
-                     (project, project_config, project_modules),
+                     (project, project_config, [module.name for module in project_modules]),
                      {'build_path': build_path, 'elm_path': elm_path, 'output_path': docs_json_path})],
         'targets': [docs_json_path],
-        'file_dep': [elm_path] if elm_path else [], # todo: add all_elm_files_in_source_dirs
+        'file_dep': file_dep,
+        'uptodate': [config_changed(uptodate_config)],
     }
 
     for page_task in package_tasks.create_package_page_tasks(
             package_tasks.Context.Project,
             output_path,
             project_as_package,
-            project_modules,
+            [module.name for module in project_modules],
             mount_point):
         yield page_task
