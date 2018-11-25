@@ -93,6 +93,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert search_json.check()
         assert len(json.loads(search_json.read())) > 0
 
+        help_doc_format = output_dir.join('help/documentation-format')
+        assert help_doc_format.check()
+
 
 def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
     modules = ['PortModuleA.elm', 'PortModuleB.elm']

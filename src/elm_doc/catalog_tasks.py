@@ -4,6 +4,7 @@ import json
 
 from elm_doc.elm_project import ElmPackage
 from elm_doc import elm_project
+from elm_doc import asset_tasks
 from elm_doc import page_tasks
 
 
@@ -38,3 +39,15 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         'targets': [search_json_path],
         'file_dep': [package.json_path for package in packages],
     }
+
+    # help pages
+    for help_file in asset_tasks.bundled_helps:
+        url_path =  Path(help_file).relative_to('assets').with_suffix('')
+        help_output_path = (output_path / url_path)
+        yield {
+            'basename': 'help',
+            'name': url_path,
+            'actions': [(page_tasks.write_page, (help_output_path, mount_point))],
+            'targets': [help_output_path],
+            'file_dep': [output_path / help_file],
+        }

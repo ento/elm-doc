@@ -1,7 +1,28 @@
 from pathlib import Path
 
 from elm_doc import tasks
+from elm_doc import elm_project
 from elm_doc.elm_project import ProjectConfig
+
+
+def test_dependencies_task_creator_creates_matches_actual_basenames(tmpdir, elm_version, make_elm_project):
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
+    output_dir = tmpdir.join('docs')
+    with project_dir.as_cwd():
+        project = elm_project.from_path(Path('.'))
+        config = ProjectConfig()
+        output_path = Path(str(output_dir))
+
+        # expected
+        result = _create_tasks(project.path, config, output_path)
+        result_basenames = _basenames_in_first_seen_order(result)
+
+        # actual
+        deps_creator = tasks.build_dependencies_task_creator(
+            project, ProjectConfig(), output_path)
+        # note: relies on doit internals
+        delayed_task_creates = set(deps_creator.doit_create_after.creates)
+        assert delayed_task_creates == set(result_basenames['task_dependencies'])
 
 
 def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
@@ -25,6 +46,7 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
                 'dep_module_page',
                 'index',
                 'search_json',
+                'help',
                 ],
             'task_assets': ['assets'],
         }
@@ -58,6 +80,7 @@ def test_create_tasks_project_modules_and_dependencies(
                 'dep_module_page',
                 'index',
                 'search_json',
+                'help',
                 ],
             'task_assets': ['assets'],
         }
