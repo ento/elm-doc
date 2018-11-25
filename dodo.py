@@ -17,15 +17,17 @@ from tests import conftest
 
 
 def task_create_elm_core_fixture():
+    workspace_path = Path(__file__).parent / 'workspace'
     elm_core_fixture_path = conftest.elm_core_fixture_path()
     elm_versions = ['0.19.0']
     for elm_version in elm_versions:
         tarball = str(elm_core_fixture_path(elm_version))
         yield {
-            'basename': 'create_elm_core_fixture:' + elm_version,
+            'basename': 'create_elm_core_fixture',
+            'name': elm_version,
             'actions': [(_create_elm_core_fixture, (elm_version, tarball))],
             'targets': [tarball],
-            'uptodate': [True],
+            'file_dep': [workspace_path / 'elm.json'],
         }
 
 
