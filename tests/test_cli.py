@@ -182,7 +182,9 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
         assert package_dir.join('docs.json').check()
 
         package_latest_link = package_dir.dirpath('latest')
-        assert package_latest_link.realpath().check(dir=True)
+        package_latest_link_target = package_latest_link.realpath()
+        assert package_latest_link_target.check(dir=True)
+        assert package_latest_link_target.basename == '2.0.0'
 
         releases =  json.loads(package_dir.join('..', 'releases.json').read())
         assert list(releases.keys()) == ['2.0.0']

@@ -1,6 +1,4 @@
 from typing import List, Optional
-import os
-import os.path
 import enum
 from pathlib import Path
 import json
@@ -20,10 +18,12 @@ def build_package_releases(output_path: Path, version: str, timestamp: int):
         json.dump(releases, f)
 
 
-def link_latest_package_dir(package_dir: Path, link_path: Path):
-    os.makedirs(str(package_dir), exist_ok=True)
+def link_latest_package_dir(output_path: Path, package_dir: Path):
+    package_dir.mkdir(parents=True, exist_ok=True)
     # prefer relative path to make the built documentation directory relocatable
-    link_path.symlink_to(package_dir.relative_to(link_path.parent), target_is_directory=True)
+    if output_path.is_symlink():
+        output_path.unlink()
+    output_path.symlink_to(package_dir.relative_to(output_path.parent), target_is_directory=True)
 
 
 def copy_package_readme(package_readme: Path, output_path: Path):
@@ -56,8 +56,7 @@ def create_dependency_tasks(
         'actions': [(create_folder, (str(package_output_path),)),
                     (copy_package_docs_json, (package, docs_json_path))],
         'targets': [docs_json_path],
-        # 'file_dep': [all_elm_files_in_source_dirs] # todo
-        'uptodate': [True],
+        'file_dep': [package.path / package.DOCS_FILENAME]
     }
 
     for page_task in create_package_page_tasks(Context.Dependency, output_path, package, package_modules, mount_point):
@@ -127,13 +126,13 @@ def create_package_page_tasks(
 
     # link from /latest
     latest_path = package_output_path.parent / 'latest'
+    uptodate_config = {'link_target': str(package_output_path.relative_to(output_path))}
     yield {
         'basename': context.basename('latest_link'),
         'name': task_name,
-        'actions': [(link_latest_package_dir, (package_output_path, latest_path))],
+        'actions': [(link_latest_package_dir, (latest_path, package_output_path))],
         'targets': [latest_path],
-        # 'file_dep': [], # todo
-        'uptodate': [True]
+        'uptodate': [config_changed(uptodate_config)]
     }
 
     # module pages
