@@ -1,6 +1,7 @@
-import pytest
-import json
 import os.path
+import json
+
+import pytest
 from click.testing import CliRunner
 
 from elm_doc import cli
@@ -40,6 +41,7 @@ def test_cli_in_empty_project(tmpdir, runner):
         result = runner.invoke(cli.main, ['--output', 'docs', '.', '--fake-license', 'BSD-3-Clause'])
         assert result.exception
         assert result.exit_code != 0
+        assert 'does not look like an Elm project' in str(result.exception)
 
 
 def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
