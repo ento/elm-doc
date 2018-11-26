@@ -43,7 +43,8 @@ def build_project_docs_json(
         package_src_dir = build_path / 'src'
         changed_files = set()
         for source_dir in project.source_directories:
-            changed_files |= sync(project.path / source_dir, package_src_dir, 'sync', create=True)
+            changed_files |= sync(
+                str(project.path / source_dir), str(package_src_dir), 'sync', create=True)
 
         for elm_file in changed_files:
             elm_file_path = Path(elm_file)

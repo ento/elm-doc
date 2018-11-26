@@ -20,5 +20,5 @@ bundled_assets = bundled_helps + [
 
 
 def extract_assets(output_path: Path):
-    with tarfile.open(tarball) as f:
-        f.extractall(output_path)
+    with tarfile.open(str(tarball)) as f:
+        f.extractall(str(output_path))
