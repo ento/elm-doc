@@ -37,7 +37,7 @@ def test_cli_non_existent_elm_path(tmpdir, runner):
 
 def test_cli_in_empty_project(tmpdir, runner):
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '.'])
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--fake-license', 'BSD-3-Clause'])
         assert result.exception
         assert result.exit_code != 0
 
@@ -47,7 +47,11 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
 
     with tmpdir.as_cwd():
         tmpdir.mkdir('docs')
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--doit-args', 'clean', '--dry-run'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--doit-args', 'clean', '--dry-run'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -60,7 +64,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -94,9 +98,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         for popular_package in catalog_tasks.popular_packages:
             assert output_dir.join('packages', popular_package).check(dir=True)
 
-        search_json = output_dir.join('search.json')
-        assert search_json.check()
-        assert len(json.loads(search_json.read())) > 0
+        search_json = output_dir.join('search.json').read()
+        assert 'CATOSL-1.1' not in search_json, 'Fake license should not be exposed in search.json'
+        assert len(json.loads(search_json)) > 0
 
         help_doc_format = output_dir.join('help/documentation-format')
         assert help_doc_format.check()
@@ -107,7 +111,7 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -118,7 +122,7 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         source = port_module_a.read_text('utf8')
         port_module_a.write_text(source.replace('portA', 'portC'), 'utf8')
 
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename])
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -134,7 +138,7 @@ def test_cli_validate_real_project(
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = runner.invoke(cli.main, ['--validate', project_dir.basename])
+        result = runner.invoke(cli.main, ['--validate', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -152,6 +156,7 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
             project_dir.basename,
             os.path.join(project_dir.basename, 'Main.elm'),
             os.path.join(project_dir.basename, 'MissingModuleComment.elm'),
+            '--fake-license', 'BSD-3-Clause',
             '--validate',
             '--exclude',
             'MissingModuleComment',
@@ -170,7 +175,7 @@ def test_cli_validate_invalid_project_with_masked_exclude(
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', project_dir.basename])
+        result = runner.invoke(cli.main, ['--output', 'docs', '--fake-license', 'BSD-3-Clause', '--validate', project_dir.basename])
         problem_lines = [line for line in result.output.splitlines()
                          if 'NO DOCS' in line or 'DOCS MISTAKE' in line]
         assert len(problem_lines) == 2

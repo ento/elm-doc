@@ -93,6 +93,11 @@ class ElmPackage(ElmProject):
         props['type'] = 'package'
         return props
 
+    def without_license(self) -> 'ElmPackage':
+        asdict = attr.asdict(self)
+        asdict['license'] = ''
+        return ElmPackage(**asdict)
+
     def sorted_exposed_modules(self):
         if isinstance(self.exposed_modules, dict):
             modules = [module for modules in self.exposed_modules.values()

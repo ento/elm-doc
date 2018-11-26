@@ -89,7 +89,7 @@ def build_dependencies_task_creator(
     ])
     def task_dependencies():
         deps = list(project.iter_dependencies())
-        all_packages = [project.as_package(project_config)] + deps
+        all_packages = [project.as_package(project_config).without_license()] + deps
 
         for package in deps:
             for task in package_tasks.create_dependency_tasks(

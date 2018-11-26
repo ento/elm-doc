@@ -70,6 +70,26 @@ class LazyOutfile:
 @click.option('--exclude', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
+@click.option('--fake-user',
+              metavar='GitHub user name',
+              default='user',
+              help='User name to use as part of the package name of the project as listed in the generated docs')
+@click.option('--fake-project',
+              metavar='GitHub repo name',
+              default='project',
+              help='Project name to use as part of the package name of the project as listed in the generated docs')
+@click.option('--fake-version',
+              metavar='Semver version string',
+              default='1.0.0',
+              help='Version of the project as listed in the generated docs')
+@click.option('--fake-summary',
+              metavar='Project summary',
+              default='project summary',
+              help='Summary of the project as listed in the generated docs')
+@click.option('--fake-license',
+              metavar='OSI-approved SPDX liense',
+              required=True,
+              help='License of the project to tell the Elm compiler  when generating docs')
 @click.option('--force-exclusion/--no-force-exclusion',
               default=False,
               help=('force excluding modules specified by --exclude even if '
@@ -88,6 +108,11 @@ def main(
         mount_at,
         exclude,
         force_exclusion,
+        fake_user,
+        fake_project,
+        fake_version,
+        fake_summary,
+        fake_license,
         validate,
         doit_args,
         project_path,
@@ -103,6 +128,11 @@ def main(
         include_paths=resolved_include_paths,
         exclude_modules=exclude_modules,
         force_exclusion=force_exclusion,
+        fake_user=fake_user,
+        fake_project=fake_project,
+        fake_version=fake_version,
+        fake_summary=fake_summary,
+        fake_license=fake_license,
     )
 
     task_creators = build_task_creators(
