@@ -8,7 +8,7 @@ import shutil
 import urllib.error
 import urllib.request
 
-from doit.tools import create_folder
+from doit.tools import create_folder, config_changed
 
 from elm_doc import page_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
@@ -114,12 +114,15 @@ def create_package_page_tasks(
 
     # package releases
     package_releases_output = package_output_path.parent / 'releases.json'
-    timestamp = 1
+    # generated docs will only ever include one version per package, so we hardcode
+    # the timestamp.
+    content = {'version': package.version, 'timestamp': 1}
     yield {
         'basename': context.basename('releases'),
         'name': task_name,
-        'actions': [(build_package_releases, (package_releases_output,), {'version': package.version, 'timestamp': timestamp})],
+        'actions': [(build_package_releases, (package_releases_output,), content)],
         'targets': [package_releases_output],
+        'uptodate': [config_changed(content)]
     }
 
     # link from /latest

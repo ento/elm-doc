@@ -133,6 +133,36 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         assert 'portC' in docs
 
 
+def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    modules = ['Main.elm']
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause', '--fake-version', '2.0.0'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '2.0.0')
+        assert package_dir.join('docs.json').check()
+
+        package_latest_link = package_dir.dirpath('latest')
+        assert package_latest_link.realpath().check(dir=True)
+
+        releases =  json.loads(package_dir.join('..', 'releases.json').read())
+        assert list(releases.keys()) == ['2.0.0']
+
+        search_json = json.loads(output_dir.join('search.json').read())
+        project_entry = next(entry for entry in search_json if entry['name'] == 'user/project')
+        assert project_entry['versions'] == ['2.0.0']
+
+
 def test_cli_validate_real_project(
         tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm']
