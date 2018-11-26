@@ -31,7 +31,7 @@ def test_port_info():
     ports = [
         ('port cmd : Cmd a', 'cmd', PortType.Command, []),
         ('port sub : Sub a', 'sub', PortType.Subscription, []),
-        ('port cmd : () -> Cmd a', 'cmd', PortType.Command, ['()']),
+        ('port cmd : ()->Cmd a', 'cmd', PortType.Command, ['()']),
         ('port cmd : Module.Type -> Cmd a', 'cmd', PortType.Command, ['Module.Type']),
         ('port cmd : (String) -> Cmd a', 'cmd', PortType.Command, ['(String)']),
         ('port cmd : (String -> a) -> Cmd a', 'cmd', PortType.Command, ['(String -> a)']),
@@ -42,6 +42,35 @@ def test_port_info():
          'cmd', PortType.Command, ['{b: (a -> {c: a}-> Module.Type)}']),
         ('port cmd : {b: (a -> {c: a} -> ())} -> Cmd a', 'cmd', PortType.Command, ['{b: (a -> {c: a}-> ())}']),
         ('port cmd : () -> () -> Cmd a', 'cmd', PortType.Command, ['()', '()']),
+        ('port cmd : () -> () -> Cmd a', 'cmd', PortType.Command, ['()', '()']),
+
+        # test cases from elm-syntax
+        # https://github.com/stil4m/elm-syntax/blob/73b5afe9a5816e4ee4ba36168deefe4a119d7d2d/tests/tests/Elm/Parser/TypeAnnotationTests.elm
+        ('port cmd : ( (), ()) -> Cmd a', 'cmd', PortType.Command, ['((), ())']),
+        ('port cmd : ( () ) -> Cmd a', 'cmd', PortType.Command, ['(())']),
+        ('port cmd : ( () , Maybe m ) -> Cmd a', 'cmd', PortType.Command, ['((), Maybe m )']),
+        ('port cmd : Foo.Bar -> Cmd a', 'cmd', PortType.Command, ['Foo.Bar']),
+        ('port cmd : (Foo.Bar) -> Cmd a', 'cmd', PortType.Command, ['(Foo.Bar)']),
+        ('port cmd : Foo () a Bar -> Cmd a', 'cmd', PortType.Command, ['Foo () a Bar']),
+        ('port cmd : (Foo () a Bar) -> Cmd a', 'cmd', PortType.Command, ['(Foo ()a Bar)']),
+        ('port cmd : {} -> Cmd a', 'cmd', PortType.Command, ['{}']),
+        ('port cmd : ({}) -> Cmd a', 'cmd', PortType.Command, ['({})']),
+        ('port cmd : {color: String } -> Cmd a', 'cmd', PortType.Command, ['{color: String }']),
+        ('port cmd : ({color: String }) -> Cmd a', 'cmd', PortType.Command, ['({color: String })']),
+        ('port cmd : { attr | position : Vec2, texture : Vec2 } -> Cmd a',
+         'cmd', PortType.Command, ['{attr | position : Vec2, texture : Vec2 }']),
+        ('port cmd : ({ attr | position : Vec2, texture : Vec2 }) -> Cmd a',
+         'cmd', PortType.Command, ['({attr | position : Vec2, texture : Vec2 })']),
+        ('port cmd : {color: {r : Int, g :Int, b: Int } } -> Cmd a',
+         'cmd', PortType.Command, ['{color: {r : Int, g :Int, b: Int }}']),
+        ('port cmd : ({color: {r : Int, g :Int, b: Int } }) -> Cmd a',
+         'cmd', PortType.Command, ['({color: {r : Int, g :Int, b: Int }})']),
+        ('port cmd : Foo -> Bar -> baz -> Cmd a', 'cmd', PortType.Command, ['Foo', 'Bar', 'baz']),
+        ('port cmd : cMsg -> cModel -> a -> Cmd a', 'cmd', PortType.Command, ['cMsg', 'cModel', 'a']),
+        ('port cmd : ( cMsg -> cModel -> a ) -> b -> Cmd a',
+         'cmd', PortType.Command, ['(cMsg -> cModel -> a )', 'b']),
+        ('port cmd : List(String) -> Cmd a', 'cmd', PortType.Command, ['List(String)']),
+        ('port cmd : (List(String)) -> Cmd a', 'cmd', PortType.Command, ['(List(String))']),
     ]
     for src, name, port_type, args in ports:
         info = elm_parser.port_info.parse(src)
