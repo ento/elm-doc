@@ -2,8 +2,10 @@ from typing import List, Iterator, Tuple
 from pathlib import Path
 import json
 
+import attr
 import requests
 from retrying import retry
+from doit.tools import config_changed
 
 from elm_doc.elm_project import ElmPackage, ExactVersion
 from elm_doc import elm_project
@@ -39,17 +41,26 @@ def _fetch_latest_version(package_name: str) -> ExactVersion:
     return sorted(releases.keys())[-1]
 
 
-def write_search_json(packages: List[ElmPackage], output_path: Path):
-    all_packages = map(
-        lambda package: {
-            'name': package.name,
-            'summary': package.summary,
-            'license': package.license,
-            'versions': [package.version],
-        },
-        packages)
+@attr.s(auto_attribs=True)
+class SearchEntry:
+    name: str
+    summary: str
+    license: str
+    versions: List[ExactVersion]
+
+    @classmethod
+    def from_package(cls, package: ElmPackage) -> 'SearchEntry':
+        return SearchEntry(
+            name=package.name,
+            summary=package.summary,
+            license=package.license,
+            versions=[package.version],
+        )
+
+
+def write_search_json(entries: List[SearchEntry], output_path: Path):
     with open(str(output_path), 'w') as f:
-        json.dump(list(all_packages), f)
+        json.dump([attr.asdict(entry) for entry in entries], f)
 
 
 def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
@@ -64,11 +75,12 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
 
     # search.json
     search_json_path = output_path / 'search.json'
+    search_entries = list(map(SearchEntry.from_package, packages))
     yield {
         'basename': 'search_json',
-        'actions': [(write_search_json, (packages, search_json_path))],
+        'actions': [(write_search_json, (search_entries, search_json_path))],
         'targets': [search_json_path],
-        'file_dep': [package.json_path for package in packages],
+        'uptodate': [config_changed({'entries': [attr.asdict(entry) for entry in search_entries]})],
     }
 
     # help pages
