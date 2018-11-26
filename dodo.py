@@ -23,7 +23,7 @@ def task_create_elm_core_fixture():
     elm_versions = ['0.19.0']
     for elm_version in elm_versions:
         build_tarball_path = Path(__file__).parent / 'build' / 'elm-core-fixture-{}.tar.gz'.format(elm_version)
-        dist_tarball_path = str(elm_core_fixture_path(elm_version))
+        dist_tarball_path = Path(str(elm_core_fixture_path(elm_version)))
         yield {
             'basename': 'create_elm_core_fixture',
             'name': elm_version,
@@ -37,11 +37,11 @@ def task_create_elm_core_fixture():
 
 
 def _create_elm_core_fixture(elm_version: str, tarball: str):
-    os.makedirs(os.path.dirname(tarball), exist_ok=True)
+    tarball.parent.mkdir(parents=True, exist_ok=True)
     workspace_path = Path(__file__).parent / 'workspace'
     # clear elm-stuff because something in there causes CORRUPT BINARY
     # if you run 'elm make' with a different ELM_HOME
-    shutil.rmtree(workspace_path / elm_project.STUFF_DIRECTORY)
+    shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY))
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
         elm_platform.install(root_path, elm_version)
@@ -49,9 +49,9 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
         elm_home_path = root_path / '.elm'
         try:
             subprocess.check_output(
-                [elm_path, 'make', workspace_path / 'src' / 'Main.elm'],
+                [str(elm_path), 'make', str(workspace_path / 'src' / 'Main.elm')],
                 env=dict(os.environ, **{'ELM_HOME': str(elm_home_path)}),
-                cwd=workspace_path,
+                cwd=str(workspace_path),
                 stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as e:
@@ -88,7 +88,7 @@ def task_create_package_elm_lang_org_artifact_tarball():
 
 def _copy_if_tarball_changed(source_path: Path, target_path: Path):
     if _is_tarball_different(source_path, target_path):
-        shutil.copyfile(source_path, target_path)
+        shutil.copyfile(str(source_path), str(target_path))
 
 
 def _is_tarball_different(source_path: Path, target_path: Path) -> bool:
@@ -100,7 +100,7 @@ def _is_tarball_different(source_path: Path, target_path: Path) -> bool:
 
 
 def _get_tarball_md5(path: Path) -> str:
-    with tarfile.open(path, 'r') as tar:
+    with tarfile.open(str(path), 'r') as tar:
         md5 = hashlib.md5()
         block_size = 128 * md5.block_size
         for member in tar.getmembers():
@@ -139,7 +139,7 @@ def _create_tarball(output_path: Path):
     # tarball entries as well, but having that information included
     # may be useful for debugging in the future, so we avoid updating
     # the tarball by checking the md5 of the contents above instead.
-    with open(output_path, 'wb') as f:
+    with open(str(output_path), 'wb') as f:
         with gzip.GzipFile(filename='', mode='wb', fileobj=f, mtime=0) as z:
             z.write(tar_bytes.read())
 
@@ -157,8 +157,7 @@ def task_package_elm_lang_org_elm_js():
 
 
 def _read_elm_version(elm_json_path: Path) -> str:
-    with open(elm_json_path) as f:
-        elm_json = json.load(f)
+    elm_json = json.loads(elm_json_path.read_text('utf8'))
     return elm_json['elm-version']
 
 
@@ -172,13 +171,13 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
         try:
             subprocess.check_output(
                 [
-                    elm_path,
+                    str(elm_path),
                     'make',
-                    repo_path / 'src' / 'frontend' / 'Main.elm',
+                    str(repo_path / 'src' / 'frontend' / 'Main.elm'),
                     '--output',
                     str(output_path),
                 ],
-                cwd=repo_path,
+                cwd=str(repo_path),
                 stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as e:
