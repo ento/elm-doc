@@ -232,7 +232,7 @@ class ProjectConfig:
     include_paths: List[str] = attr.Factory(list)
     exclude_modules: List[str] = attr.Factory(list)
     force_exclusion: bool = False
-    fake_user: str = 'author'
+    fake_user: str = 'user'
     fake_project: str = 'project'
     fake_version: str = '1.0.0'
     fake_summary: str = 'summary'

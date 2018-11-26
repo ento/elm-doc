@@ -79,7 +79,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert elm_lang_html_path.join('..', 'releases.json').check()
         assert elm_lang_html_path.join('Html-Keyed').check()
 
-        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         package_latest_link = package_dir.dirpath('latest')
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())
@@ -117,7 +117,7 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         assert not result.exception, result.output
         assert result.exit_code == 0
 
-        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         assert package_dir.join('docs.json').check()
 
         port_module_a = project_dir / 'PortModuleA.elm'
@@ -128,7 +128,7 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         assert not result.exception, result.output
         assert result.exit_code == 0
 
-        package_dir = output_dir.join('packages', 'author', 'project', '1.0.0')
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         docs = package_dir.join('docs.json').read_text('utf8')
         assert 'portC' in docs
 
