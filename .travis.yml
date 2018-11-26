@@ -1,5 +1,5 @@
 dist: trusty
-sudo: true
+sudo: false
 
 os:
   - linux
@@ -31,9 +31,12 @@ before_install:
   - |
     if [[ $TRAVIS_OS_NAME == 'linux' ]]; then
       mkdir -p $HOME/bin
-      wget https://github.com/github/git-lfs/releases/download/v$GIT_LFS_VERSION/git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz
-      tar xvfz git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz
-      mv git-lfs-$GIT_LFS_VERSION/git-lfs $HOME/bin/git-lfs
+      (
+        cd /tmp
+        wget https://github.com/github/git-lfs/releases/download/v$GIT_LFS_VERSION/git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz
+        tar xvfz git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz
+        mv git-lfs-$GIT_LFS_VERSION/git-lfs $HOME/bin/git-lfs
+      )
       export PATH=$PATH:$HOME/bin/
     fi
   - |
@@ -47,7 +50,9 @@ before_install:
     fi
 
 install:
-  - pip install tox-travis
+  - pip install 'pipenv>=2018.10.9' tox-travis
+  - pipenv --version
+  - pipenv install --dev
 
 before_script:
   - git lfs version
@@ -55,13 +60,26 @@ before_script:
 
 script:
   - |
+    set -o errexit
+
     if [[ "$CHECK_INSTALL" == 'yes' ]]; then
       pip install .
       elm-doc --help
       python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
     else
+      pipenv run doit
+
+      if [ ! -z "$(git status --porcelain)" ]; then
+        git status
+        echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
+        echo See git status above.
+        exit 1
+      fi
+
       tox -v
     fi
+
+    set +o errexit
 
 after_success:
   - tox -e coverage-report
