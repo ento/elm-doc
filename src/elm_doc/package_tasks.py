@@ -3,8 +3,6 @@ import enum
 from pathlib import Path
 import json
 import shutil
-import urllib.error
-import urllib.request
 
 from doit.tools import create_folder, config_changed
 

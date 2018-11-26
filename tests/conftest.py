@@ -7,12 +7,10 @@ import tarfile
 import pytest
 import py
 
-import elm_doc
-
 
 def pytest_addoption(parser):
     parser.addoption("--elm-version", default='0.19.0',
-        help="specify the version of Elm to test")
+                     help="specify the version of Elm to test")
 
 
 def pytest_generate_tests(metafunc):

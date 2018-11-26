@@ -145,7 +145,11 @@ def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         assert package_dir.join('docs.json').check()
 
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause', '--mount-at', '/newmountpoint'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--mount-at', '/newmountpoint'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -174,7 +178,11 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         assert package_dir.join('docs.json').check()
 
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause', '--fake-version', '2.0.0'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--fake-version', '2.0.0'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -186,7 +194,7 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
         assert package_latest_link_target.check(dir=True)
         assert package_latest_link_target.basename == '2.0.0'
 
-        releases =  json.loads(package_dir.join('..', 'releases.json').read())
+        releases = json.loads(package_dir.join('..', 'releases.json').read())
         assert list(releases.keys()) == ['2.0.0']
 
         search_json = json.loads(output_dir.join('search.json').read())
@@ -238,7 +246,11 @@ def test_cli_validate_invalid_project_with_masked_exclude(
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '--fake-license', 'BSD-3-Clause', '--validate', project_dir.basename])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            '--fake-license', 'BSD-3-Clause',
+            '--validate',
+            project_dir.basename])
         problem_lines = [line for line in result.output.splitlines()
                          if 'NO DOCS' in line or 'DOCS MISTAKE' in line]
         assert len(problem_lines) == 2

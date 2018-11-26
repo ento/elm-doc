@@ -15,9 +15,9 @@ class PortType(enum.Enum):
 
 @attr.s
 class PortInfo:
-    name = attr.ib() # str
-    args = attr.ib() # [str]
-    port_type = attr.ib() # PortType
+    name = attr.ib()  # str
+    args = attr.ib()  # [str]
+    port_type = attr.ib()  # PortType
 
 
 def lexeme(p):

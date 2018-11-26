@@ -1,10 +1,9 @@
-from typing import Dict, List, Iterator, Optional, Tuple, Union
+from typing import Dict, List, Iterator, Optional, Tuple
 from pathlib import Path
 import re
 import fnmatch
 import itertools
 import json
-import urllib.parse
 
 import attr
 
@@ -37,15 +36,15 @@ class ElmPackage(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
     PACKAGES_DIRECTORY = 'packages'
 
-    user = attr.ib() # str
-    project = attr.ib() # str
-    version = attr.ib() # str
-    summary = attr.ib() # str
-    license = attr.ib() # str
-    elm_version = attr.ib() # VersionRange
-    exposed_modules = attr.ib() # Union[List[ModuleName], Dict[str, List[ModuleName]]]
-    dependencies = attr.ib() # Dict[str, VersionRange]
-    test_dependencies = attr.ib() # Dict[str, VersionRange]
+    user = attr.ib()  # str
+    project = attr.ib()  # str
+    version = attr.ib()  # str
+    summary = attr.ib()  # str
+    license = attr.ib()  # str
+    elm_version = attr.ib()  # VersionRange
+    exposed_modules = attr.ib()  # Union[List[ModuleName], Dict[str, List[ModuleName]]]
+    dependencies = attr.ib()  # Dict[str, VersionRange]
+    test_dependencies = attr.ib()  # Dict[str, VersionRange]
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmPackage']:
@@ -112,12 +111,12 @@ class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
     PACKAGES_DIRECTORY = 'package'
 
-    source_directories = attr.ib() # [str]
-    elm_version = attr.ib() # ExactVersion
-    direct_dependencies = attr.ib() # Dict[str, ExactVersion]
-    indirect_dependencies = attr.ib() # Dict[str, ExactVersion]
-    direct_test_dependencies = attr.ib() # Dict[str, ExactVersion]
-    indirect_test_dependencies = attr.ib() # Dict[str, ExactVersion]
+    source_directories = attr.ib()  # [str]
+    elm_version = attr.ib()  # ExactVersion
+    direct_dependencies = attr.ib()  # Dict[str, ExactVersion]
+    indirect_dependencies = attr.ib()  # Dict[str, ExactVersion]
+    direct_test_dependencies = attr.ib()  # Dict[str, ExactVersion]
+    indirect_test_dependencies = attr.ib()  # Dict[str, ExactVersion]
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmApplication']:
@@ -229,20 +228,20 @@ def _load_json(path: Path) -> Dict:
 
 @attr.s
 class ProjectConfig:
-    include_paths = attr.ib(factory=list) # List[str]
-    exclude_modules = attr.ib(factory=list) # List[str]
-    force_exclusion = attr.ib(default=False) # bool
-    fake_user = attr.ib(default='user') # str
-    fake_project = attr.ib(default='project') # str
-    fake_version = attr.ib(default='1.0.0') # str
-    fake_summary = attr.ib(default='summary') # str
-    fake_license = attr.ib(default='BSD-3-Clause') # str
+    include_paths = attr.ib(factory=list)  # List[str]
+    exclude_modules = attr.ib(factory=list)  # List[str]
+    force_exclusion = attr.ib(default=False)  # bool
+    fake_user = attr.ib(default='user')  # str
+    fake_project = attr.ib(default='project')  # str
+    fake_version = attr.ib(default='1.0.0')  # str
+    fake_summary = attr.ib(default='summary')  # str
+    fake_license = attr.ib(default='BSD-3-Clause')  # str
 
 
 @attr.s
 class ElmModule:
-    path = attr.ib() # Path
-    name = attr.ib() # ModuleName
+    path = attr.ib()  # Path
+    name = attr.ib()  # ModuleName
 
 
 def glob_project_modules(
@@ -255,7 +254,7 @@ def glob_project_modules(
                 continue
 
             if config.include_paths and not any(_matches_include_path(elm_file, include_path)
-                                         for include_path in config.include_paths):
+                                                for include_path in config.include_paths):
                 continue
 
             rel_path = elm_file.relative_to(source_dir)

@@ -1,6 +1,6 @@
 '''
 '''
-from typing import List, Optional
+from typing import Optional
 from pathlib import Path
 
 from doit import create_after

@@ -38,7 +38,8 @@ def test_port_info():
         ('port cmd : ({b: Int} -> a) -> Cmd a', 'cmd', PortType.Command, ['({b: Int}-> a)']),
         ('port cmd : {b: String} -> Cmd a', 'cmd', PortType.Command, ['{b: String}']),
         ('port cmd : {b: (a -> a)} -> Cmd a', 'cmd', PortType.Command, ['{b: (a -> a)}']),
-        ('port cmd : {b: (a -> {c: a} -> Module.Type)} -> Cmd a', 'cmd', PortType.Command, ['{b: (a -> {c: a}-> Module.Type)}']),
+        ('port cmd : {b: (a -> {c: a} -> Module.Type)} -> Cmd a',
+         'cmd', PortType.Command, ['{b: (a -> {c: a}-> Module.Type)}']),
         ('port cmd : {b: (a -> {c: a} -> ())} -> Cmd a', 'cmd', PortType.Command, ['{b: (a -> {c: a}-> ())}']),
         ('port cmd : () -> () -> Cmd a', 'cmd', PortType.Command, ['()', '()']),
     ]

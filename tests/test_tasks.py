@@ -108,10 +108,10 @@ def _create_tasks(*args, **kwargs):
 
 def _basenames_in_first_seen_order(create_tasks_result):
     rv = {}
-    for creator_name, tasks in create_tasks_result.items():
+    for creator_name, created_tasks in create_tasks_result.items():
         rv[creator_name] = []
         seen = set()
-        for task in tasks:
+        for task in created_tasks:
             basename = task['basename']
             if basename not in seen:
                 seen.add(basename)

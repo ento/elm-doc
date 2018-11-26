@@ -1,10 +1,8 @@
 from typing import List, Optional
-import os
 from collections import ChainMap
 from pathlib import Path
 import json
 from tempfile import TemporaryDirectory
-import glob
 import subprocess
 
 from dirsync import sync
@@ -14,7 +12,7 @@ from elm_doc import elm_platform
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
 from elm_doc import package_tasks
-from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ElmModule, ModuleName
+from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 from elm_doc.decorators import capture_subprocess_error
 
 
