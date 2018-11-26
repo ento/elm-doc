@@ -41,7 +41,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
     workspace_path = Path(__file__).parent / 'workspace'
     # clear elm-stuff because something in there causes CORRUPT BINARY
     # if you run 'elm make' with a different ELM_HOME
-    shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY))
+    shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY), ignore_errors=True)
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
         elm_platform.install(root_path, elm_version)
