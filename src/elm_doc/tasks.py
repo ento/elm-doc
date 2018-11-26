@@ -89,6 +89,7 @@ def build_dependencies_task_creator(
     ])
     def task_dependencies():
         deps = list(project.iter_dependencies())
+        deps.sort(key=lambda dep: dep.name)
         all_packages = [project.as_package(project_config).without_license()] + deps
 
         for package in deps:
