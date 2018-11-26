@@ -58,7 +58,7 @@ script:
     if [[ "$CHECK_INSTALL" == 'yes' ]]; then
       pip install .
       elm-doc --help
-      python -c 'import os, elm_doc; assert elm_doc.elm_package_overlayer_env("", "", os.environ)["LD_PRELOAD"]'
+      python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
     else
       tox -v
     fi
