@@ -64,13 +64,15 @@ def write_search_json(entries: List[SearchEntry], output_path: Path):
 
 
 def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
+    page_flags = {'mount_point': mount_point}
+
     # index
     index_path = output_path / 'index.html'
     yield {
         'basename': 'index',
-        'actions': [(page_tasks.write_page, (index_path, mount_point))],
+        'actions': [(page_tasks.write_page, (index_path,), page_flags)],
         'targets': [index_path],
-        'uptodate': [True],
+        'uptodate': [config_changed(page_flags)],
     }
 
     # search.json
@@ -90,7 +92,8 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         yield {
             'basename': 'help',
             'name': url_path,
-            'actions': [(page_tasks.write_page, (help_output_path, mount_point))],
+            'actions': [(page_tasks.write_page, (help_output_path,), page_flags)],
             'targets': [help_output_path],
             'file_dep': [output_path / help_file],
+            'uptodate': [config_changed(page_flags)],
         }

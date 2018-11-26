@@ -133,9 +133,38 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         assert 'portC' in docs
 
 
+def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    modules = ['Main.elm']
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause', '--mount-at', '/newmountpoint'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        # index
+        assert 'newmountpoint' in output_dir.join('index.html').read()
+        # help
+        assert 'newmountpoint' in output_dir.join('help', 'documentation-format').read()
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+
+        # package page
+        assert 'newmountpoint' in package_dir.join('index.html').read()
+        # module page
+        assert 'newmountpoint' in package_dir.join('Main').read()
+
+
 def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
     modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])

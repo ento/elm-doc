@@ -87,16 +87,16 @@ def create_package_page_tasks(
         mount_point: str = '',):
     task_name = _package_task_name(package)
     package_output_path = package_docs_root(output_path, package)
+    page_flags = {'mount_point': mount_point}
 
     # package index page
     package_index_output = package_output_path / 'index.html'
     yield {
         'basename': context.basename('top_page'),
         'name': task_name,
-        'actions': [(page_tasks.write_page, (package_index_output,), {'mount_point': mount_point})],
+        'actions': [(page_tasks.write_page, (package_index_output,), page_flags)],
         'targets': [package_index_output],
-        # 'file_dep': [module['source_file']] #todo
-        'uptodate': [True],
+        'uptodate': [config_changed(page_flags)],
     }
 
     # package readme
@@ -142,10 +142,9 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('module_page'),
             'name': '{}:{}'.format(task_name, module_name),
-            'actions': [(page_tasks.write_page, (module_output,), {'mount_point': mount_point})],
+            'actions': [(page_tasks.write_page, (module_output,), page_flags)],
             'targets': [module_output],
-            # 'file_dep': [module['source_file']] #todo
-            'uptodate': [True],
+            'uptodate': [config_changed(page_flags)],
         }
 
 
