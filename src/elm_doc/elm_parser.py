@@ -13,11 +13,11 @@ class PortType(enum.Enum):
     Subscription = 'Sub'
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class PortInfo:
-    name: str
-    args: [str]
-    port_type: PortType
+    name = attr.ib() # str
+    args = attr.ib() # [str]
+    port_type = attr.ib() # PortType
 
 
 def lexeme(p):

@@ -41,12 +41,12 @@ def _fetch_latest_version(package_name: str) -> ExactVersion:
     return sorted(releases.keys())[-1]
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class SearchEntry:
-    name: str
-    summary: str
-    license: str
-    versions: List[ExactVersion]
+    name = attr.ib() # str
+    summary = attr.ib() # str
+    license = attr.ib() # str
+    versions = attr.ib() # List[ExactVersion]
 
     @classmethod
     def from_package(cls, package: ElmPackage) -> 'SearchEntry':

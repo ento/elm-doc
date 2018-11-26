@@ -18,11 +18,11 @@ STUFF_DIRECTORY = 'elm-stuff'
 module_name_re = re.compile(r'^[A-Z][a-zA-Z0-9_]*$')
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class ElmProject:
     DOCS_FILENAME = 'docs.json'
 
-    path: Path
+    path = attr.ib()
 
     @property
     def json_path(self) -> Path:
@@ -32,20 +32,20 @@ class ElmProject:
         raise NotImplementedError
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class ElmPackage(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
     PACKAGES_DIRECTORY = 'packages'
 
-    user: str
-    project: str
-    version: str
-    summary: str
-    license: str
-    elm_version: VersionRange
-    exposed_modules: Union[List[ModuleName], Dict[str, List[ModuleName]]]
-    dependencies: Dict[str, VersionRange]
-    test_dependencies: Dict[str, VersionRange]
+    user = attr.ib() # str
+    project = attr.ib() # str
+    version = attr.ib() # str
+    summary = attr.ib() # str
+    license = attr.ib() # str
+    elm_version = attr.ib() # VersionRange
+    exposed_modules = attr.ib() # Union[List[ModuleName], Dict[str, List[ModuleName]]]
+    dependencies = attr.ib() # Dict[str, VersionRange]
+    test_dependencies = attr.ib() # Dict[str, VersionRange]
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmPackage']:
@@ -107,17 +107,17 @@ class ElmPackage(ElmProject):
         return sorted(modules)
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
     PACKAGES_DIRECTORY = 'package'
 
-    source_directories: [str]
-    elm_version: ExactVersion
-    direct_dependencies: Dict[str, ExactVersion]
-    indirect_dependencies: Dict[str, ExactVersion]
-    direct_test_dependencies: Dict[str, ExactVersion]
-    indirect_test_dependencies: Dict[str, ExactVersion]
+    source_directories = attr.ib() # [str]
+    elm_version = attr.ib() # ExactVersion
+    direct_dependencies = attr.ib() # Dict[str, ExactVersion]
+    indirect_dependencies = attr.ib() # Dict[str, ExactVersion]
+    direct_test_dependencies = attr.ib() # Dict[str, ExactVersion]
+    indirect_test_dependencies = attr.ib() # Dict[str, ExactVersion]
 
     @classmethod
     def from_path(cls, path: Path) -> Optional['ElmApplication']:
@@ -227,22 +227,22 @@ def _load_json(path: Path) -> Dict:
         return json.load(f)
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class ProjectConfig:
-    include_paths: List[str] = attr.Factory(list)
-    exclude_modules: List[str] = attr.Factory(list)
-    force_exclusion: bool = False
-    fake_user: str = 'user'
-    fake_project: str = 'project'
-    fake_version: str = '1.0.0'
-    fake_summary: str = 'summary'
-    fake_license: str = 'BSD-3-Clause'
+    include_paths = attr.ib(factory=list) # List[str]
+    exclude_modules = attr.ib(factory=list) # List[str]
+    force_exclusion = attr.ib(default=False) # bool
+    fake_user = attr.ib(default='user') # str
+    fake_project = attr.ib(default='project') # str
+    fake_version = attr.ib(default='1.0.0') # str
+    fake_summary = attr.ib(default='summary') # str
+    fake_license = attr.ib(default='BSD-3-Clause') # str
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class ElmModule:
-    path: Path
-    name: ModuleName
+    path = attr.ib() # Path
+    name = attr.ib() # ModuleName
 
 
 def glob_project_modules(
