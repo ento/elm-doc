@@ -48,12 +48,11 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
         elm_path = root_path / 'node_modules' / '.bin' / 'elm'
         elm_home_path = root_path / '.elm'
         try:
-            subprocess.run(
+            subprocess.check_output(
                 [elm_path, 'make', workspace_path / 'src' / 'Main.elm'],
                 env=dict(os.environ, **{'ELM_HOME': str(elm_home_path)}),
                 cwd=workspace_path,
-                check=True,
-                capture_output=True,
+                stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
@@ -171,7 +170,7 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
         elm_platform.install(root_path, elm_version)
         elm_path = root_path / 'node_modules' / '.bin' / 'elm'
         try:
-            subprocess.run(
+            subprocess.check_output(
                 [
                     elm_path,
                     'make',
@@ -180,8 +179,7 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
                     str(output_path),
                 ],
                 cwd=repo_path,
-                check=True,
-                capture_output=True,
+                stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))

@@ -58,11 +58,10 @@ def build_project_docs_json(
             # don't update the final artifact; write to build dir instead
             output_path = build_path / project.DOCS_FILENAME
 
-        subprocess.run(
+        subprocess.check_output(
             [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
             cwd=str(build_path),
-            check=True,
-            capture_output=True,
+            stderr=subprocess.STDOUT,
         )
 
 
