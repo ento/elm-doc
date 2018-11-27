@@ -1,7 +1,9 @@
+from typing import Dict
 import sys
 import os.path
 import io
 import contextlib
+import logging
 from tempfile import TemporaryDirectory
 import tarfile
 import gzip
@@ -15,6 +17,9 @@ sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
 from elm_doc import elm_platform, elm_project, tasks
 from tests import conftest
+
+
+logger = logging.getLogger(__name__)
 
 
 def task_create_elm_core_fixture():
@@ -100,25 +105,32 @@ def _copy_if_tarball_changed(source_path: Path, target_path: Path):
 def _is_tarball_different(source_path: Path, target_path: Path) -> bool:
     if not target_path.exists():
         return True
-    if _get_tarball_md5(source_path) != _get_tarball_md5(target_path):
+    source_md5s = _get_tarball_md5s(source_path)
+    target_md5s = _get_tarball_md5s(target_path)
+    if source_md5s != target_md5s:
+        for name in (set(source_md5s.keys()) | set(target_md5s.keys())):
+            if source_md5s.get(name) != target_md5s.get(name):
+                logger.info('hash of {} differ between {} and {}'.format(name, source_path, target_path))
         return True
     return False
 
 
-def _get_tarball_md5(path: Path) -> str:
+def _get_tarball_md5s(path: Path) -> Dict[str, str]:
+    res = {}
     with tarfile.open(str(path), 'r') as tar:
-        md5 = hashlib.md5()
-        block_size = 128 * md5.block_size
         for member in tar.getmembers():
             if not member.isfile():
                 continue
             f = tar.extractfile(member)
+            md5 = hashlib.md5()
+            block_size = 128 * md5.block_size
             while True:
                 data = f.read(block_size)
                 if not data:
                     break
                 md5.update(data)
-    return md5.hexdigest()
+            res[member.name] = md5.hexdigest()
+    return res
 
 
 def _create_package_elm_lang_org_artifact_tarball(output_path: Path):

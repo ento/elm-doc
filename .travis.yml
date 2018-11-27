@@ -51,6 +51,7 @@ install:
 before_script:
   - git lfs version
   - git lfs pull
+  - find . -iname '*.tar.gz'
 
 script:
   - |
@@ -61,10 +62,41 @@ script:
       elm-doc --help
       python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
     else
-      pipenv run doit
+      pipenv run doit --verbosity 2
 
       if [ ! -z "$(git status --porcelain)" ]; then
         git status
+
+        set -o xtrace
+
+        mkdir old-assets new-assets
+        (
+          cd new-assets
+          tar xf ../src/elm_doc/assets/assets.tar.gz
+          find . -type f -exec md5sum {} \; | sort > ../new-assets.txt
+        )
+        git checkout src
+        (
+          cd old-assets
+          tar xf ../src/elm_doc/assets/assets.tar.gz
+          find . -type f -exec md5sum {} \; | sort > ../old-assets.txt
+        )
+        diff -u old-assets.txt new-assets.txt
+
+        mkdir old-core new-core
+        (
+          cd new-core
+          tar xf ../tests/fixtures/0.19.0-elm-core.tar.gz
+          find . -type f -exec md5sum {} \; | sort > ../new-core.txt
+        )
+        git checkout tests
+        (
+          cd old-core
+          tar xf ../tests/fixtures/0.19.0-elm-core.tar.gz
+          find . -type f -exec md5sum {} \; | sort > ../old-core.txt
+        )
+        diff -u old-core.txt new-core.txt
+
         echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
         echo See git status above.
         exit 1
