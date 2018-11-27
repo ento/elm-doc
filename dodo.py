@@ -60,7 +60,13 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
             raise e
 
         with _create_tarball(tarball) as tar:
-            tar.add(str(elm_home_path), arcname=elm_home_path.name)
+            tar.add(str(elm_home_path), arcname=elm_home_path.name, filter=_tar_filter_without_registry)
+
+
+def _tar_filter_without_registry(tarinfo):
+    if Path(tarinfo.name).name == 'versions.dat':
+        return
+    return tarinfo
 
 
 def task_create_package_elm_lang_org_artifact_tarball():
