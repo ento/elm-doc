@@ -107,6 +107,28 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert help_doc_format.check()
 
 
+def test_cli_build_docs_multiple_source_dirs(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'src': ['Main.elm'], 'srcB': ['PortModuleA.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+
+        package_main = package_dir.join('Main')
+        assert package_main.check()
+
+        package_docs = package_dir.join('docs.json')
+        assert package_docs.check()
+        actual_docs = json.loads(package_docs.read())
+        assert actual_docs[0]['name'] == 'Main'
+        assert actual_docs[1]['name'] == 'PortModuleA'
+
+
 def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
     sources = {'.': ['PortModuleA.elm', 'PortModuleB.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)

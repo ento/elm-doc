@@ -55,8 +55,8 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
 
 def test_create_tasks_project_modules_and_dependencies(
         tmpdir, elm_version, make_elm_project):
-    modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, modules=modules, copy_elm_stuff=True)
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
         project_dir.join('README.md').write('hello')

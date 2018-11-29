@@ -43,12 +43,15 @@ def test_glob_project_modules_includes_take_precedence_over_excludes(
     project_dir = make_elm_project(
         elm_version,
         tmpdir,
+        sources={
+            '.': [
+                'Main.elm',
+                'MissingModuleComment.elm',
+                'PublicFunctionNotInAtDocs.elm',
+            ],
+        },
         copy_elm_stuff=False,
-        modules=[
-            'Main.elm',
-            'MissingModuleComment.elm',
-            'PublicFunctionNotInAtDocs.elm',
-        ])
+    )
     project = elm_project.from_path(Path(str(project_dir)))
     config = elm_project.ProjectConfig(
         include_paths=_resolve_paths(project_dir, 'Main.elm', 'MissingModuleComment.elm'),
@@ -64,12 +67,15 @@ def test_glob_project_modules_excludes_take_precedence_over_includes_if_forced(
     project_dir = make_elm_project(
         elm_version,
         tmpdir,
+        sources={
+            '.': [
+                'Main.elm',
+                'MissingModuleComment.elm',
+                'PublicFunctionNotInAtDocs.elm',
+            ],
+        },
         copy_elm_stuff=False,
-        modules=[
-            'Main.elm',
-            'MissingModuleComment.elm',
-            'PublicFunctionNotInAtDocs.elm',
-        ])
+    )
     project = elm_project.from_path(Path(str(project_dir)))
     config = elm_project.ProjectConfig(
         include_paths=_resolve_paths(project_dir, 'Main.elm', 'MissingModuleComment.elm'),
@@ -85,11 +91,14 @@ def test_glob_project_modules_includes_all_by_default(
     project_dir = make_elm_project(
         elm_version,
         tmpdir,
+        sources={
+            '.': [
+                'Main.elm',
+                'MissingModuleComment.elm',
+            ],
+        },
         copy_elm_stuff=False,
-        modules=[
-            'Main.elm',
-            'MissingModuleComment.elm',
-        ])
+    )
     project = elm_project.from_path(Path(str(project_dir)))
     config = elm_project.ProjectConfig(
         include_paths=[],
@@ -105,12 +114,14 @@ def test_glob_project_modules_can_include_path_in_non_dot_source_dir(
     project_dir = make_elm_project(
         elm_version,
         tmpdir,
-        src_dir='src',
+        sources={
+            'src': [
+                'Main.elm',
+                'MissingModuleComment.elm',
+            ],
+        },
         copy_elm_stuff=False,
-        modules=[
-            'Main.elm',
-            'MissingModuleComment.elm',
-        ])
+    )
     project = elm_project.from_path(Path(str(project_dir)))
     config = elm_project.ProjectConfig(
         include_paths=_resolve_paths(project_dir, 'src/Main.elm'),
@@ -126,11 +137,13 @@ def test_glob_project_modules_ignores_dot_directories(
     project_dir = make_elm_project(
         elm_version,
         tmpdir,
-        src_dir='.',
+        sources={
+            '.': [
+                'Main.elm',
+            ],
+        },
         copy_elm_stuff=False,
-        modules=[
-            'Main.elm',
-        ])
+    )
     dot_dir_file = Path(str(project_dir / '.elm-doc' / 'Extra.elm'))
     dot_dir_file.parent.mkdir()
     dot_dir_file.touch()
