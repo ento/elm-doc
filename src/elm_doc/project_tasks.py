@@ -47,7 +47,7 @@ def build_project_docs_json(
         for elm_file in changed_files:
             elm_file_path = Path(elm_file)
             if elm_file_path.suffix == '.elm' and elm_file_path.exists():
-                elm_codeshift.strip_ports(Path(elm_file))
+                elm_codeshift.strip_ports_from_file(Path(elm_file))
 
         if elm_path is None:
             elm_platform.install(tmp_path, project.elm_version)

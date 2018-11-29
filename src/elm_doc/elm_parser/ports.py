@@ -1,9 +1,8 @@
 '''
-note: this is by no means a complete Elm syntax parser. In fact,
-it can only do little more than splitting a port declaration
-at meaningful boundaries.
+Functions for parsing a port declaration.
 '''
 import enum
+
 from parsy import generate, regex, string
 import attr
 
@@ -71,3 +70,6 @@ def port_info():
         name=port_name,
         args=[arg.strip() for arg in port_args],
         port_type=port_type)
+
+
+parse_port_declaration = port_info.parse

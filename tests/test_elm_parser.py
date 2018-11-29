@@ -2,7 +2,7 @@ import pytest
 import parsy
 
 from elm_doc import elm_parser
-from elm_doc.elm_parser import PortType
+from elm_doc.elm_parser.ports import PortType
 
 
 def test_func_name():
@@ -14,7 +14,7 @@ def test_func_name():
     ]
 
     for valid_func_name in valid_func_names:
-        assert elm_parser.func_name.parse(valid_func_name) == valid_func_name
+        assert elm_parser.ports.func_name.parse(valid_func_name) == valid_func_name
 
     valid_func_names = [
         '012',
@@ -24,10 +24,10 @@ def test_func_name():
 
     for invalid_func_name in valid_func_names:
         with pytest.raises(parsy.ParseError):
-            assert elm_parser.func_name.parse(invalid_func_name)
+            assert elm_parser.ports.func_name.parse(invalid_func_name)
 
 
-def test_port_info():
+def test_parse_port_declaration():
     ports = [
         ('port cmd : Cmd a', 'cmd', PortType.Command, []),
         ('port sub : Sub a', 'sub', PortType.Subscription, []),
@@ -73,7 +73,7 @@ def test_port_info():
         ('port cmd : (List(String)) -> Cmd a', 'cmd', PortType.Command, ['(List(String))']),
     ]
     for src, name, port_type, args in ports:
-        info = elm_parser.port_info.parse(src)
+        info = elm_parser.parse_port_declaration(src)
         assert info.name == name
         assert info.port_type == port_type
         assert info.args == args
