@@ -43,10 +43,19 @@ def module_fixture_path():
 
 @pytest.fixture
 def make_elm_project(mocker, elm_stuff_fixture_path, elm_core_fixture_path, module_fixture_path):
-    def for_version(elm_version, root_dir, src_dir='.', package_overrides={}, copy_elm_stuff=False, modules=[]):
+    def for_version(elm_version, root_dir, sources={}, package_overrides={}, copy_elm_stuff=False):
+        '''
+        :param elm_version: Version of Elm to specify in elm.json
+        :param root_dir: Directory to create an Elm project in
+        :param sources: A mapping of source directory relative to root_dir to source files to copy
+                        from tests/fixtures/{elm_version}/
+        :param package_overrides: Properties to override in the generated elm.json
+        :param copy_elm_stuff: Whether to copy a cache of core Elm libraries
+        '''
         root_dir.ensure('project', dir=True)
         project_dir = root_dir.join('project')
-        elm_package = dict(default_elm_package[elm_version], **{'source-directories': [src_dir]})
+        source_dirs = list(sources.keys())
+        elm_package = dict(default_elm_package[elm_version], **{'source-directories': source_dirs})
         elm_package.update(package_overrides)
         elm_package_filename = 'elm-package.json' if elm_version == '0.18.0' else 'elm.json'
         project_dir.join(elm_package_filename).write(json.dumps(elm_package))
@@ -59,10 +68,11 @@ def make_elm_project(mocker, elm_stuff_fixture_path, elm_core_fixture_path, modu
                 tarball = elm_core_fixture_path(elm_version)
                 _extract_tarball(tarball, root_dir)
 
-        project_dir.ensure(src_dir, dir=True)
         module_root = module_fixture_path(elm_version)
-        for module in modules:
-            project_dir.join(src_dir, module).write(module_root.join(module).read())
+        for source_dir, modules in sources.items():
+            project_dir.ensure(source_dir, dir=True)
+            for module in modules:
+                project_dir.join(source_dir, module).write(module_root.join(module).read())
 
         elm_home = str(root_dir.join('.elm'))
         mocker.patch('elm_doc.elm_platform.ELM_HOME', Path(elm_home))

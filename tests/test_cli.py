@@ -61,8 +61,8 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
 
 
 def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm', 'PortModuleA.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
+    sources = {'.': ['Main.elm', 'PortModuleA.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
@@ -109,8 +109,8 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
 
 
 def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
-    modules = ['PortModuleA.elm', 'PortModuleB.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=False, modules=modules)
+    sources = {'.': ['PortModuleA.elm', 'PortModuleB.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
@@ -134,8 +134,8 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
 
 
 def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
@@ -167,8 +167,8 @@ def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make
 
 
 def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
@@ -204,8 +204,8 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
 
 def test_cli_validate_real_project(
         tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
@@ -218,8 +218,8 @@ def test_cli_validate_real_project(
 
 def test_cli_validate_subset_of_real_project_with_forced_exclusion(
         tmpdir, runner, elm_version, make_elm_project):
-    modules = ['Main.elm', 'MissingModuleComment.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    sources = {'.': ['Main.elm', 'MissingModuleComment.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
@@ -242,8 +242,8 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
 
 def test_cli_validate_invalid_project_with_masked_exclude(
         tmpdir, runner, elm_version, make_elm_project, request):
-    modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
-    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True, modules=modules)
+    sources = {'.': ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         result = runner.invoke(cli.main, [
