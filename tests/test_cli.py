@@ -84,7 +84,6 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())
         assert package_dir.join('README.md').check()
-        assert package_dir.join('docs.json').check()
         assert package_dir.join('..', 'releases.json').check()
 
         package_index = package_dir.join('index.html')
