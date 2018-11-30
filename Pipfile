@@ -17,6 +17,11 @@ requests = "*"
 tox = "*"
 pytest-mock = "*"
 check-manifest = "*"
+pip = "*"
+setuptools = "*"
+twine = "*"
+wheel = "*"
+keyring = "*"
 
 [requires]
 python_version = "3.6"
