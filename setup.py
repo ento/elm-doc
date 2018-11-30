@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='elm-doc',
-    version='0.3.2',
+    version='1.0.0b1',
     url='https://github.com/ento/elm-doc',
     license='BSD 3-clause',
     author='Marica Odagaki',
@@ -36,8 +36,7 @@ setup(
     python_requires='>=3.5',
     classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 3 - Alpha',
-        #'Development Status :: 4 - Beta',
+        'Development Status :: 4 - Beta',
         # 'Development Status :: 5 - Production/Stable',
         # 'Development Status :: 6 - Mature',
         # 'Development Status :: 7 - Inactive',
