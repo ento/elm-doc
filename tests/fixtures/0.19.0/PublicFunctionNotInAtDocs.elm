@@ -1,4 +1,3 @@
-{-| @docs should list all exposed functions -}
 module PublicFunctionNotInAtDocs exposing (anotherPublicFunc, publicFunc)
 
 {-|

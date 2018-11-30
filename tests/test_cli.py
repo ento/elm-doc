@@ -274,7 +274,7 @@ def test_cli_validate_invalid_project_with_masked_exclude(
             project_dir.basename])
         problem_lines = [line for line in result.output.splitlines()
                          if 'NO DOCS' in line or 'DOCS MISTAKE' in line]
-        assert len(problem_lines) == 2
+        assert len(problem_lines) == 2, result.output
 
         # traceback should be suppressed
         assert 'CalledProcessError' not in result.output
