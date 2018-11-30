@@ -1,4 +1,3 @@
-{-| A port module -}
 port module PortModuleA exposing (portA)
 
 {-| @docs portA -}
