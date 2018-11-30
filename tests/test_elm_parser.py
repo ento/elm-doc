@@ -27,13 +27,13 @@ def test_func_name():
     for valid_func_name in valid_func_names:
         assert elm_parser.ports.func_name.parse(valid_func_name) == valid_func_name
 
-    valid_func_names = [
+    invalid_func_names = [
         '012',
         '_underscore_first',
         'CapitalCamelCase',
     ]
 
-    for invalid_func_name in valid_func_names:
+    for invalid_func_name in invalid_func_names:
         with pytest.raises(parsy.ParseError):
             assert elm_parser.ports.func_name.parse(invalid_func_name)
 
