@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 
 PAGE_TEMPLATE = '''
@@ -21,7 +22,7 @@ PAGE_TEMPLATE = '''
 '''  # noqa: E501
 
 
-def render(mount_point: str = ''):
+def _render(mount_point: str = ''):
     if mount_point and mount_point[-1] == '/':
         mount_point = mount_point[:-1]
     init = {
@@ -30,3 +31,9 @@ def render(mount_point: str = ''):
         },
     }
     return PAGE_TEMPLATE.format(mount_point=mount_point, init=json.dumps(init))
+
+
+def write_page(output_path: Path, mount_point: str = ''):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(str(output_path), 'w') as f:
+        f.write(_render(mount_point=mount_point))

@@ -1,8 +1,11 @@
-import pytest
-import json
 import os.path
+import json
+
+import pytest
 from click.testing import CliRunner
+
 from elm_doc import cli
+from elm_doc import catalog_tasks
 
 
 @pytest.fixture
@@ -25,68 +28,63 @@ def test_cli_invalid_mount_at(tmpdir, runner):
         assert 'mount-at' in result.output
 
 
-def test_cli_non_binary_elm_make(tmpdir, runner):
+def test_cli_non_existent_elm_path(tmpdir, runner):
     with tmpdir.as_cwd():
-        tmpdir.join('elm-make').write('binwrapped elm!')
-        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--elm-make', 'elm-make'])
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--elm-path', 'elm-path'])
         assert result.exception
         assert result.exit_code == 2, result.output
-        assert 'elm-make' in result.output
-
-
-def test_cli_non_existent_elm_make(tmpdir, runner):
-    with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--elm-make', 'elm-make'])
-        assert result.exception
-        assert result.exit_code == 2, result.output
-        assert 'elm-make' in result.output
+        assert 'elm-path' in result.output
 
 
 def test_cli_in_empty_project(tmpdir, runner):
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '.'])
+        result = runner.invoke(cli.main, ['--output', 'docs', '.', '--fake-license', 'BSD-3-Clause'])
         assert result.exception
         assert result.exit_code != 0
+        assert 'does not look like an Elm project' in str(result.exception)
 
 
-def test_cli_doit_only_arg_in_real_project(tmpdir, runner, make_elm_project):
-    elm_version = '0.18.0'
-    project_path = tmpdir.mkdir('frontend')
-    make_elm_project(elm_version, project_path)
+def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
+    project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
 
     with tmpdir.as_cwd():
         tmpdir.mkdir('docs')
-        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend', '--doit-args', 'clean', '--dry-run'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--doit-args', 'clean', '--dry-run'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
         assert tmpdir.join('docs').check(exists=True)
 
 
-def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
-    project_path = tmpdir.mkdir('frontend')
-    modules = ['Main.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['Main.elm', 'PortModuleA.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', 'frontend'])
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
         assert output_dir.join('assets').check(dir=True)
         assert output_dir.join('artifacts').check(dir=True)
 
-        elm_lang_html_docs_path = output_dir.join(
-            'packages', 'elm-lang', 'html', '2.0.0', 'documentation.json')
-        assert elm_lang_html_docs_path.check()
+        elm_lang_html_path = output_dir.join(
+            'packages', 'elm', 'html', '1.0.0')
+        assert elm_lang_html_path.join('docs.json').check()
+        assert elm_lang_html_path.join('..', 'releases.json').check()
+        assert elm_lang_html_path.join('Html-Keyed').check()
 
         package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
         package_latest_link = package_dir.dirpath('latest')
         assert package_latest_link.check(dir=True, link=True)
         assert not os.path.isabs(package_latest_link.readlink())
         assert package_dir.join('README.md').check()
+        assert package_dir.join('..', 'releases.json').check()
 
         package_index = package_dir.join('index.html')
         assert package_index.check()
@@ -94,46 +92,163 @@ def test_cli_in_real_project(tmpdir, runner, overlayer, make_elm_project):
         package_main = package_dir.join('Main')
         assert package_main.check()
 
-        package_docs = package_dir.join('documentation.json')
+        package_docs = package_dir.join('docs.json')
         assert package_docs.check()
         assert json.loads(package_docs.read())[0]['name'] == 'Main'
 
-        all_packages = output_dir.join('all-packages')
-        assert all_packages.check()
-        assert len(json.loads(all_packages.read())) > 0
+        for popular_package in catalog_tasks.popular_packages:
+            assert output_dir.join('packages', popular_package).check(dir=True)
 
-        new_packages = output_dir.join('new-packages')
-        assert new_packages.check()
-        assert len(json.loads(new_packages.read())) > 0
+        search_json = output_dir.join('search.json').read()
+        assert 'CATOSL-1.1' not in search_json, 'Fake license should not be exposed in search.json'
+        assert len(json.loads(search_json)) > 0
+
+        help_doc_format = output_dir.join('help/documentation-format')
+        assert help_doc_format.check()
 
 
-def test_cli_validate_real_project(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
-    project_path = tmpdir.mkdir('frontend')
-    modules = ['Main.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+def test_cli_build_docs_multiple_source_dirs(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'src': ['Main.elm'], 'srcB': ['PortModuleA.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
-        result = runner.invoke(cli.main, ['--validate', 'frontend'])
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+
+        package_main = package_dir.join('Main')
+        assert package_main.check()
+
+        package_docs = package_dir.join('docs.json')
+        assert package_docs.check()
+        actual_docs = json.loads(package_docs.read())
+        assert actual_docs[0]['name'] == 'Main'
+        assert actual_docs[1]['name'] == 'PortModuleA'
+
+
+def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['PortModuleA.elm', 'PortModuleB.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        port_module_a = project_dir / 'PortModuleA.elm'
+        source = port_module_a.read_text('utf8')
+        port_module_a.write_text(source.replace('portA', 'portC'), 'utf8')
+
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        docs = package_dir.join('docs.json').read_text('utf8')
+        assert 'portC' in docs
+
+
+def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--mount-at', '/newmountpoint'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        # index
+        assert 'newmountpoint' in output_dir.join('index.html').read()
+        # help
+        assert 'newmountpoint' in output_dir.join('help', 'documentation-format').read()
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+
+        # package page
+        assert 'newmountpoint' in package_dir.join('index.html').read()
+        # module page
+        assert 'newmountpoint' in package_dir.join('Main').read()
+
+
+def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '1.0.0')
+        assert package_dir.join('docs.json').check()
+
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--fake-version', '2.0.0'])
+        assert not result.exception, result.output
+        assert result.exit_code == 0
+
+        package_dir = output_dir.join('packages', 'user', 'project', '2.0.0')
+        assert package_dir.join('docs.json').check()
+
+        package_latest_link = package_dir.dirpath('latest')
+        package_latest_link_target = package_latest_link.realpath()
+        assert package_latest_link_target.check(dir=True)
+        assert package_latest_link_target.basename == '2.0.0'
+
+        releases = json.loads(package_dir.join('..', 'releases.json').read())
+        assert list(releases.keys()) == ['2.0.0']
+
+        search_json = json.loads(output_dir.join('search.json').read())
+        project_entry = next(entry for entry in search_json if entry['name'] == 'user/project')
+        assert project_entry['versions'] == ['2.0.0']
+
+
+def test_cli_validate_real_project(
+        tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['Main.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
+    output_dir = tmpdir.join('docs')
+    with tmpdir.as_cwd():
+        project_dir.join('README.md').write('hello')
+        result = runner.invoke(cli.main, ['--validate', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_subset_of_real_project_with_forced_exclusion(tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
-    project_path = tmpdir.mkdir('frontend')
-    modules = ['Main.elm', 'MissingModuleComment.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+def test_cli_validate_subset_of_real_project_with_forced_exclusion(
+        tmpdir, runner, elm_version, make_elm_project):
+    sources = {'.': ['Main.elm', 'MissingModuleComment.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        tmpdir.join('frontend', 'README.md').write('hello')
+        project_dir.join('README.md').write('hello')
         result = runner.invoke(cli.main, [
-            'frontend',
-            'frontend/Main.elm',
-            'frontend/MissingModuleComment.elm',
+            project_dir.basename,
+            os.path.join(project_dir.basename, 'Main.elm'),
+            os.path.join(project_dir.basename, 'MissingModuleComment.elm'),
+            '--fake-license', 'BSD-3-Clause',
             '--validate',
             '--exclude',
             'MissingModuleComment',
@@ -146,24 +261,23 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(tmpdir, runne
         assert output_dir.check(exists=False)
 
 
-def test_cli_validate_invalid_project_with_masked_exclude(capfd, tmpdir, runner, overlayer, make_elm_project):
-    elm_version = '0.18.0'
-    project_path = tmpdir.mkdir('frontend')
-    modules = ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']
-    make_elm_project(elm_version, project_path, copy_elm_stuff=True, modules=modules)
+def test_cli_validate_invalid_project_with_masked_exclude(
+        tmpdir, runner, elm_version, make_elm_project, request):
+    sources = {'.': ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']}
+    project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', '--validate', 'frontend'])
-        out, err = capfd.readouterr()
-
-        problem_lines = [line for line in err.splitlines()
-                         if 'SYNTAX PROBLEM' in line or 'DOCUMENTATION ERROR' in line]
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            '--fake-license', 'BSD-3-Clause',
+            '--validate',
+            project_dir.basename])
+        problem_lines = [line for line in result.output.splitlines()
+                         if 'NO DOCS' in line or 'DOCS MISTAKE' in line]
         assert len(problem_lines) == 2
 
         # traceback should be suppressed
         assert 'CalledProcessError' not in result.output
-        assert 'CalledProcessError' not in out
-        assert 'CalledProcessError' not in err
 
         assert result.exception, result.output
         assert result.exit_code == 1

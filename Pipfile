@@ -6,12 +6,17 @@ name = "pypi"
 [packages]
 click = "*"
 doit = "*"
-python-magic = "*"
 retrying = "*"
 typing = "*"
+attrs = "*"
+dirsync = "*"
+parsy = "*"
+requests = "*"
 
 [dev-packages]
 tox = "*"
+pytest-mock = "*"
+check-manifest = "*"
 
 [requires]
 python_version = "3.6"
