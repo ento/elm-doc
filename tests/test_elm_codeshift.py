@@ -1,7 +1,39 @@
 from elm_doc import elm_codeshift
 
 
-def test_elm_codeshift_strips_ports_from_single_line_declaration():
+def test_elm_codeshift_strips_ports_from_single_line_port_module_declaration():
+    source = 'port module Main exposing (main)'
+    actual = elm_codeshift.strip_ports_from_string(source)
+    expected = 'module Main exposing (main)'
+    assert actual == expected
+
+
+def test_elm_codeshift_strips_ports_from_multiline_port_module_declaration():
+    source = '''{-| doc comment before module -}
+port module Main exposing
+  {-| multiline
+comment
+-}
+  ( main,
+  -- inline comment
+    init,
+  )
+'''
+    actual = elm_codeshift.strip_ports_from_string(source)
+    expected = '''{-| doc comment before module -}
+module Main exposing
+  {-| multiline
+comment
+-}
+  ( main,
+  -- inline comment
+    init,
+  )
+'''
+    assert actual == expected
+
+
+def test_elm_codeshift_strips_ports_from_single_line_port_function_declaration():
     source = 'port cmd : String -> Cmd ()'
     actual = elm_codeshift.strip_ports_from_string(source)
     expected = '''cmd : String -> Cmd ()
@@ -10,7 +42,7 @@ cmd a0 = Cmd.none
     assert actual == expected
 
 
-def test_elm_codeshift_strips_ports_from_multiline_declaration():
+def test_elm_codeshift_strips_ports_from_multiline_port_function_declaration():
     source = '''
 -- all arguments on the next line
 port cmd :
