@@ -17,6 +17,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
+        'attrs',
         'click',
         'dirsync',
         'doit',
