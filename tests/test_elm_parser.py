@@ -5,6 +5,17 @@ from elm_doc import elm_parser
 from elm_doc.elm_parser.ports import PortType
 
 
+def test_is_port_module(elm_version, module_fixture_path):
+    module_root = module_fixture_path(elm_version)
+    testcases =[
+        ('Main.elm', False),
+        ('PublicFunctionNotInAtDocs.elm', False),
+        ('PortModuleB.elm', True),
+    ]
+    for elm_file, expected in testcases:
+        assert elm_parser.is_port_module(module_root / elm_file) == expected
+
+
 def test_func_name():
     valid_func_names = [
         'a',

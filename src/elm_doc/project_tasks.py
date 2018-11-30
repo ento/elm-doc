@@ -11,6 +11,7 @@ from doit.tools import create_folder, config_changed
 from elm_doc import elm_platform
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
+from elm_doc import elm_parser
 from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 from elm_doc.decorators import capture_subprocess_error
@@ -39,15 +40,12 @@ def build_project_docs_json(
             json.dump(elm_project_with_exposed_modules, f)
 
         package_src_dir = build_path / 'src'
-        changed_files = set()
         for source_dir in project.source_directories:
-            changed_files |= sync(
-                str(project.path / source_dir), str(package_src_dir), 'sync', create=True)
+            sync(str(project.path / source_dir), str(package_src_dir), 'sync', create=True)
 
-        for elm_file in changed_files:
-            elm_file_path = Path(elm_file)
-            if elm_file_path.suffix == '.elm' and elm_file_path.exists():
-                elm_codeshift.strip_ports_from_file(Path(elm_file))
+        for elm_file_path in package_src_dir.glob('**/*.elm'):
+            if elm_parser.is_port_module(elm_file_path):
+                elm_codeshift.strip_ports_from_file(elm_file_path)
 
         if elm_path is None:
             elm_platform.install(tmp_path, project.elm_version)
