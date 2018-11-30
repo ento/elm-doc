@@ -35,8 +35,8 @@ def get_node_modules_elm_path(project_root: Path):
         ['node', '-e', script],
         cwd=str(project_root),
     )
-    # e.g. path/to/node_modules/elm/unpacked_bin/elm
-    return Path(elm_index_path.decode('utf-8').strip()).parent / 'unpacked_bin' / 'elm'
+    # e.g. path/to/node_modules/.bin/elm
+    return Path(elm_index_path.decode('utf-8').strip()).parent.parent / '.bin' / 'elm'
 
 
 def get_npm_version_range(elm_version: str) -> str:
