@@ -33,6 +33,7 @@ setup(
             'elm-doc = elm_doc.cli:main',
         ],
     },
+    python_requires='>=3.5',
     classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 3 - Alpha',
