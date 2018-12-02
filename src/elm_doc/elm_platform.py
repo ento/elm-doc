@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 
 from elm_doc import node_modules
-from elm_doc.decorators import capture_subprocess_error
+from elm_doc.decorators import capture_subprocess_error_as_task_error
 
 
 # See: https://github.com/elm/compiler/blob/0.19.0/builder/src/Elm/PerUserCache.hs#L44
@@ -28,7 +28,7 @@ def install(to: Path, elm_version: str) -> Path:
     return to / 'node_modules' / '.bin' / 'elm'
 
 
-@capture_subprocess_error
+@capture_subprocess_error_as_task_error
 def get_node_modules_elm_path(project_root: Path):
     script = 'console.log(require.resolve("elm"))'
     # e.g. path/to/node_modules/elm/index.js

@@ -14,10 +14,9 @@ from elm_doc import elm_codeshift
 from elm_doc import elm_parser
 from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
-from elm_doc.decorators import capture_subprocess_error
+from elm_doc.decorators import capture_subprocess_error_as_task_failure
 
 
-@capture_subprocess_error
 def build_project_docs_json(
         project: ElmProject,
         project_config: ProjectConfig,
@@ -54,11 +53,16 @@ def build_project_docs_json(
             # don't update the final artifact; write to build dir instead
             output_path = build_path / project.DOCS_FILENAME
 
-        subprocess.check_output(
-            [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
-            cwd=str(build_path),
-            stderr=subprocess.STDOUT,
-        )
+        return _run_elm_make(elm_path, output_path, build_path)
+
+
+@capture_subprocess_error_as_task_failure
+def _run_elm_make(elm_path: Path, output_path: Path, build_path: Path):
+    subprocess.check_output(
+        [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
+        cwd=str(build_path),
+        stderr=subprocess.STDOUT,
+    )
 
 
 def create_main_project_tasks(

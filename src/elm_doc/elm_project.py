@@ -6,6 +6,7 @@ import itertools
 import json
 
 import attr
+from click import BadParameter
 
 from elm_doc import elm_platform
 
@@ -218,7 +219,7 @@ def from_path(path: Path) -> ElmProject:
         project = cls.from_path(path)
         if project:
             return project
-    raise Exception('{} does not look like an Elm project'.format(path))
+    raise BadParameter('{} does not look like an Elm project'.format(path))
 
 
 def _load_json(path: Path) -> Dict:
