@@ -38,6 +38,8 @@ def validate_elm_path(ctx, param, value):
     if realpath is None or not os.path.isfile(realpath):
         raise click.BadParameter('{} not found'.format(value))
 
+    return value
+
 
 def _resolve_path(path: str) -> Path:
     # not using Path.resolve() for now because we don't expect strict
