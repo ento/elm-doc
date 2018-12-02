@@ -7,6 +7,8 @@ import tarfile
 import pytest
 import py
 
+from elm_doc import elm_platform
+
 
 def pytest_addoption(parser):
     parser.addoption("--elm-version", default='0.19.0',
@@ -15,30 +17,38 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     if 'elm_version' in metafunc.fixturenames:
-        metafunc.parametrize("elm_version", [metafunc.config.getoption('elm_version')])
+        metafunc.parametrize(
+            "elm_version",
+            [metafunc.config.getoption('elm_version')],
+            scope='session')
 
 
 @pytest.fixture
-def elm_stuff_fixture_path():
-    def for_version(elm_version):
-        filename = '{}-core-elm-stuff.tar.gz'.format(elm_version)
-        return py.path.local(__file__).dirpath('fixtures', filename)
-    return for_version
+def elm_stuff_fixture_path(elm_version):
+    filename = '{}-core-elm-stuff.tar.gz'.format(elm_version)
+    return py.path.local(__file__).dirpath('fixtures', filename)
 
 
 @pytest.fixture
-def elm_core_fixture_path():
-    def for_version(elm_version):
-        filename = '{}-elm-core.tar.gz'.format(elm_version)
-        return py.path.local(__file__).dirpath('fixtures', filename)
-    return for_version
+def elm_core_fixture_path(elm_version):
+    filename = '{}-elm-core.tar.gz'.format(elm_version)
+    return py.path.local(__file__).dirpath('fixtures', filename)
 
 
 @pytest.fixture
-def module_fixture_path():
-    def for_version(elm_version):
-        return py.path.local(__file__).dirpath('fixtures', elm_version)
-    return for_version
+def module_fixture_path(elm_version):
+    return py.path.local(__file__).dirpath('fixtures', elm_version)
+
+
+@pytest.fixture
+def mock_popular_packages(mocker):
+    mocker.patch('elm_doc.catalog_tasks.missing_popular_packages', return_value=[])
+
+
+@pytest.fixture(scope='session')
+def elm(tmpdir_factory, elm_version):
+    tmpdir = tmpdir_factory.mktemp('elm-{}'.format(elm_version))
+    return str(elm_platform.install(Path(str(tmpdir)), elm_version))
 
 
 @pytest.fixture
@@ -62,17 +72,14 @@ def make_elm_project(mocker, elm_stuff_fixture_path, elm_core_fixture_path, modu
 
         if copy_elm_stuff:
             if elm_version == '0.18.0':
-                tarball = elm_stuff_fixture_path(elm_version)
-                _extract_tarball(tarball, project_dir)
+                _extract_tarball(elm_stuff_fixture_path, project_dir)
             else:
-                tarball = elm_core_fixture_path(elm_version)
-                _extract_tarball(tarball, root_dir)
+                _extract_tarball(elm_core_fixture_path, root_dir)
 
-        module_root = module_fixture_path(elm_version)
         for source_dir, modules in sources.items():
             project_dir.ensure(source_dir, dir=True)
             for module in modules:
-                project_dir.join(source_dir, module).write(module_root.join(module).read())
+                project_dir.join(source_dir, module).write(module_fixture_path.join(module).read())
 
         elm_home = str(root_dir.join('.elm'))
         mocker.patch('elm_doc.elm_platform.ELM_HOME', Path(elm_home))

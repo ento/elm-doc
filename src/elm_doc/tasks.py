@@ -20,10 +20,10 @@ def build_task_creators(
         elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
-    # todo: gracefully handle missing elm-package.json
     project = elm_project.from_path(project_path)
-    project.add_direct_dependencies(
-        catalog_tasks.missing_popular_packages(list(project.all_dependency_names())))
+    if not validate:
+        project.add_direct_dependencies(
+            catalog_tasks.missing_popular_packages(list(project.all_dependency_names())))
 
     if build_path is None:
         build_path = project_path / '.elm-doc'

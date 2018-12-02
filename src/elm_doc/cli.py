@@ -3,10 +3,12 @@ import os
 import os.path
 import shutil
 from pathlib import Path
+import functools
 
 import click
 from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
+from doit.runner import ERROR
 
 from elm_doc.tasks import build_task_creators
 from elm_doc.elm_project import ProjectConfig
@@ -36,11 +38,25 @@ def validate_elm_path(ctx, param, value):
     if realpath is None or not os.path.isfile(realpath):
         raise click.BadParameter('{} not found'.format(value))
 
+    return value
+
 
 def _resolve_path(path: str) -> Path:
     # not using Path.resolve() for now because we don't expect strict
     # existence checking. maybe we should.
     return Path(os.path.normpath(os.path.abspath(path)))
+
+
+def _translate_click_exception_exit_code(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except click.ClickException as e:
+            if not isinstance(e, DoitException):
+                e.exit_code = ERROR
+            raise e
+    return wrapper
 
 
 class LazyOutfile:
@@ -101,6 +117,7 @@ class LazyOutfile:
               help='options to pass to doit.doit_cmd.DoitMain.run')
 @click.argument('project_path')
 @click.argument('include_paths', nargs=-1)
+@_translate_click_exception_exit_code
 def main(
         output,
         build_dir,
