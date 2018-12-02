@@ -6,7 +6,7 @@ from elm_doc.elm_project import ProjectConfig
 
 
 def test_dependencies_task_creator_creates_matches_actual_basenames(
-        tmpdir, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
@@ -26,7 +26,8 @@ def test_dependencies_task_creator_creates_matches_actual_basenames(
         assert delayed_task_creates == set(result_basenames['task_dependencies'])
 
 
-def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
+def test_create_tasks_only_dependencies(
+        mock_popular_packages, tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
@@ -55,7 +56,7 @@ def test_create_tasks_only_dependencies(tmpdir, elm_version, make_elm_project):
 
 
 def test_create_tasks_project_modules_and_dependencies(
-        tmpdir, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')

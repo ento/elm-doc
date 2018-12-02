@@ -108,7 +108,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
 
 
 def test_cli_build_docs_multiple_source_dirs(
-        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'src': ['Main.elm'], 'srcB': ['PortModuleA.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
@@ -136,7 +136,7 @@ def test_cli_build_docs_multiple_source_dirs(
 
 
 def test_cli_changes_in_port_module_gets_picked_up(
-        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['PortModuleA.elm', 'PortModuleB.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
@@ -172,7 +172,7 @@ def test_cli_changes_in_port_module_gets_picked_up(
 
 
 def test_cli_mount_point_change_gets_picked_up(
-        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
@@ -213,7 +213,7 @@ def test_cli_mount_point_change_gets_picked_up(
 
 
 def test_cli_project_version_change_gets_picked_up(
-        tmpdir, runner, elm, elm_version, make_elm_project):
+        mock_popular_packages, tmpdir, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')

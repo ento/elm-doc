@@ -40,6 +40,11 @@ def module_fixture_path(elm_version):
     return py.path.local(__file__).dirpath('fixtures', elm_version)
 
 
+@pytest.fixture
+def mock_popular_packages(mocker):
+    mocker.patch('elm_doc.catalog_tasks.missing_popular_packages', return_value=[])
+
+
 @pytest.fixture(scope='session')
 def elm(tmpdir_factory, elm_version):
     tmpdir = tmpdir_factory.mktemp('elm-{}'.format(elm_version))
