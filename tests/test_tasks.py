@@ -5,7 +5,8 @@ from elm_doc import elm_project
 from elm_doc.elm_project import ProjectConfig
 
 
-def test_dependencies_task_creator_creates_matches_actual_basenames(tmpdir, elm_version, make_elm_project):
+def test_dependencies_task_creator_creates_matches_actual_basenames(
+        tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():

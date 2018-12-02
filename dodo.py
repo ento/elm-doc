@@ -48,8 +48,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
     shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY), ignore_errors=True)
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
-        elm_platform.install(root_path, elm_version)
-        elm_path = root_path / 'node_modules' / '.bin' / 'elm'
+        elm_path = elm_platform.install(root_path, elm_version)
         elm_home_path = root_path / '.elm'
         try:
             subprocess.check_output(
@@ -183,8 +182,7 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
     elm_version = _read_elm_version(repo_path / 'elm.json')
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
-        elm_platform.install(root_path, elm_version)
-        elm_path = root_path / 'node_modules' / '.bin' / 'elm'
+        elm_path = elm_platform.install(root_path, elm_version)
         try:
             subprocess.check_output(
                 [

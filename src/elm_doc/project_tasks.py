@@ -48,8 +48,7 @@ def build_project_docs_json(
                 elm_codeshift.strip_ports_from_file(elm_file_path)
 
         if elm_path is None:
-            elm_platform.install(tmp_path, project.elm_version)
-            elm_path = elm_platform.get_node_modules_elm_path(tmp_path)
+            elm_path = elm_platform.install(tmp_path, project.elm_version)
 
         if validate:
             # don't update the final artifact; write to build dir instead

@@ -7,6 +7,8 @@ import tarfile
 import pytest
 import py
 
+from elm_doc import elm_platform
+
 
 def pytest_addoption(parser):
     parser.addoption("--elm-version", default='0.19.0',
@@ -15,7 +17,10 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     if 'elm_version' in metafunc.fixturenames:
-        metafunc.parametrize("elm_version", [metafunc.config.getoption('elm_version')])
+        metafunc.parametrize(
+            "elm_version",
+            [metafunc.config.getoption('elm_version')],
+            scope='session')
 
 
 @pytest.fixture
@@ -33,6 +38,12 @@ def elm_core_fixture_path(elm_version):
 @pytest.fixture
 def module_fixture_path(elm_version):
     return py.path.local(__file__).dirpath('fixtures', elm_version)
+
+
+@pytest.fixture(scope='session')
+def elm(tmpdir_factory, elm_version):
+    tmpdir = tmpdir_factory.mktemp('elm-{}'.format(elm_version))
+    return str(elm_platform.install(Path(str(tmpdir)), elm_version))
 
 
 @pytest.fixture

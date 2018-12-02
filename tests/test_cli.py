@@ -107,13 +107,19 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
         assert help_doc_format.check()
 
 
-def test_cli_build_docs_multiple_source_dirs(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_build_docs_multiple_source_dirs(
+        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'src': ['Main.elm'], 'srcB': ['PortModuleA.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'CATOSL-1.1',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -129,12 +135,18 @@ def test_cli_build_docs_multiple_source_dirs(tmpdir, runner, elm_version, make_e
         assert actual_docs[1]['name'] == 'PortModuleA'
 
 
-def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_changes_in_port_module_gets_picked_up(
+        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['PortModuleA.elm', 'PortModuleB.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -145,7 +157,12 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         source = port_module_a.read_text('utf8')
         port_module_a.write_text(source.replace('portA', 'portC'), 'utf8')
 
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -154,12 +171,18 @@ def test_cli_changes_in_port_module_gets_picked_up(tmpdir, runner, elm_version, 
         assert 'portC' in docs
 
 
-def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_mount_point_change_gets_picked_up(
+        tmpdir, mocker, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -170,7 +193,9 @@ def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make
             '--output', 'docs',
             project_dir.basename,
             '--fake-license', 'BSD-3-Clause',
-            '--mount-at', '/newmountpoint'])
+            '--elm-path', elm,
+            '--mount-at', '/newmountpoint',
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -187,12 +212,18 @@ def test_cli_mount_point_change_gets_picked_up(tmpdir, runner, elm_version, make
         assert 'newmountpoint' in package_dir.join('Main').read()
 
 
-def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_project_version_change_gets_picked_up(
+        tmpdir, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -203,6 +234,7 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
             '--output', 'docs',
             project_dir.basename,
             '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
             '--fake-version', '2.0.0'])
         assert not result.exception, result.output
         assert result.exit_code == 0
@@ -224,13 +256,17 @@ def test_cli_project_version_change_gets_picked_up(tmpdir, runner, elm_version, 
 
 
 def test_cli_validate_real_project(
-        tmpdir, runner, elm_version, make_elm_project):
+        tmpdir, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = runner.invoke(cli.main, ['--validate', project_dir.basename, '--fake-license', 'BSD-3-Clause'])
+        result = runner.invoke(cli.main, [
+            '--validate', project_dir.basename,
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == 0
 
@@ -238,7 +274,7 @@ def test_cli_validate_real_project(
 
 
 def test_cli_validate_subset_of_real_project_with_forced_exclusion(
-        tmpdir, runner, elm_version, make_elm_project):
+        tmpdir, runner, elm, elm_version, make_elm_project):
     sources = {'.': ['Main.elm', 'MissingModuleComment.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
@@ -249,6 +285,7 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
             os.path.join(project_dir.basename, 'Main.elm'),
             os.path.join(project_dir.basename, 'MissingModuleComment.elm'),
             '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
             '--validate',
             '--exclude',
             'MissingModuleComment',
@@ -262,7 +299,7 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
 
 
 def test_cli_validate_invalid_project_with_masked_exclude(
-        tmpdir, runner, elm_version, make_elm_project, request):
+        tmpdir, runner, elm, elm_version, make_elm_project, request):
     sources = {'.': ['MissingModuleComment.elm', 'PublicFunctionNotInAtDocs.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
@@ -270,6 +307,7 @@ def test_cli_validate_invalid_project_with_masked_exclude(
         result = runner.invoke(cli.main, [
             '--output', 'docs',
             '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
             '--validate',
             project_dir.basename])
         problem_lines = [line for line in result.output.splitlines()
