@@ -5,7 +5,7 @@ from elm_doc import elm_parser
 from elm_doc.elm_parser.ports import PortType
 
 
-def test_is_port_module(elm_version, module_fixture_path):
+def test_is_port_module(module_fixture_path):
     testcases = [
         ('Main.elm', False),
         ('PublicFunctionNotInAtDocs.elm', False),
