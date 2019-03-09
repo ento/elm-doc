@@ -275,11 +275,11 @@
         },
         "keyring": {
             "hashes": [
-                "sha256:8f683fa6c8886da58b28c7d8e3819b1a4bf193741888e33a6e00944b673a22cf",
-                "sha256:d71368b9a10dc096c8a1b69a46fc23f0a551f709b9a55b4d4deb7d2fbd809b68"
+                "sha256:12833d2b05d2055e0e25931184af9cd6a738f320a2264853cabbd8a3a0f0b65d",
+                "sha256:ca33f5ccc542b9ffaa196ee9a33488069e5e7eac77d5b81969f8a3ce74d0230c"
             ],
             "index": "pypi",
-            "version": "==17.1.1"
+            "version": "==18.0.0"
         },
         "more-itertools": {
             "hashes": [
