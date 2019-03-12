@@ -55,6 +55,7 @@ def test_glob_project_modules_includes_take_precedence_over_excludes(
     project = elm_project.from_path(Path(str(project_dir)))
     config = elm_project.ProjectConfig(
         include_paths=_resolve_paths(project_dir, 'Main.elm', 'MissingModuleComment.elm'),
+        exclude_source_directories=['.'],
         exclude_modules=['MissingModuleComment'],
         force_exclusion=False,
     )
@@ -80,6 +81,31 @@ def test_glob_project_modules_excludes_take_precedence_over_includes_if_forced(
     config = elm_project.ProjectConfig(
         include_paths=_resolve_paths(project_dir, 'Main.elm', 'MissingModuleComment.elm'),
         exclude_modules=['MissingModuleComment'],
+        force_exclusion=True,
+    )
+    modules = list(_glob_project_modules(project, config))
+    assert set(modules) == set(['Main'])
+
+
+def test_glob_project_modules_exclude_source_directories(
+        tmpdir, elm_version, make_elm_project):
+    project_dir = make_elm_project(
+        elm_version,
+        tmpdir,
+        sources={
+            'src1': [
+                'Main.elm',
+            ],
+            'src2': [
+                'PublicFunctionNotInAtDocs.elm',
+            ],
+        },
+        copy_elm_stuff=False,
+    )
+    project = elm_project.from_path(Path(str(project_dir)))
+    config = elm_project.ProjectConfig(
+        include_paths=[],
+        exclude_source_directories=['src2'],
         force_exclusion=True,
     )
     modules = list(_glob_project_modules(project, config))

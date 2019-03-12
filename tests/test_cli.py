@@ -277,20 +277,27 @@ def test_cli_validate_real_project(
 
 def test_cli_validate_subset_of_real_project_with_forced_exclusion(
         tmpdir, runner, elm, elm_version, make_elm_project):
-    sources = {'.': ['Main.elm', 'MissingModuleComment.elm']}
+    sources = {
+        'ok': ['Main.elm'],
+        'err1': ['MissingModuleComment.elm'],
+        'err2': ['PublicFunctionNotInAtDocs.elm'],
+    }
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
         result = runner.invoke(cli.main, [
             project_dir.basename,
-            os.path.join(project_dir.basename, 'Main.elm'),
-            os.path.join(project_dir.basename, 'MissingModuleComment.elm'),
+            os.path.join(project_dir.basename, 'ok', 'Main.elm'),
+            os.path.join(project_dir.basename, 'err1', 'MissingModuleComment.elm'),
+            os.path.join(project_dir.basename, 'err2', 'PublicFunctionNotInAtDocs.elm'),
             '--fake-license', 'BSD-3-Clause',
             '--elm-path', elm,
             '--validate',
             '--exclude',
             'MissingModuleComment',
+            '--exclude-source-directories',
+            'err2',
             '--force-exclusion',
         ])
         assert not result.exception, result.output

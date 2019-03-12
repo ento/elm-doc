@@ -86,6 +86,9 @@ class LazyOutfile:
 @click.option('--exclude', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
+@click.option('--exclude-source-directories', '-X',
+              metavar='dir1,dir2',
+              help='comma-separated paths of source-directories to exclude from the list of included modules')
 @click.option('--fake-user',
               metavar='GitHub user name',
               default='user',
@@ -124,6 +127,7 @@ def main(
         elm_path,
         mount_at,
         exclude,
+        exclude_source_directories,
         force_exclusion,
         fake_user,
         fake_project,
@@ -141,9 +145,11 @@ def main(
 
     resolved_include_paths = [_resolve_path(path) for path in include_paths]
     exclude_modules = exclude.split(',') if exclude else []
+    exclude_source_directories = exclude_source_directories.split(',') if exclude_source_directories else []
     project_config = ProjectConfig(
         include_paths=resolved_include_paths,
         exclude_modules=exclude_modules,
+        exclude_source_directories=exclude_source_directories,
         force_exclusion=force_exclusion,
         fake_user=fake_user,
         fake_project=fake_project,

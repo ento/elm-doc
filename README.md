@@ -61,7 +61,13 @@ patterns:
         --elm-path ui/node_modules/.bin/elm \
         --exclude '*.Private.*,Blacklist.*'
 
-You can also specify which files and directories to include in the list of modules:
+or `--exclude-source-directories` entirely:
+
+    $ elm-doc . --output docs \
+        --elm-path ui/node_modules/.bin/elm \
+        --exclude-source-directories generated
+
+You can also specify which files and directories to _include_ in the list of modules:
 
     $ elm-doc . --output docs \
         --elm-path ui/node_modules/.bin/elm \
