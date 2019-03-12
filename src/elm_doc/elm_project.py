@@ -1,4 +1,5 @@
 from typing import Dict, List, Iterator, Optional, Tuple
+import os.path
 from pathlib import Path
 import re
 import fnmatch
@@ -231,6 +232,7 @@ def _load_json(path: Path) -> Dict:
 class ProjectConfig:
     include_paths = attr.ib(factory=list)  # List[str]
     exclude_modules = attr.ib(factory=list)  # List[str]
+    exclude_source_directories = attr.ib(factory=list)  # List[str]
     force_exclusion = attr.ib(default=False)  # bool
     fake_user = attr.ib(default='user')  # str
     fake_project = attr.ib(default='project')  # str
@@ -247,7 +249,15 @@ class ElmModule:
 
 def glob_project_modules(
         project: ElmProject, config: ProjectConfig) -> Iterator[ElmModule]:
+    # check for excludes if there's no explicit includes, or if
+    # there are explicit includes and exclusion is requested specifically.
+    check_excludes = (not config.include_paths) or config.force_exclusion
+
+    exclude_source_directories = [os.path.normpath(src) for src in config.exclude_source_directories]
     for source_dir_name in project.source_directories:
+        if check_excludes and exclude_source_directories \
+           and (os.path.normpath(source_dir_name) in exclude_source_directories):
+            continue
         source_dir = project.path / source_dir_name
         elm_files = source_dir.glob('**/*.elm')
         for elm_file in elm_files:
@@ -265,9 +275,6 @@ def glob_project_modules(
 
             module_name = '.'.join(module_name_parts)
 
-            # check for excludes if there's no explicit includes, or if
-            # there are explicit includes and exclusion is requested specifically.
-            check_excludes = (not config.include_paths) or config.force_exclusion
             if check_excludes and any(fnmatch.fnmatch(module_name, module_pattern)
                                       for module_pattern in config.exclude_modules):
                 continue

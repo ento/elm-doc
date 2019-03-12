@@ -83,9 +83,12 @@ class LazyOutfile:
               default='',
               callback=validate_mount_at,
               help='url path at which the docs will be served')
-@click.option('--exclude', '-x',
+@click.option('--exclude-modules', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
+@click.option('--exclude-source-directories', '-X',
+              metavar='dir1,dir2',
+              help='comma-separated paths of source-directories to exclude from the list of included modules')
 @click.option('--fake-user',
               metavar='GitHub user name',
               default='user',
@@ -108,8 +111,9 @@ class LazyOutfile:
               help='License of the project to tell the Elm compiler  when generating docs')
 @click.option('--force-exclusion/--no-force-exclusion',
               default=False,
-              help=('force excluding modules specified by --exclude even if '
-                    'they are explicitly specified as include_paths'))
+              help=('force excluding modules specified by --exclude-modules and '
+                    '--exclude-source-directories even if they are explicitly '
+                    'specified in include_paths'))
 @click.option('--validate/--no-validate',
               default=False,
               help='validate all doc comments are in place without generating docs')
@@ -123,7 +127,8 @@ def main(
         build_dir,
         elm_path,
         mount_at,
-        exclude,
+        exclude_modules,
+        exclude_source_directories,
         force_exclusion,
         fake_user,
         fake_project,
@@ -140,10 +145,12 @@ def main(
         raise click.BadParameter('please specify --output directory')
 
     resolved_include_paths = [_resolve_path(path) for path in include_paths]
-    exclude_modules = exclude.split(',') if exclude else []
+    exclude_modules = exclude_modules.split(',') if exclude_modules else []
+    exclude_source_directories = exclude_source_directories.split(',') if exclude_source_directories else []
     project_config = ProjectConfig(
         include_paths=resolved_include_paths,
         exclude_modules=exclude_modules,
+        exclude_source_directories=exclude_source_directories,
         force_exclusion=force_exclusion,
         fake_user=fake_user,
         fake_project=fake_project,
