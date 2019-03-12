@@ -39,8 +39,7 @@ def build_project_docs_json(
             json.dump(elm_project_with_exposed_modules, f)
 
         package_src_dir = build_path / 'src'
-        for source_dir in project.source_directories:
-            sync(str(project.path / source_dir), str(package_src_dir), 'sync', create=True)
+        _sync_source_files(project, package_src_dir)
 
         for elm_file_path in package_src_dir.glob('**/*.elm'):
             if elm_parser.is_port_module(elm_file_path):
@@ -63,6 +62,16 @@ def _run_elm_make(elm_path: Path, output_path: Path, build_path: Path):
         cwd=str(build_path),
         stderr=subprocess.STDOUT,
     )
+
+
+def _sync_source_files(project: ElmProject, target_directory: Path) -> None:
+    '''Copy source files to a single directory. This meets the requirement of Elm
+    that a package project can only have a single source directory and gives
+    us an isolated environment so that Elm can run in parallel with any invocation
+    of Elm within the actual project.
+    '''
+    for source_dir in project.source_directories:
+        sync(str(project.path / source_dir), str(target_directory), 'sync', create=True)
 
 
 def create_main_project_tasks(
