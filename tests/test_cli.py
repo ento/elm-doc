@@ -294,7 +294,7 @@ def test_cli_validate_subset_of_real_project_with_forced_exclusion(
             '--fake-license', 'BSD-3-Clause',
             '--elm-path', elm,
             '--validate',
-            '--exclude',
+            '--exclude-modules',
             'MissingModuleComment',
             '--exclude-source-directories',
             'err2',
