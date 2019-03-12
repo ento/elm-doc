@@ -1,11 +1,11 @@
 from typing import List, Optional
-from collections import ChainMap
+import os.path
 from pathlib import Path
+from collections import ChainMap
 import json
 from tempfile import TemporaryDirectory
 import subprocess
 
-from dirsync import sync
 from doit.tools import create_folder, config_changed
 
 from elm_doc import elm_platform
@@ -39,8 +39,7 @@ def build_project_docs_json(
             json.dump(elm_project_with_exposed_modules, f)
 
         package_src_dir = build_path / 'src'
-        for source_dir in project.source_directories:
-            sync(str(project.path / source_dir), str(package_src_dir), 'sync', create=True)
+        _sync_source_files(project, package_src_dir)
 
         for elm_file_path in package_src_dir.glob('**/*.elm'):
             if elm_parser.is_port_module(elm_file_path):
@@ -61,6 +60,23 @@ def _run_elm_make(elm_path: Path, output_path: Path, build_path: Path):
     subprocess.check_output(
         [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
         cwd=str(build_path),
+        stderr=subprocess.STDOUT,
+    )
+
+
+@capture_subprocess_error_as_task_failure
+def _sync_source_files(project: ElmProject, target_directory: Path) -> None:
+    '''Copy source files to a single directory. This meets the requirement of Elm
+    that a package project can only have a single source directory and gives
+    us an isolated environment so that Elm can run in parallel with any invocation
+    of Elm within the actual project.
+    '''
+    target_directory.mkdir(parents=True, exist_ok=True)
+    sources = ['{}/./'.format(os.path.normpath(source_dir))
+               for source_dir in project.source_directories]
+    subprocess.check_output(
+        ['rsync', '-a', '--delete', '--recursive'] + sources + [str(target_directory)],
+        cwd=str(project.path),
         stderr=subprocess.STDOUT,
     )
 

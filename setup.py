@@ -19,7 +19,6 @@ setup(
     install_requires=[
         'attrs',
         'click',
-        'dirsync',
         'doit',
         'parsy',
         'requests',

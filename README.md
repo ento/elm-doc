@@ -2,7 +2,7 @@
 
 Generate static documentation of your Elm application project.
 
-Requires Python >= 3.5, and macOS or Linux. It may work on Windows but it's untested.
+Requires Python >= 3.5, rsync >= 2.6.7, and macOS or Linux. It may work on Windows but it's untested.
 
 Supported Elm versions:
 

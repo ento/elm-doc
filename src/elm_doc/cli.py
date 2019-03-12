@@ -2,8 +2,10 @@ import sys
 import os
 import os.path
 import shutil
+import subprocess
 from pathlib import Path
 import functools
+import re
 
 import click
 from doit.doit_cmd import DoitMain
@@ -39,6 +41,22 @@ def validate_elm_path(ctx, param, value):
         raise click.BadParameter('{} not found'.format(value))
 
     return value
+
+
+REQUIRED_RSYNC_VERSION = (2, 6, 7)
+
+
+def check_rsync_version() -> bool:
+    output = subprocess.check_output(['rsync', '--version'], universal_newlines=True)
+    first_line = output.splitlines()[0]
+    match = re.search(r'version (?P<major>\d)\.(?P<minor>\d)\.(?P<patch>\d)', first_line)
+    if not match:
+        raise click.Abort(
+            'could not extract the version of rsync from: {}'.format(first_line))
+    version = (int(match.group('major')),
+               int(match.group('minor')),
+               int(match.group('patch')))
+    return version >= REQUIRED_RSYNC_VERSION
 
 
 def _resolve_path(path: str) -> Path:
@@ -140,6 +158,13 @@ def main(
         project_path,
         include_paths):
     """Generate static documentation for your Elm project"""
+
+    if not shutil.which('rsync'):
+        raise click.UsageError('this program requires rsync')
+
+    if not check_rsync_version():
+        raise click.UsageError('this program requires rsync version {} or greater'
+                               .format('.'.join(REQUIRED_RSYNC_VERSION)))
 
     if not validate and output is None:
         raise click.BadParameter('please specify --output directory')
