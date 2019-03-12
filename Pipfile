@@ -9,7 +9,6 @@ doit = "*"
 retrying = "*"
 typing = "*"
 attrs = "*"
-dirsync = "*"
 parsy = "*"
 requests = "*"
 
