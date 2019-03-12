@@ -17,7 +17,7 @@ def test_sync_source_files_create_new_file(
         copy_elm_stuff=False,
     )
     project = elm_project.from_path(Path(str(project_dir)))
-    target_dir = Path(project_dir / 'tmp')
+    target_dir = Path(str(project_dir / 'tmp'))
     project_tasks._sync_source_files(project, target_dir)
     assert (target_dir / 'Main.elm').exists()
 
@@ -35,7 +35,7 @@ def test_sync_source_files_update_file(
         copy_elm_stuff=False,
     )
     project = elm_project.from_path(Path(str(project_dir)))
-    target_dir = Path(project_dir / 'tmp')
+    target_dir = Path(str(project_dir / 'tmp'))
     project_tasks._sync_source_files(project, target_dir)
 
     main_elm = project_dir.join('src', 'Main.elm')
@@ -58,7 +58,7 @@ def test_sync_source_files_delete_file(
         copy_elm_stuff=False,
     )
     project = elm_project.from_path(Path(str(project_dir)))
-    target_dir = Path(project_dir / 'tmp')
+    target_dir = Path(str(project_dir / 'tmp'))
     project_tasks._sync_source_files(project, target_dir)
 
     main_elm = project_dir.join('src', 'Main.elm')

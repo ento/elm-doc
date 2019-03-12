@@ -53,7 +53,9 @@ def check_rsync_version() -> bool:
     if not match:
         raise click.Abort(
             'could not extract the version of rsync from: {}'.format(first_line))
-    version = (int(match['major']), int(match['minor']), int(match['patch']))
+    version = (int(match.group('major')),
+               int(match.group('minor')),
+               int(match.group('patch')))
     return version >= REQUIRED_RSYNC_VERSION
 
 
