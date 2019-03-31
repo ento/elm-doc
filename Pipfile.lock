@@ -269,11 +269,11 @@
         },
         "keyring": {
             "hashes": [
-                "sha256:12833d2b05d2055e0e25931184af9cd6a738f320a2264853cabbd8a3a0f0b65d",
-                "sha256:ca33f5ccc542b9ffaa196ee9a33488069e5e7eac77d5b81969f8a3ce74d0230c"
+                "sha256:44e5a4e1ad1070c7cd46959a0d6c2a99588b66a6dad6fd685463b486c04855ea",
+                "sha256:aae82841a2e170ecf4319df0f5c0df1468a98809e77563174949d8394bb59488"
             ],
             "index": "pypi",
-            "version": "==18.0.0"
+            "version": "==19.0.1"
         },
         "more-itertools": {
             "hashes": [
@@ -359,7 +359,7 @@
                 "sha256:20c797ae48a4419f66f8d28fc221623f11fc45b6828f96bdb1ad9990acb59f92",
                 "sha256:7a119fb52a88e398dbb22a4b3eb39b779bfbace7e4153b7bc6e5954d86282a8a"
             ],
-            "markers": "sys_platform == 'linux' and python_version >= '3.5'",
+            "markers": "sys_platform == 'linux'",
             "version": "==3.1.1"
         },
         "six": {
