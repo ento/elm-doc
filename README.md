@@ -7,7 +7,9 @@ Requires Python >= 3.5, rsync >= 2.6.7, and macOS or Linux. It may work on Windo
 Supported Elm versions:
 
 - elm-doc version < 1.0: Elm 0.18
-- elm-doc version 1.0: Elm 0.19
+- elm-doc version >= 1.0.0b3: Elm 0.19
+
+You will need to enable the `--pre` flag if you're installing the latest version through the `pip` command.
 
 ## Usage
 
