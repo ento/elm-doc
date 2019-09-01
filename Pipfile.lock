@@ -70,11 +70,11 @@
         },
         "parsy": {
             "hashes": [
-                "sha256:05a70bc232e88bcb6ca100e09f3ef38296937698cc21d2b895bac7331d96906c",
-                "sha256:ddd4306421a84fbdb8047f3806683d364be6a07fe5f452645d75f9d20f78b855"
+                "sha256:bea54186c3da470944dafe2314b57ac53d0dc2b0a168dc32f644b1b93dc6ca64",
+                "sha256:bfc941ea5a69e6ac16bd4f7d9f807bbc17e35edd8b95bcd2499a25b059359012"
             ],
             "index": "pypi",
-            "version": "==1.2.0"
+            "version": "==1.3.0"
         },
         "pyinotify": {
             "hashes": [
