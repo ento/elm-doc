@@ -73,7 +73,7 @@ def create_main_project_tasks(
     file_dep.extend([module.path for module in project_modules])
     uptodate_config = {'elm_json': project_as_package.as_json()}
 
-    package_src_dir = build_path / 'src'
+    build_src_dir = build_path / 'src'
     actions = [
         (create_folder, (str(build_path),)),
         (build_project_elm_json, (
@@ -82,9 +82,9 @@ def create_main_project_tasks(
             [module.name for module in project_modules],
             build_path,
         )),
-        (create_folder, (str(package_src_dir),)),
-        sync_action(project, package_src_dir),
-        (run_elm_codeshift, (package_src_dir,)),
+        (create_folder, (str(build_src_dir),)),
+        sync_action(project, build_src_dir),
+        (run_elm_codeshift, (build_src_dir,)),
         (validate_elm_path, (elm_path,)),
     ]
 
