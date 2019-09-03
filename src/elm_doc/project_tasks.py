@@ -16,7 +16,6 @@ from elm_doc import elm_codeshift
 from elm_doc import elm_parser
 from elm_doc import package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
-from elm_doc.decorators import capture_subprocess_error_as_task_failure
 
 
 def build_project_elm_json(
