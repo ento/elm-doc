@@ -2,12 +2,11 @@ import os
 import os.path
 import json
 from pathlib import Path
+import subprocess
 import tarfile
 
 import pytest
 import py
-
-from elm_doc import node_modules
 
 
 def pytest_addoption(parser):
@@ -42,7 +41,7 @@ def install_elm(to: Path, elm_version: str) -> Path:
     }
     with open(str(to / 'package.json'), 'w') as f:
         json.dump(npm_package, f)
-    node_modules.install(cwd=str(to))
+    subprocess.check_call(('npm', 'install'), cwd=str(to))
     return to / 'node_modules' / '.bin' / 'elm'
 
 
