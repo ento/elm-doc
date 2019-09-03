@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 import subprocess
 
 from click import BadParameter
+from doit.action import CmdAction
 from doit.tools import create_folder, config_changed
 
 from elm_doc import elm_platform
@@ -38,22 +39,14 @@ def run_elm_codeshift(src_dir: Path):
             elm_codeshift.strip_ports_from_file(elm_file_path)
 
 
-def build_project_docs_json(
-        elm_path: Optional[Path],
-        output_path: Path,
-        build_path: Path):
+def validate_elm_path(elm_path: Optional[Path]):
     if not elm_path:
         raise BadParameter('please specify the elm executable to use with --elm-path')
-    return _run_elm_make(elm_path, output_path, build_path)
 
 
-@capture_subprocess_error_as_task_failure
-def _run_elm_make(elm_path: Path, output_path: Path, build_path: Path):
-    subprocess.check_output(
-        [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null'],
-        cwd=str(build_path),
-        stderr=subprocess.STDOUT,
-    )
+def elm_make_action(elm_path: Path, build_path: Path, output_path: Path) -> CmdAction:
+    command = [str(elm_path), 'make', '--docs', str(output_path), '--output', '/dev/null']
+    return CmdAction(command, cwd=str(build_path), shell=False)
 
 
 @capture_subprocess_error_as_task_failure
@@ -89,7 +82,6 @@ def create_main_project_tasks(
     uptodate_config = {'elm_json': project_as_package.as_json()}
 
     package_src_dir = build_path / 'src'
-    main_action_kwargs = {'build_path': build_path}
     actions = [
         (create_folder, (str(build_path),)),
         (build_project_elm_json, (
@@ -101,12 +93,13 @@ def create_main_project_tasks(
         (create_folder, (str(package_src_dir),)),
         (sync_source_files, (project, package_src_dir)),
         (run_elm_codeshift, (package_src_dir,)),
-        (build_project_docs_json, (elm_path,), main_action_kwargs),
+        (validate_elm_path, (elm_path,)),
     ]
 
     if validate:
         # don't update the final artifact; write to build dir instead
-        main_action_kwargs['output_path'] = build_path / project.DOCS_FILENAME
+        docs_path = build_path / project.DOCS_FILENAME
+        actions.append(elm_make_action(elm_path, build_path, docs_path))
         yield {
             'basename': 'validate_docs_json',
             'name': task_name,
@@ -120,12 +113,13 @@ def create_main_project_tasks(
     project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
     actions.insert(0, (create_folder, (str(project_output_path),)))
     # project docs.json
-    main_action_kwargs['output_path'] = project_output_path / project.DOCS_FILENAME
+    docs_path = project_output_path / project.DOCS_FILENAME
+    actions.append(elm_make_action(elm_path, build_path, docs_path))
     yield {
         'basename': 'build_docs_json',
         'name': task_name,
         'actions': actions,
-        'targets': [main_action_kwargs['output_path']],
+        'targets': [docs_path],
         'file_dep': file_dep,
         'uptodate': [config_changed(uptodate_config)],
     }
