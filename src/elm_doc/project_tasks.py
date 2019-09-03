@@ -49,8 +49,7 @@ def elm_make_action(elm_path: Path, build_path: Path, output_path: Path) -> CmdA
     return CmdAction(command, cwd=str(build_path), shell=False)
 
 
-@capture_subprocess_error_as_task_failure
-def sync_source_files(project: ElmProject, target_directory: Path) -> None:
+def sync_action(project: ElmProject, target_directory: Path) -> CmdAction:
     '''Copy source files to a single directory. This meets the requirement of Elm
     that a package project can only have a single source directory and gives
     us an isolated environment so that Elm can run in parallel with any invocation
@@ -58,11 +57,8 @@ def sync_source_files(project: ElmProject, target_directory: Path) -> None:
     '''
     sources = ['{}/./'.format(os.path.normpath(source_dir))
                for source_dir in project.source_directories]
-    subprocess.check_output(
-        ['rsync', '-a', '--delete', '--recursive', '--ignore-errors'] + sources + [str(target_directory)],
-        cwd=str(project.path),
-        stderr=subprocess.STDOUT,
-    )
+    command = ['rsync', '-a', '--delete', '--recursive', '--ignore-errors'] + sources + [str(target_directory)]
+    return CmdAction(command, cwd=str(project.path), shell=False)
 
 
 def create_main_project_tasks(
@@ -91,7 +87,7 @@ def create_main_project_tasks(
             build_path,
         )),
         (create_folder, (str(package_src_dir),)),
-        (sync_source_files, (project, package_src_dir)),
+        sync_action(project, package_src_dir),
         (run_elm_codeshift, (package_src_dir,)),
         (validate_elm_path, (elm_path,)),
     ]
