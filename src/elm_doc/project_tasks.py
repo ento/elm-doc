@@ -3,14 +3,11 @@ import os.path
 from pathlib import Path
 from collections import ChainMap
 import json
-from tempfile import TemporaryDirectory
-import subprocess
 
 from click import BadParameter
 from doit.action import CmdAction
 from doit.tools import create_folder, config_changed
 
-from elm_doc import elm_platform
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
 from elm_doc import elm_parser
