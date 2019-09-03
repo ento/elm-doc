@@ -83,6 +83,7 @@ class LazyOutfile:
 
 
 @click.command(context_settings=dict(
+    help_option_names=['-h', '--help'],
     ignore_unknown_options=True,
 ))
 @click.option('--output', '-o',
