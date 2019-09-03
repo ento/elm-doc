@@ -23,17 +23,12 @@ def build_project_docs_json(
         project_config: ProjectConfig,
         project_modules: List[ModuleName],
         elm_path: Optional[Path],
-        output_path: Path = None,
-        build_path: Path = None,
-        validate: bool = False):
-    if not elm_path:
-        raise BadParameter('please specify the elm executable to use with --elm-path')
+        output_path: Path,
+        build_path: Path):
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': [module for module in project_modules]},
         project.as_package(project_config).as_json(),
     ))
-
-    build_path.mkdir(parents=True, exist_ok=True)
 
     elm_json_path = build_path / ElmPackage.DESCRIPTION_FILENAME
     with open(str(elm_json_path), 'w') as f:
@@ -46,10 +41,8 @@ def build_project_docs_json(
         if elm_parser.is_port_module(elm_file_path):
             elm_codeshift.strip_ports_from_file(elm_file_path)
 
-    if validate:
-        # don't update the final artifact; write to build dir instead
-        output_path = build_path / project.DOCS_FILENAME
-
+    if not elm_path:
+        raise BadParameter('please specify the elm executable to use with --elm-path')
     return _run_elm_make(elm_path, output_path, build_path)
 
 
@@ -84,7 +77,7 @@ def create_main_project_tasks(
         project_config: ProjectConfig,
         elm_path: Optional[Path],
         output_path: Optional[Path],
-        build_path: Path = None,
+        build_path: Path,
         mount_point: str = '',
         validate: bool = False):
     task_name = '{}/{}'.format(project_config.fake_user, project_config.fake_project)
@@ -95,18 +88,26 @@ def create_main_project_tasks(
     file_dep.extend([module.path for module in project_modules])
     uptodate_config = {'elm_json': project_as_package.as_json()}
 
+    main_action_kwargs = {'build_path': build_path}
+    actions = [
+        (create_folder, (str(build_path),)),
+        (build_project_docs_json,
+         (
+             project,
+             project_config,
+             [module.name for module in project_modules],
+             elm_path,
+         ),
+         main_action_kwargs),
+    ]
+
     if validate:
+        # don't update the final artifact; write to build dir instead
+        main_action_kwargs['output_path'] = build_path / project.DOCS_FILENAME
         yield {
             'basename': 'validate_docs_json',
             'name': task_name,
-            'actions': [(build_project_docs_json,
-                         (
-                             project,
-                             project_config,
-                             [module.name for module in project_modules],
-                             elm_path,
-                         ),
-                         {'build_path': build_path, 'validate': True})],
+            'actions': actions,
             'targets': [],
             'file_dep': file_dep,
             'uptodate': [config_changed(uptodate_config)],
@@ -114,22 +115,14 @@ def create_main_project_tasks(
         return
 
     project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
-
+    actions.insert(0, (create_folder, (str(project_output_path),)))
     # project docs.json
-    docs_json_path = project_output_path / project.DOCS_FILENAME
+    main_action_kwargs['output_path'] = project_output_path / project.DOCS_FILENAME
     yield {
         'basename': 'build_docs_json',
         'name': task_name,
-        'actions': [(create_folder, (str(project_output_path),)),
-                    (build_project_docs_json,
-                     (
-                         project,
-                         project_config,
-                         [module.name for module in project_modules],
-                         elm_path,
-                     ),
-                     {'build_path': build_path, 'output_path': docs_json_path})],
-        'targets': [docs_json_path],
+        'actions': actions,
+        'targets': [main_action_kwargs['output_path']],
         'file_dep': file_dep,
         'uptodate': [config_changed(uptodate_config)],
     }

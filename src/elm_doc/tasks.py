@@ -68,7 +68,7 @@ def build_main_project_task_creator(
                 project_config,
                 elm_path,
                 output_path,
-                build_path=build_path,
+                build_path,
                 mount_point=mount_point,
                 validate=validate):
             yield task
