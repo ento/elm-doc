@@ -363,3 +363,17 @@ def test_cli_line_parser_error_is_reported_as_error(
             project_dir.basename])
         assert result.exception, result.output
         assert result.exit_code == ERROR
+
+
+def test_issue_55(tmpdir, runner, elm, fixture_path):
+    project_dir = fixture_path.join('issue-55')
+    with tmpdir.as_cwd():
+        project_dir.copy(tmpdir)
+        result = runner.invoke(cli.main, [
+            '--output', 'docs',
+            '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
+            '--validate',
+            '.'])
+        assert not result.exception, result.output
+        assert result.exit_code == SUCCESS

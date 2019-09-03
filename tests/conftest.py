@@ -34,6 +34,11 @@ def elm_core_fixture_path(elm_version):
 
 
 @pytest.fixture
+def fixture_path():
+    return py.path.local(__file__).dirpath('fixtures')
+
+
+@pytest.fixture
 def module_fixture_path(elm_version):
     return py.path.local(__file__).dirpath('fixtures', elm_version)
 
