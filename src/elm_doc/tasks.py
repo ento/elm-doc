@@ -15,9 +15,9 @@ from elm_doc import catalog_tasks
 def build_task_creators(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
+        elm_path: Optional[Path],
         output_path: Optional[Path] = None,
         build_path: Optional[Path] = None,
-        elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     project = elm_project.from_path(project_path)
@@ -33,9 +33,9 @@ def build_task_creators(
     task_creators['task_main_project'] = build_main_project_task_creator(
         project,
         project_config,
+        elm_path,
         output_path,
         build_path,
-        elm_path,
         mount_point,
         validate,
     )
@@ -57,18 +57,18 @@ def build_task_creators(
 def build_main_project_task_creator(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
+        elm_path: Optional[Path],
         output_path: Optional[Path] = None,
         build_path: Optional[Path] = None,
-        elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     def task_main_project():
         for task in project_tasks.create_main_project_tasks(
                 project,
                 project_config,
+                elm_path,
                 output_path,
                 build_path=build_path,
-                elm_path=elm_path,
                 mount_point=mount_point,
                 validate=validate):
             yield task

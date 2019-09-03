@@ -62,13 +62,16 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
         assert tmpdir.join('docs').check(exists=True)
 
 
-def test_cli_in_real_project(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_in_real_project(tmpdir, runner, elm_version, elm, make_elm_project):
     sources = {'.': ['Main.elm', 'PortModuleA.elm']}
     project_dir = make_elm_project(elm_version, tmpdir, sources=sources, copy_elm_stuff=False)
     output_dir = tmpdir.join('docs')
     with tmpdir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = runner.invoke(cli.main, ['--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1'])
+        result = runner.invoke(cli.main, [
+            '--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1',
+            '--elm-path', elm,
+        ])
         assert not result.exception, result.output
         assert result.exit_code == SUCCESS
 

@@ -7,7 +7,7 @@ import tarfile
 import pytest
 import py
 
-from elm_doc import elm_platform
+from elm_doc import node_modules
 
 
 def pytest_addoption(parser):
@@ -33,6 +33,40 @@ def elm_core_fixture_path(elm_version):
     return py.path.local(__file__).dirpath('fixtures', filename)
 
 
+# Helper function for use in tests
+def install_elm(to: Path, elm_version: str) -> Path:
+    npm_package = {
+        'dependencies': {
+            'elm': _get_npm_version_range(elm_version)
+        }
+    }
+    with open(str(to / 'package.json'), 'w') as f:
+        json.dump(npm_package, f)
+    node_modules.install(cwd=str(to))
+    return to / 'node_modules' / '.bin' / 'elm'
+
+
+def _get_npm_version_range(elm_version: str) -> str:
+    if _is_exact(elm_version):
+        return elm_version
+    min_version, gt_op, _, lt_op, max_version = elm_version.split(' ')
+    return '{gt_op}{min_version} {lt_op}{max_version}'.format(
+        min_version=min_version,
+        gt_op=_flip_inequality_op(gt_op),
+        lt_op=lt_op,
+        max_version=max_version,
+    )
+
+
+def _is_exact(elm_version: str) -> bool:
+    return ' ' not in elm_version
+
+
+def _flip_inequality_op(op: str) -> str:
+    # assume there's only one < or >
+    return op.replace('>', '<').replace('<', '>')
+
+
 @pytest.fixture
 def fixture_path():
     return py.path.local(__file__).dirpath('fixtures')
@@ -51,7 +85,7 @@ def mock_popular_packages(mocker):
 @pytest.fixture(scope='session')
 def elm(tmpdir_factory, elm_version):
     tmpdir = tmpdir_factory.mktemp('elm-{}'.format(elm_version))
-    return str(elm_platform.install(Path(str(tmpdir)), elm_version))
+    return str(install_elm(Path(str(tmpdir)), elm_version))
 
 
 @pytest.fixture

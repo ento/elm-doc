@@ -188,9 +188,9 @@ def main(
     task_creators = build_task_creators(
         _resolve_path(project_path),
         project_config,
+        _resolve_path(elm_path) if elm_path else None,
         _resolve_path(output) if output is not None else None,
         build_path=_resolve_path(build_dir) if build_dir is not None else None,
-        elm_path=_resolve_path(elm_path) if elm_path is not None else None,
         mount_point=mount_at,
         validate=validate)
 

@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from elm_doc import elm_platform, elm_project, tasks
+from elm_doc import elm_project, tasks
 from tests import conftest
 
 
@@ -48,7 +48,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
     shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY), ignore_errors=True)
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
-        elm_path = elm_platform.install(root_path, elm_version)
+        elm_path = conftest.install_elm(root_path, elm_version)
         elm_home_path = root_path / '.elm'
         try:
             subprocess.check_output(
@@ -182,7 +182,7 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
     elm_version = _read_elm_version(repo_path / 'elm.json')
     with TemporaryDirectory() as tmpdir:
         root_path = Path(tmpdir)
-        elm_path = elm_platform.install(root_path, elm_version)
+        elm_path = conftest.install_elm(root_path, elm_version)
         try:
             subprocess.check_output(
                 [
@@ -219,14 +219,14 @@ def task_install_workspace_elm():
 
 def _install_elm(project_path: Path):
     elm_version = _read_elm_version(project_path / 'elm.json')
-    elm_platform.install(project_path, elm_version)
+    conftest.install_elm(project_path, elm_version)
 
 
 for creator_name, creator_func in tasks.build_task_creators(
         workspace_path,
         config,
+        elm_path,
         output_path,
-        elm_path=elm_path,
         mount_point='/docs',
 ).items():
     globals()[creator_name] = creator_func

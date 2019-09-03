@@ -6,6 +6,7 @@ import json
 from tempfile import TemporaryDirectory
 import subprocess
 
+from click import BadParameter
 from doit.tools import create_folder, config_changed
 
 from elm_doc import elm_platform
@@ -21,38 +22,35 @@ def build_project_docs_json(
         project: ElmProject,
         project_config: ProjectConfig,
         project_modules: List[ModuleName],
+        elm_path: Optional[Path],
         output_path: Path = None,
         build_path: Path = None,
-        elm_path: Path = None,
         validate: bool = False):
+    if not elm_path:
+        raise BadParameter('please specify the elm executable to use with --elm-path')
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': [module for module in project_modules]},
         project.as_package(project_config).as_json(),
     ))
-    with TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
 
-        build_path.mkdir(parents=True, exist_ok=True)
+    build_path.mkdir(parents=True, exist_ok=True)
 
-        elm_json_path = build_path / ElmPackage.DESCRIPTION_FILENAME
-        with open(str(elm_json_path), 'w') as f:
-            json.dump(elm_project_with_exposed_modules, f)
+    elm_json_path = build_path / ElmPackage.DESCRIPTION_FILENAME
+    with open(str(elm_json_path), 'w') as f:
+        json.dump(elm_project_with_exposed_modules, f)
 
-        package_src_dir = build_path / 'src'
-        _sync_source_files(project, package_src_dir)
+    package_src_dir = build_path / 'src'
+    _sync_source_files(project, package_src_dir)
 
-        for elm_file_path in package_src_dir.glob('**/*.elm'):
-            if elm_parser.is_port_module(elm_file_path):
-                elm_codeshift.strip_ports_from_file(elm_file_path)
+    for elm_file_path in package_src_dir.glob('**/*.elm'):
+        if elm_parser.is_port_module(elm_file_path):
+            elm_codeshift.strip_ports_from_file(elm_file_path)
 
-        if elm_path is None:
-            elm_path = elm_platform.install(tmp_path, project.elm_version)
+    if validate:
+        # don't update the final artifact; write to build dir instead
+        output_path = build_path / project.DOCS_FILENAME
 
-        if validate:
-            # don't update the final artifact; write to build dir instead
-            output_path = build_path / project.DOCS_FILENAME
-
-        return _run_elm_make(elm_path, output_path, build_path)
+    return _run_elm_make(elm_path, output_path, build_path)
 
 
 @capture_subprocess_error_as_task_failure
@@ -84,9 +82,9 @@ def _sync_source_files(project: ElmProject, target_directory: Path) -> None:
 def create_main_project_tasks(
         project: ElmProject,
         project_config: ProjectConfig,
+        elm_path: Optional[Path],
         output_path: Optional[Path],
         build_path: Path = None,
-        elm_path: Path = None,
         mount_point: str = '',
         validate: bool = False):
     task_name = '{}/{}'.format(project_config.fake_user, project_config.fake_project)
@@ -102,8 +100,13 @@ def create_main_project_tasks(
             'basename': 'validate_docs_json',
             'name': task_name,
             'actions': [(build_project_docs_json,
-                         (project, project_config, [module.name for module in project_modules]),
-                         {'build_path': build_path, 'elm_path': elm_path, 'validate': True})],
+                         (
+                             project,
+                             project_config,
+                             [module.name for module in project_modules],
+                             elm_path,
+                         ),
+                         {'build_path': build_path, 'validate': True})],
             'targets': [],
             'file_dep': file_dep,
             'uptodate': [config_changed(uptodate_config)],
@@ -119,8 +122,13 @@ def create_main_project_tasks(
         'name': task_name,
         'actions': [(create_folder, (str(project_output_path),)),
                     (build_project_docs_json,
-                     (project, project_config, [module.name for module in project_modules]),
-                     {'build_path': build_path, 'elm_path': elm_path, 'output_path': docs_json_path})],
+                     (
+                         project,
+                         project_config,
+                         [module.name for module in project_modules],
+                         elm_path,
+                     ),
+                     {'build_path': build_path, 'output_path': docs_json_path})],
         'targets': [docs_json_path],
         'file_dep': file_dep,
         'uptodate': [config_changed(uptodate_config)],
