@@ -18,12 +18,10 @@ from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleNam
 from elm_doc.decorators import capture_subprocess_error_as_task_failure
 
 
-def build_project_docs_json(
+def build_project_elm_json(
         project: ElmProject,
         project_config: ProjectConfig,
         project_modules: List[ModuleName],
-        elm_path: Optional[Path],
-        output_path: Path,
         build_path: Path):
     elm_project_with_exposed_modules = dict(ChainMap(
         {'exposed-modules': [module for module in project_modules]},
@@ -34,6 +32,12 @@ def build_project_docs_json(
     with open(str(elm_json_path), 'w') as f:
         json.dump(elm_project_with_exposed_modules, f)
 
+
+def build_project_docs_json(
+        project: ElmProject,
+        elm_path: Optional[Path],
+        output_path: Path,
+        build_path: Path):
     package_src_dir = build_path / 'src'
     _sync_source_files(project, package_src_dir)
 
@@ -91,11 +95,15 @@ def create_main_project_tasks(
     main_action_kwargs = {'build_path': build_path}
     actions = [
         (create_folder, (str(build_path),)),
+        (build_project_elm_json, (
+            project,
+            project_config,
+            [module.name for module in project_modules],
+            build_path,
+        )),
         (build_project_docs_json,
          (
              project,
-             project_config,
-             [module.name for module in project_modules],
              elm_path,
          ),
          main_action_kwargs),
