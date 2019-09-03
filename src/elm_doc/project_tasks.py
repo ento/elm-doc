@@ -75,7 +75,7 @@ def _sync_source_files(project: ElmProject, target_directory: Path) -> None:
     sources = ['{}/./'.format(os.path.normpath(source_dir))
                for source_dir in project.source_directories]
     subprocess.check_output(
-        ['rsync', '-a', '--delete', '--recursive'] + sources + [str(target_directory)],
+        ['rsync', '-a', '--delete', '--recursive', '--ignore-errors'] + sources + [str(target_directory)],
         cwd=str(project.path),
         stderr=subprocess.STDOUT,
     )
