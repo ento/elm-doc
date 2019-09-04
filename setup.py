@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='elm-doc',
-    version='1.0.0b2',
+    version='1.0.0b4',
     url='https://github.com/ento/elm-doc',
     license='BSD 3-clause',
     author='Marica Odagaki',
