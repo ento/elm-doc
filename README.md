@@ -99,9 +99,9 @@ This is the rough build process:
   - Populate `--fake-*` fields, including the license: these are required for a package project but not included in an application project's elm.json
   - Add dependencies that are listed as popular packages in the sidebar, making HTTP requests to look up the latest versions
   - This means the actual build / validation process will have its own elm-stuff directory
-- Copy source files into the build directory's `src` directory using [dirsync](https://bitbucket.org/tkhyn/dirsync/)
+- Copy source files into the build directory's `src` directory using rsync
   - An application project supports multiple source directories, while a package project supports only `src`
-- For each file that were copied, rewrite port delcarations to be normal functions
+- For each file that was copied, rewrite port delcarations to be normal functions
   - This is needed because ports are not allowed in package projects
 - Run `elm make` with the `--doc` flag on
 - If validating docs, exit here
