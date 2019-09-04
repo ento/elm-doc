@@ -45,7 +45,7 @@ You may want to ignore it in your SCM config, or you can change its path with `-
 `--validate` can check if you have all the necessary documentation in place:
 
     $ elm-doc . \
-        --elm-path ui/node_modules/.bin/elm \
+        --elm-path ./node_modules/.bin/elm \
         --validate
 
 `elm-doc` assumes you're working on an app, not a package; it will try to generate
@@ -54,13 +54,13 @@ documentation for all modules found in the application source directories.
 You can `--exclude-modules` by using [fnmatch](https://docs.python.org/3/library/fnmatch.html)
 patterns:
 
-    $ elm-doc . --output docs \
-        --elm-path ui/node_modules/.bin/elm \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
+        --elm-path ./node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*'
 
 or `--exclude-source-directories` entirely:
 
-    $ elm-doc . --output docs \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
         --elm-path ui/node_modules/.bin/elm \
         --exclude-source-directories generated
 
@@ -73,7 +73,7 @@ You can also specify which files and directories to _include_ in the list of mod
 Note that the `--exclude` flag takes no effect if you explicitly specify which
 files to include, unless you add the `--force-exclusion` flag:
 
-    $ elm-doc . --output docs \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
         --elm-path ui/node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*' \
         --force-exclusion \
