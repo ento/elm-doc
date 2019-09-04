@@ -4,6 +4,7 @@ include src/elm_doc/assets/assets.tar.gz
 exclude .gitmodules
 exclude dependencies.yml
 exclude Pipfile*
+exclude *.nix
 exclude vendor
 recursive-exclude vendor *
 exclude workspace

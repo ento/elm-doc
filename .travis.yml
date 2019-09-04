@@ -14,39 +14,32 @@ env:
   global:
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - PIPENV_CACHE_DIR=$HOME/.cache/pipenv
+    - PIPENV_KEEP_OUTDATED=1
 
 language: python
 
 python:
-  - 3.5
-  - 3.6
-  - nightly
 
 matrix:
   include:
-  - env: WITH_YARN=yes
-    python: "3.5"
-  - env: CHECK_INSTALL=yes
-    python: "3.5"
+  - python: "3.5"
+    env: CHECK_INSTALL=yes
+  - python: "3.5"
+  - python: "3.6"
+  - python: "3.7"
+    dist: xenial
+  - python: nightly
 
 before_install:
   - pip --version
   - pip install codecov
   - pip install -U pip setuptools
-  - |
-    if [[ $WITH_YARN == 'yes' ]]; then
-      # Repo for newer Node.js versions
-      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-      # Repo for Yarn
-      curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-      echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-      sudo apt-get update -qq && sudo apt-get install -y -qq yarn
-    fi
 
 install:
   - pip install 'pipenv>=2018.10.9' tox-travis
   - pipenv --version
   - pipenv install --dev
+  - git checkout Pipfile.lock # workaround until https://github.com/pypa/pipenv/pull/3304 is released
 
 before_script:
   - git lfs version

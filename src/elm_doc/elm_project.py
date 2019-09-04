@@ -29,7 +29,7 @@ class ElmProject:
     def json_path(self) -> Path:
         return self.path / self.DESCRIPTION_FILENAME
 
-    def iter_dependencies(self) -> Iterator['ElmPackage']:
+    def iter_direct_dependencies(self) -> Iterator['ElmPackage']:
         raise NotImplementedError
 
 
@@ -150,9 +150,9 @@ class ElmApplication(ElmProject):
             license=overrides.fake_license,
             exposed_modules=[],
             dependencies=_as_package_dependencies(
-                self.direct_dependencies, self.indirect_dependencies),
+                self.direct_dependencies),
             test_dependencies=_as_package_dependencies(
-                self.direct_test_dependencies, self.indirect_test_dependencies),
+                self.direct_test_dependencies),
             elm_version=_as_version_range(self.elm_version),
         )
 
@@ -177,20 +177,16 @@ class ElmApplication(ElmProject):
         for name, version in deps:
             self.direct_dependencies[name] = version
 
-    def all_dependency_names(self) -> Iterator[str]:
+    def direct_dependency_names(self) -> Iterator[str]:
         return itertools.chain(
             self.direct_dependencies.keys(),
-            self.indirect_dependencies.keys(),
             self.direct_test_dependencies.keys(),
-            self.indirect_test_dependencies.keys(),
         )
 
-    def iter_dependencies(self) -> Iterator[ElmPackage]:
+    def iter_direct_dependencies(self) -> Iterator[ElmPackage]:
         deps = itertools.chain(
             self.direct_dependencies.items(),
-            self.indirect_dependencies.items(),
             self.direct_test_dependencies.items(),
-            self.indirect_test_dependencies.items(),
         )
         for name, version in deps:
             # e.g. ~/.elm/0.19.0/package/elm/core/1.0.0

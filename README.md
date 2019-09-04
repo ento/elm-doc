@@ -15,7 +15,8 @@ You will need to enable the `--pre` flag if you're installing the latest version
 
 Simplest invocation:
 
-    $ elm-doc . --output docs --fake-license 'SPDX license name'
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
+        --elm-path path/to/usually/node_modules/.bin/elm
 
 The license name is required because elm-doc uses the official Elm binary to
 validate and generate docs; the official Elm binary only generates
@@ -41,16 +42,10 @@ and `--fake-version`.
 elm-doc creates a build directory named `.elm-doc` at the root of the project.
 You may want to ignore it in your SCM config, or you can change its path with `--build-dir`.
 
-You can further point `--elm-path` at your existing installation of `elm` binary
-to avoid the overhead of installing Elm:
-
-    $ elm-doc . --output docs \
-        --elm-path ui/node_modules/.bin/elm
-
 `--validate` can check if you have all the necessary documentation in place:
 
     $ elm-doc . \
-        --elm-path ui/node_modules/.bin/elm \
+        --elm-path ./node_modules/.bin/elm \
         --validate
 
 `elm-doc` assumes you're working on an app, not a package; it will try to generate
@@ -59,13 +54,13 @@ documentation for all modules found in the application source directories.
 You can `--exclude-modules` by using [fnmatch](https://docs.python.org/3/library/fnmatch.html)
 patterns:
 
-    $ elm-doc . --output docs \
-        --elm-path ui/node_modules/.bin/elm \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
+        --elm-path ./node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*'
 
 or `--exclude-source-directories` entirely:
 
-    $ elm-doc . --output docs \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
         --elm-path ui/node_modules/.bin/elm \
         --exclude-source-directories generated
 
@@ -78,7 +73,7 @@ You can also specify which files and directories to _include_ in the list of mod
 Note that the `--exclude` flag takes no effect if you explicitly specify which
 files to include, unless you add the `--force-exclusion` flag:
 
-    $ elm-doc . --output docs \
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
         --elm-path ui/node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*' \
         --force-exclusion \
@@ -104,9 +99,9 @@ This is the rough build process:
   - Populate `--fake-*` fields, including the license: these are required for a package project but not included in an application project's elm.json
   - Add dependencies that are listed as popular packages in the sidebar, making HTTP requests to look up the latest versions
   - This means the actual build / validation process will have its own elm-stuff directory
-- Copy source files into the build directory's `src` directory using [dirsync](https://bitbucket.org/tkhyn/dirsync/)
+- Copy source files into the build directory's `src` directory using rsync
   - An application project supports multiple source directories, while a package project supports only `src`
-- For each file that were copied, rewrite port delcarations to be normal functions
+- For each file that was copied, rewrite port delcarations to be normal functions
   - This is needed because ports are not allowed in package projects
 - Run `elm make` with the `--doc` flag on
 - If validating docs, exit here

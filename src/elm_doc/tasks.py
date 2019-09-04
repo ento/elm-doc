@@ -15,15 +15,15 @@ from elm_doc import catalog_tasks
 def build_task_creators(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
+        elm_path: Optional[Path],
         output_path: Optional[Path] = None,
         build_path: Optional[Path] = None,
-        elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     project = elm_project.from_path(project_path)
     if not validate:
         project.add_direct_dependencies(
-            catalog_tasks.missing_popular_packages(list(project.all_dependency_names())))
+            catalog_tasks.missing_popular_packages(list(project.direct_dependency_names())))
 
     if build_path is None:
         build_path = project_path / '.elm-doc'
@@ -33,9 +33,9 @@ def build_task_creators(
     task_creators['task_main_project'] = build_main_project_task_creator(
         project,
         project_config,
+        elm_path,
         output_path,
         build_path,
-        elm_path,
         mount_point,
         validate,
     )
@@ -57,18 +57,18 @@ def build_task_creators(
 def build_main_project_task_creator(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
+        elm_path: Optional[Path],
         output_path: Optional[Path] = None,
         build_path: Optional[Path] = None,
-        elm_path: Optional[Path] = None,
         mount_point: str = '',
         validate: bool = False):
     def task_main_project():
         for task in project_tasks.create_main_project_tasks(
                 project,
                 project_config,
+                elm_path,
                 output_path,
-                build_path=build_path,
-                elm_path=elm_path,
+                build_path,
                 mount_point=mount_point,
                 validate=validate):
             yield task
@@ -88,7 +88,7 @@ def build_dependencies_task_creator(
         'index', 'search_json', 'help',
     ])
     def task_dependencies():
-        deps = list(project.iter_dependencies())
+        deps = list(project.iter_direct_dependencies())
         deps.sort(key=lambda dep: dep.name)
         all_packages = [project.as_package(project_config).without_license()] + deps
 
