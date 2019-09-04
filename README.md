@@ -15,7 +15,8 @@ You will need to enable the `--pre` flag if you're installing the latest version
 
 Simplest invocation:
 
-    $ elm-doc . --output docs --fake-license 'SPDX license name'
+    $ elm-doc . --output docs --fake-license 'SPDX license name' \
+        --elm-path path/to/usually/node_modules/.bin/elm
 
 The license name is required because elm-doc uses the official Elm binary to
 validate and generate docs; the official Elm binary only generates
@@ -40,12 +41,6 @@ and `--fake-version`.
 
 elm-doc creates a build directory named `.elm-doc` at the root of the project.
 You may want to ignore it in your SCM config, or you can change its path with `--build-dir`.
-
-You can further point `--elm-path` at your existing installation of `elm` binary
-to avoid the overhead of installing Elm:
-
-    $ elm-doc . --output docs \
-        --elm-path ui/node_modules/.bin/elm
 
 `--validate` can check if you have all the necessary documentation in place:
 
