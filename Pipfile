@@ -18,7 +18,7 @@ pytest-mock = "*"
 check-manifest = "*"
 pip = "*"
 setuptools = "*"
-twine = "*"
+twine-select = {path = "./twine-select"}
 wheel = "*"
 keyring = "*"
 zipp = {version = "<2.0", markers="python_version < '3.6'"}
