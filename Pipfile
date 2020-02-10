@@ -21,6 +21,7 @@ setuptools = "*"
 twine = "*"
 wheel = "*"
 keyring = "*"
+zipp = {version = "<2.0", markers="python_version < '3.6'"}
 
 [requires]
 python_version = "3.7"
