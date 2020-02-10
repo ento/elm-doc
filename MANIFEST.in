@@ -11,3 +11,5 @@ exclude workspace
 recursive-exclude workspace *
 exclude tests
 recursive-exclude tests *
+exclude twine-select
+recursive-exclude twine-select *
