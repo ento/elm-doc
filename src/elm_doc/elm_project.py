@@ -111,7 +111,7 @@ class ElmPackage(ElmProject):
 @attr.s
 class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
-    PACKAGES_DIRECTORY = 'package'
+    PACKAGES_DIRECTORY = 'packages'
 
     source_directories = attr.ib()  # [str]
     elm_version = attr.ib()  # ExactVersion
