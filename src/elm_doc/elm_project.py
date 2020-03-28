@@ -3,7 +3,6 @@ import os.path
 from pathlib import Path
 import re
 import fnmatch
-from glob import iglob
 import itertools
 import json
 
@@ -191,8 +190,9 @@ class ElmApplication(ElmProject):
             # Elm 0.19.0 uses "package" in the path, 0.19.1 uses "packages".
             # Here we use a glob to be agnostic and somewhat defensive against
             # future change. e.g. ~/.elm/0.19.0/package*/elm/core/1.0.0
-            path_pattern = elm_platform.ELM_HOME / self.elm_version / "package*" / name / version
-            yield from map(from_path, iglob(path_pattern))
+            elm_version_dir = elm_platform.ELM_HOME / self.elm_version
+            for elm_package_dir in elm_version_dir.glob("package*"):
+                yield from_path(elm_package_dir / name / version)
 
 
 def _as_package_dependencies(*app_dependencies: Dict[str, ExactVersion]) -> Dict[str, VersionRange]:
