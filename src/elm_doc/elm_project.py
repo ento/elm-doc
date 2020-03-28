@@ -3,6 +3,7 @@ import os.path
 from pathlib import Path
 import re
 import fnmatch
+from glob import iglob
 import itertools
 import json
 
@@ -36,7 +37,6 @@ class ElmProject:
 @attr.s
 class ElmPackage(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
-    PACKAGES_DIRECTORY = 'packages'
 
     user = attr.ib()  # str
     project = attr.ib()  # str
@@ -111,7 +111,6 @@ class ElmPackage(ElmProject):
 @attr.s
 class ElmApplication(ElmProject):
     DESCRIPTION_FILENAME = 'elm.json'
-    PACKAGES_DIRECTORY = 'packages'
 
     source_directories = attr.ib()  # [str]
     elm_version = attr.ib()  # ExactVersion
@@ -189,8 +188,11 @@ class ElmApplication(ElmProject):
             self.direct_test_dependencies.items(),
         )
         for name, version in deps:
-            # e.g. ~/.elm/0.19.0/package/elm/core/1.0.0
-            yield from_path(elm_platform.ELM_HOME / self.elm_version / self.PACKAGES_DIRECTORY / name / version)
+            # Elm 0.19.0 uses "package" in the path, 0.19.1 uses "packages".
+            # Here we use a glob to be agnostic and somewhat defensive against
+            # future change. e.g. ~/.elm/0.19.0/package*/elm/core/1.0.0
+            path_pattern = elm_platform.ELM_HOME / self.elm_version / "package*" / name / version
+            yield from map(from_path, iglob(path_pattern))
 
 
 def _as_package_dependencies(*app_dependencies: Dict[str, ExactVersion]) -> Dict[str, VersionRange]:
