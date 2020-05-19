@@ -121,6 +121,6 @@ Running tests:
     $ pipenv install --dev
     $ pipenv run tox -e py35,...
 
-Updating the prebuild frontend code and test fixture:
+Updating the prebuilt frontend code and test fixture:
 
     $ pipenv run doit
