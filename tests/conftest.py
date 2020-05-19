@@ -10,7 +10,7 @@ import py
 
 
 def pytest_addoption(parser):
-    parser.addoption("--elm-version", default='0.19.0',
+    parser.addoption("--elm-version", default='0.19.1',
                      help="specify the version of Elm to test")
 
 
