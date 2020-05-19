@@ -59,7 +59,6 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
-            print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
         with _create_tarball(tarball) as tar:
@@ -197,7 +196,6 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
-            print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
 # build docs for the workspace project
