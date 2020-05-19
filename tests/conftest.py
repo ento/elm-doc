@@ -131,6 +131,9 @@ def _extract_tarball(tarball, dest):
             tar.extractall()
 
 
+# How to add a new entry: run `elm init` or its equivalent and
+# bring in the content of the elm-package.json/elm.json file that was created.
+# Then set the source directory to `"."`.
 default_elm_package = {}
 
 default_elm_package['0.18.0'] = {
@@ -162,6 +165,31 @@ default_elm_package['0.19.0'] = {
         },
         "indirect": {
             "elm/json": "1.1.2",
+            "elm/virtual-dom": "1.0.2"
+        }
+    },
+    "test-dependencies": {
+        "direct": {},
+        "indirect": {}
+    }
+}
+
+default_elm_package['0.19.1'] = {
+    "type": "application",
+    "source-directories": [
+        "."
+    ],
+    "elm-version": "0.19.1",
+    "dependencies": {
+        "direct": {
+            "elm/browser": "1.0.2",
+            "elm/core": "1.0.5",
+            "elm/html": "1.0.0"
+        },
+        "indirect": {
+            "elm/json": "1.1.3",
+            "elm/time": "1.0.0",
+            "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.2"
         }
     },
