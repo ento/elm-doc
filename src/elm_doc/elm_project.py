@@ -189,9 +189,9 @@ class ElmApplication(ElmProject):
         for name, version in deps:
             # Elm 0.19.0 uses "package" in the path, 0.19.1 uses "packages".
             # Here we use a glob to be agnostic and somewhat defensive against
-            # future change. e.g. ~/.elm/0.19.0/package*/elm/core/1.0.0
+            # future change. e.g. ~/.elm/0.19.0/package?/elm/core/1.0.0
             elm_version_dir = elm_platform.ELM_HOME / self.elm_version
-            for elm_package_dir in elm_version_dir.glob("package*"):
+            for elm_package_dir in elm_version_dir.glob("package?"):
                 yield from_path(elm_package_dir / name / version)
 
 
