@@ -47,7 +47,7 @@ def install_elm(to: Path, elm_version: str) -> Path:
 
 def _get_npm_version_range(elm_version: str) -> str:
     if _is_exact(elm_version):
-        return elm_version
+        return 'latest-{v}'.format(v=elm_version)
     min_version, gt_op, _, lt_op, max_version = elm_version.split(' ')
     return '{gt_op}{min_version} {lt_op}{max_version}'.format(
         min_version=min_version,
