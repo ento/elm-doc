@@ -9,7 +9,7 @@ import tempfile
 Tarball = namedtuple('Tarball', ('path', 'basename'))
 
 
-def tarball_from_path(path : str) -> Tarball:
+def tarball_from_path(path: str) -> Tarball:
     basename = '-'.join(path.split(os.sep))
     return Tarball(Path(path).resolve(), basename)
 
@@ -31,17 +31,17 @@ def main():
         diff_dumps('old', 'new')
 
 
-def dump_tarballs(suffix : str):
+def dump_tarballs(suffix: str):
     for tarball in TARBALLS:
         output = format_output_filename(tarball, suffix)
         dump_tarball(tarball.path, output)
 
 
-def format_output_filename(tarball : Tarball, suffix : str) -> str:
+def format_output_filename(tarball: Tarball, suffix: str) -> str:
     return '{}-{}.txt'.format(tarball.basename, suffix)
 
 
-def dump_tarball(tarball : Path, output : Path):
+def dump_tarball(tarball: Path, output: Path):
     with tempfile.TemporaryDirectory() as d:
         run(['tar', 'xf', tarball, '--directory', d], check=True)
         with open(output, 'w') as f:
@@ -51,7 +51,7 @@ def dump_tarball(tarball : Path, output : Path):
                 stdout=f)
 
 
-def diff_dumps(suffix_a, suffix_b):
+def diff_dumps(suffix_a: str, suffix_b: str):
     for tarball in TARBALLS:
         a = format_output_filename(tarball, suffix_a)
         b = format_output_filename(tarball, suffix_b)
