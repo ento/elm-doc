@@ -45,7 +45,7 @@ def dump_tarball(tarball : Path, output : Path):
     with tempfile.TemporaryDirectory() as d:
         run(['tar', 'xf', tarball, '--directory', d], check=True)
         with open(output, 'w') as f:
-            run(shlex.join(['find', '.', '-type', 'f', '-exec', 'md5sum', '{}', ';']) + '| sort',
+            run(' '.join(map(shlex.quote, ('find', '.', '-type', 'f', '-exec', 'md5sum', '{}', ';'))) + '| sort',
                 cwd=d,
                 shell=True,
                 stdout=f)
