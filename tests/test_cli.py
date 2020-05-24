@@ -372,7 +372,7 @@ def test_cli_line_parser_error_is_reported_as_error(
 
 def test_issue_55(tmpdir, runner, elm, elm_version, fixture_path):
     project_dir = fixture_path.join('issue-55')
-    project_elm_version = elm_project.from_path(Path(project_dir)).elm_version
+    project_elm_version = elm_project.from_path(Path(str(project_dir))).elm_version
     if project_elm_version != elm_version:
         pytest.skip('This test is intended for elm version {v}'.format(v=project_elm_version))
     with tmpdir.as_cwd():
