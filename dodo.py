@@ -66,7 +66,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
 
 
 def _tar_filter_without_registry(tarinfo):
-    if Path(tarinfo.name).name == 'versions.dat':
+    if Path(tarinfo.name).name in ('versions.dat', 'registry.dat'):
         return
     return tarinfo
 
