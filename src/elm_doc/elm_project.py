@@ -186,13 +186,20 @@ class ElmApplication(ElmProject):
             self.direct_dependencies.items(),
             self.direct_test_dependencies.items(),
         )
-        for name, version in deps:
-            # Elm 0.19.0 uses "package" in the path, 0.19.1 uses "packages".
-            # Here we use a glob to be agnostic and somewhat defensive against
-            # future change. e.g. ~/.elm/0.19.0/package?/elm/core/1.0.0
-            elm_version_dir = elm_platform.ELM_HOME / self.elm_version
-            for elm_package_dir in elm_version_dir.glob("package?"):
+        # Elm 0.19.0 uses "package" in the path, 0.19.1 uses "packages".
+        # Here we use a glob to be agnostic and somewhat defensive against
+        # future change. e.g. ~/.elm/0.19.0/package*/elm/core/1.0.0
+        elm_version_dir = elm_platform.ELM_HOME / self.elm_version
+        for elm_package_dir in elm_version_dir.glob("package*"):
+            for name, version in deps:
                 yield from_path(elm_package_dir / name / version)
+            break
+        else:
+            raise RuntimeError(
+                ('No directory that starts with "package" in {}. '
+                 'Wiping the directory may and retrying may fix this, '
+                 'or it may be that this version of Elm is not supported by elm-doc yet.').format(
+                     elm_version_dir))
 
 
 def _as_package_dependencies(*app_dependencies: Dict[str, ExactVersion]) -> Dict[str, VersionRange]:
