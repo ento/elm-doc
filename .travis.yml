@@ -4,14 +4,13 @@ os:
 cache:
   directories:
     - $PIP_CACHE_DIR
-    - $PIPENV_CACHE_DIR
+    - $POETRY_CACHE_DIR
     - $HOME/.yarn-cache
 
 env:
   global:
     - PIP_CACHE_DIR=$HOME/.cache/pip
-    - PIPENV_CACHE_DIR=$HOME/.cache/pipenv
-    - PIPENV_KEEP_OUTDATED=1
+    - POETRY_CACHE_DIR=$HOME/.cache/pypoetry/cache
 
 language: python
 
@@ -35,10 +34,9 @@ before_install:
   - pip install -U pip setuptools
 
 install:
-  - pip install 'pipenv>=2018.10.9' tox-travis
-  - pipenv --version
-  - pipenv install --dev
-  - git checkout Pipfile.lock # workaround until https://github.com/pypa/pipenv/pull/3304 is released
+  - pip install poetry tox-travis
+  - poetry --version
+  - poetry install --no-root
 
 before_script:
   - git lfs version
@@ -54,7 +52,7 @@ script:
       elm-doc --help
       python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
     else
-      pipenv run doit --verbosity 2
+      poetry run doit --verbosity 2
 
       if [ ! -z "$(git status --porcelain)" ]; then
         git status

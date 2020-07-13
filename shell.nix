@@ -4,7 +4,7 @@ in
 pkgs.mkShell {
   buildInputs = with pkgs; [
     nodejs
-    pipenv
+    poetry
     rsync
   ];
   shellHook = ''
