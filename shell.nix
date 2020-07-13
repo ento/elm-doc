@@ -3,6 +3,7 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
+    libffi
     nodejs
     poetry
     rsync
