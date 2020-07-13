@@ -3,11 +3,12 @@ include src/elm_doc/assets/assets.tar.gz
 
 exclude .gitmodules
 exclude dependencies.yml
+exclude dodo.py
+exclude setup.py
+exclude *.in
 exclude *.lock
 exclude *.nix
 exclude vendor
 recursive-exclude vendor *
 exclude workspace
 recursive-exclude workspace *
-exclude tests
-recursive-exclude tests *

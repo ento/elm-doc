@@ -16,8 +16,10 @@ packages = [
   { include = "elm_doc", from = "src" }
 ]
 include = [
-  { include = 'assets.tar.gz' },
-  { include = "tests", format = "sdist" }
+  { path = "assets.tar.gz" },
+  { path = "tests", format = "sdist" },
+  { path = "tox.ini", format = "sdist" },
+  { path = ".travis.yml", format = "sdist" },
 ]
 
 [tool.poetry.dependencies]
