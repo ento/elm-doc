@@ -24,6 +24,8 @@ jobs:
   - python: "3.5"
   - python: "3.6"
   - python: "3.7"
+  - python: "3.7"
+    env: PYTEST_ADDOPTS=--elm-version=0.19.0
   - python: nightly
     dist: trusty
 
@@ -56,37 +58,7 @@ script:
 
       if [ ! -z "$(git status --porcelain)" ]; then
         git status
-
-        set -o xtrace
-
-        mkdir old-assets new-assets
-        (
-          cd new-assets
-          tar xf ../src/elm_doc/assets/assets.tar.gz
-          find . -type f -exec md5sum {} \; | sort > ../new-assets.txt
-        )
-        git checkout src
-        (
-          cd old-assets
-          tar xf ../src/elm_doc/assets/assets.tar.gz
-          find . -type f -exec md5sum {} \; | sort > ../old-assets.txt
-        )
-        diff -u old-assets.txt new-assets.txt
-
-        mkdir old-core new-core
-        (
-          cd new-core
-          tar xf ../tests/fixtures/0.19.0-elm-core.tar.gz
-          find . -type f -exec md5sum {} \; | sort > ../new-core.txt
-        )
-        git checkout tests
-        (
-          cd old-core
-          tar xf ../tests/fixtures/0.19.0-elm-core.tar.gz
-          find . -type f -exec md5sum {} \; | sort > ../old-core.txt
-        )
-        diff -u old-core.txt new-core.txt
-
+        python tests/dump_modified_tarballs.py
         echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
         echo See git status above.
         exit 1

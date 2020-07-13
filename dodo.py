@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def task_create_elm_core_fixture():
     workspace_path = Path(__file__).parent / 'workspace'
-    elm_versions = ['0.19.0']
+    elm_versions = ['0.19.0', '0.19.1']
     for elm_version in elm_versions:
         build_tarball_path = Path(__file__).parent / 'build' / 'elm-core-fixture-{}.tar.gz'.format(elm_version)
         dist_tarball_path = Path(str(conftest.elm_core_fixture_path(elm_version)))
@@ -36,13 +36,13 @@ def task_create_elm_core_fixture():
                 (_copy_if_tarball_changed, (build_tarball_path, dist_tarball_path)),
             ],
             'targets': [dist_tarball_path],
-            'file_dep': [workspace_path / 'elm.json'],
+            'file_dep': [workspace_path / elm_version / 'elm.json'],
         }
 
 
 def _create_elm_core_fixture(elm_version: str, tarball: str):
     tarball.parent.mkdir(parents=True, exist_ok=True)
-    workspace_path = Path(__file__).parent / 'workspace'
+    workspace_path = Path(__file__).parent / 'workspace' / elm_version
     # clear elm-stuff because something in there causes CORRUPT BINARY
     # if you run 'elm make' with a different ELM_HOME
     shutil.rmtree(str(workspace_path / elm_project.STUFF_DIRECTORY), ignore_errors=True)
@@ -59,7 +59,6 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
-            print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
         with _create_tarball(tarball) as tar:
@@ -67,7 +66,7 @@ def _create_elm_core_fixture(elm_version: str, tarball: str):
 
 
 def _tar_filter_without_registry(tarinfo):
-    if Path(tarinfo.name).name == 'versions.dat':
+    if Path(tarinfo.name).name in ('versions.dat', 'registry.dat'):
         return
     return tarinfo
 
@@ -197,12 +196,12 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
             )
         except subprocess.CalledProcessError as e:
             print('\nSTDOUT:\n' + e.stdout.decode('utf8'))
-            print('\nSTDERR:\n' + e.stderr.decode('utf8'))
             raise e
 
 # build docs for the workspace project
 
-workspace_path = Path(__file__).parent / 'workspace'
+default_elm_version = '0.19.1'
+workspace_path = Path(__file__).parent / 'workspace' / default_elm_version
 output_path = workspace_path / 'build' / 'docs'
 elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
 config = elm_project.ProjectConfig()

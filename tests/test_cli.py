@@ -1,5 +1,6 @@
 import os.path
 import json
+from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -8,6 +9,7 @@ from doit.runner import SUCCESS, FAILURE, ERROR
 
 from elm_doc import cli
 from elm_doc import catalog_tasks
+from elm_doc import elm_project
 
 
 @pytest.fixture
@@ -368,8 +370,11 @@ def test_cli_line_parser_error_is_reported_as_error(
         assert result.exit_code == ERROR
 
 
-def test_issue_55(tmpdir, runner, elm, fixture_path):
+def test_issue_55(tmpdir, runner, elm, elm_version, fixture_path):
     project_dir = fixture_path.join('issue-55')
+    project_elm_version = elm_project.from_path(Path(str(project_dir))).elm_version
+    if project_elm_version != elm_version:
+        pytest.skip('This test is intended for elm version {v}'.format(v=project_elm_version))
     with tmpdir.as_cwd():
         project_dir.copy(tmpdir)
         result = runner.invoke(cli.main, [
