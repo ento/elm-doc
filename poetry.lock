@@ -1,5 +1,5 @@
 [[package]]
-category = "main"
+category = "dev"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
 optional = false
@@ -9,7 +9,6 @@ version = "1.4.4"
 [[package]]
 category = "dev"
 description = "Atomic file writes."
-marker = "sys_platform == \"win32\""
 name = "atomicwrites"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -55,7 +54,6 @@ version = "0.42"
 
 [package.dependencies]
 pep517 = "*"
-setuptools = "*"
 toml = "*"
 
 [package.extras]
@@ -78,16 +76,26 @@ python-versions = ">=3.5"
 version = "1.5.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Cross-platform colored terminal text."
-marker = "platform_system == \"Windows\" or sys_platform == \"win32\""
 name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "0.4.3"
 
 [[package]]
-category = "main"
+category = "dev"
+description = "Code coverage measurement for Python"
+name = "coverage"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+version = "5.2"
+
+[package.extras]
+toml = ["toml"]
+
+[[package]]
+category = "dev"
 description = "Distribution utilities"
 name = "distlib"
 optional = false
@@ -104,11 +112,11 @@ version = "0.32.0"
 
 [package.dependencies]
 cloudpickle = "*"
-macfsevents = "*"
-pyinotify = "*"
+macfsevents = {version = "*", markers = "sys_platform == \"darwin\""}
+pyinotify = {version = "*", markers = "sys_platform == \"linux\""}
 
 [[package]]
-category = "main"
+category = "dev"
 description = "A platform independent file lock."
 name = "filelock"
 optional = false
@@ -124,9 +132,8 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.10"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Read metadata from Python packages"
-marker = "python_version < \"3.8\""
 name = "importlib-metadata"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
@@ -140,18 +147,15 @@ docs = ["sphinx", "rst.linker"]
 testing = ["packaging", "pep517", "importlib-resources (>=1.3)"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Read resources from Python packages"
-marker = "python_version < \"3.7\""
 name = "importlib-resources"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 version = "3.0.0"
 
 [package.dependencies]
-[package.dependencies.zipp]
-python = "<3.8"
-version = ">=0.4"
+zipp = {version = ">=0.4", markers = "python_version < \"3.8\""}
 
 [package.extras]
 docs = ["sphinx", "rst.linker", "jaraco.packaging"]
@@ -159,7 +163,6 @@ docs = ["sphinx", "rst.linker", "jaraco.packaging"]
 [[package]]
 category = "main"
 description = "Thread-based interface to file system observation primitives."
-marker = "sys_platform == \"darwin\""
 name = "macfsevents"
 optional = false
 python-versions = "*"
@@ -174,7 +177,7 @@ python-versions = ">=3.5"
 version = "8.4.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Core utilities for Python packages"
 name = "packaging"
 optional = false
@@ -196,7 +199,6 @@ version = "1.3.0"
 [[package]]
 category = "dev"
 description = "Object-oriented filesystem paths"
-marker = "python_version < \"3.6\""
 name = "pathlib2"
 optional = false
 python-versions = "*"
@@ -215,17 +217,11 @@ version = "0.8.2"
 
 [package.dependencies]
 toml = "*"
-
-[package.dependencies.importlib_metadata]
-python = "<3.8"
-version = "*"
-
-[package.dependencies.zipp]
-python = "<3.8"
-version = "*"
+importlib_metadata = {version = "*", markers = "python_version < \"3.8\""}
+zipp = {version = "*", markers = "python_version < \"3.8\""}
 
 [[package]]
-category = "main"
+category = "dev"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
@@ -233,15 +229,13 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.13.1"
 
 [package.dependencies]
-[package.dependencies.importlib-metadata]
-python = "<3.8"
-version = ">=0.12"
+importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
 
 [package.extras]
 dev = ["pre-commit", "tox"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -251,14 +245,13 @@ version = "1.9.0"
 [[package]]
 category = "main"
 description = "Linux filesystem events monitoring"
-marker = "sys_platform == \"linux\""
 name = "pyinotify"
 optional = false
 python-versions = "*"
 version = "0.9.6"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -274,26 +267,35 @@ python-versions = ">=3.5"
 version = "5.4.3"
 
 [package.dependencies]
-atomicwrites = ">=1.0"
 attrs = ">=17.4.0"
-colorama = "*"
 more-itertools = ">=4.0.0"
 packaging = "*"
 pluggy = ">=0.12,<1.0"
 py = ">=1.5.0"
 wcwidth = "*"
-
-[package.dependencies.importlib-metadata]
-python = "<3.8"
-version = ">=0.12"
-
-[package.dependencies.pathlib2]
-python = "<3.6"
-version = ">=2.2.0"
+atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
+pathlib2 = {version = ">=2.2.0", markers = "python_version < \"3.6\""}
 
 [package.extras]
 checkqa-mypy = ["mypy (v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
+
+[[package]]
+category = "dev"
+description = "Pytest plugin for measuring coverage."
+name = "pytest-cov"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+version = "2.10.0"
+
+[package.dependencies]
+coverage = ">=4.4"
+pytest = ">=4.6"
+
+[package.extras]
+testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
 category = "dev"
@@ -347,7 +349,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "1.15.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
 optional = false
@@ -355,7 +357,7 @@ python-versions = "*"
 version = "0.10.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "tox is a generic virtualenv management and test command line tool"
 name = "tox"
 optional = false
@@ -363,7 +365,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 version = "3.16.1"
 
 [package.dependencies]
-colorama = ">=0.4.1"
 filelock = ">=3.0.0"
 packaging = ">=14"
 pluggy = ">=0.12.0"
@@ -371,17 +372,15 @@ py = ">=1.4.17"
 six = ">=1.14.0"
 toml = ">=0.9.4"
 virtualenv = ">=16.0.0,<20.0.0 || >20.0.0,<20.0.1 || >20.0.1,<20.0.2 || >20.0.2,<20.0.3 || >20.0.3,<20.0.4 || >20.0.4,<20.0.5 || >20.0.5,<20.0.6 || >20.0.6,<20.0.7 || >20.0.7"
-
-[package.dependencies.importlib-metadata]
-python = "<3.8"
-version = ">=0.12,<2"
+colorama = {version = ">=0.4.1", markers = "platform_system == \"Windows\""}
+importlib-metadata = {version = ">=0.12,<2", markers = "python_version < \"3.8\""}
 
 [package.extras]
 docs = ["sphinx (>=2.0.0)", "towncrier (>=18.5.0)", "pygments-github-lexers (>=0.0.5)", "sphinxcontrib-autoprogram (>=0.1.5)"]
 testing = ["freezegun (>=0.3.11)", "pathlib2 (>=2.3.3)", "pytest (>=4.0.0)", "pytest-cov (>=2.5.1)", "pytest-mock (>=1.10.0)", "pytest-xdist (>=1.22.2)", "pytest-randomly (>=1.0.0)", "flaky (>=3.4.0)", "psutil (>=5.6.1)"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Use Python 3 venvs for Python 3 tox testenvs"
 name = "tox-venv"
 optional = false
@@ -390,14 +389,6 @@ version = "0.4.0"
 
 [package.dependencies]
 tox = ">=3.8.1"
-
-[[package]]
-category = "main"
-description = "Type Hints for Python"
-name = "typing"
-optional = false
-python-versions = "*"
-version = "3.7.4.1"
 
 [[package]]
 category = "main"
@@ -413,7 +404,7 @@ secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "pyOpenSSL (>=0
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Virtual Python Environment builder"
 name = "virtualenv"
 optional = false
@@ -425,14 +416,8 @@ appdirs = ">=1.4.3,<2"
 distlib = ">=0.3.1,<1"
 filelock = ">=3.0.0,<4"
 six = ">=1.9.0,<2"
-
-[package.dependencies.importlib-metadata]
-python = "<3.8"
-version = ">=0.12,<2"
-
-[package.dependencies.importlib-resources]
-python = "<3.7"
-version = ">=1.0"
+importlib-metadata = {version = ">=0.12,<2", markers = "python_version < \"3.8\""}
+importlib-resources = {version = ">=1.0", markers = "python_version < \"3.7\""}
 
 [package.extras]
 docs = ["sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=19.9.0rc1)", "proselint (>=0.10.2)"]
@@ -458,9 +443,8 @@ version = "0.34.2"
 test = ["pytest (>=3.0.0)", "pytest-cov"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-marker = "python_version < \"3.8\""
 name = "zipp"
 optional = false
 python-versions = ">=2.7"
@@ -471,7 +455,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "d5213be05b7cade8f3099319f236ea99aaa8ade76404b3bcce6c720aea4537e1"
+content-hash = "12ddb5ddd673e0f935db5e77022d95335ec0f52546095ef441ffb0cbf84fd2b9"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -510,6 +494,42 @@ cloudpickle = [
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
     {file = "colorama-0.4.3.tar.gz", hash = "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"},
+]
+coverage = [
+    {file = "coverage-5.2-cp27-cp27m-macosx_10_13_intel.whl", hash = "sha256:d9ad0a988ae20face62520785ec3595a5e64f35a21762a57d115dae0b8fb894a"},
+    {file = "coverage-5.2-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:4bb385a747e6ae8a65290b3df60d6c8a692a5599dc66c9fa3520e667886f2e10"},
+    {file = "coverage-5.2-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:9702e2cb1c6dec01fb8e1a64c015817c0800a6eca287552c47a5ee0ebddccf62"},
+    {file = "coverage-5.2-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:42fa45a29f1059eda4d3c7b509589cc0343cd6bbf083d6118216830cd1a51613"},
+    {file = "coverage-5.2-cp27-cp27m-win32.whl", hash = "sha256:41d88736c42f4a22c494c32cc48a05828236e37c991bd9760f8923415e3169e4"},
+    {file = "coverage-5.2-cp27-cp27m-win_amd64.whl", hash = "sha256:bbb387811f7a18bdc61a2ea3d102be0c7e239b0db9c83be7bfa50f095db5b92a"},
+    {file = "coverage-5.2-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:3740b796015b889e46c260ff18b84683fa2e30f0f75a171fb10d2bf9fb91fc70"},
+    {file = "coverage-5.2-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:ebf2431b2d457ae5217f3a1179533c456f3272ded16f8ed0b32961a6d90e38ee"},
+    {file = "coverage-5.2-cp35-cp35m-macosx_10_13_x86_64.whl", hash = "sha256:d54d7ea74cc00482a2410d63bf10aa34ebe1c49ac50779652106c867f9986d6b"},
+    {file = "coverage-5.2-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:87bdc8135b8ee739840eee19b184804e5d57f518578ffc797f5afa2c3c297913"},
+    {file = "coverage-5.2-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:ed9a21502e9223f563e071759f769c3d6a2e1ba5328c31e86830368e8d78bc9c"},
+    {file = "coverage-5.2-cp35-cp35m-win32.whl", hash = "sha256:509294f3e76d3f26b35083973fbc952e01e1727656d979b11182f273f08aa80b"},
+    {file = "coverage-5.2-cp35-cp35m-win_amd64.whl", hash = "sha256:ca63dae130a2e788f2b249200f01d7fa240f24da0596501d387a50e57aa7075e"},
+    {file = "coverage-5.2-cp36-cp36m-macosx_10_13_x86_64.whl", hash = "sha256:5c74c5b6045969b07c9fb36b665c9cac84d6c174a809fc1b21bdc06c7836d9a0"},
+    {file = "coverage-5.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:c32aa13cc3fe86b0f744dfe35a7f879ee33ac0a560684fef0f3e1580352b818f"},
+    {file = "coverage-5.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:1e58fca3d9ec1a423f1b7f2aa34af4f733cbfa9020c8fe39ca451b6071237405"},
+    {file = "coverage-5.2-cp36-cp36m-win32.whl", hash = "sha256:3b2c34690f613525672697910894b60d15800ac7e779fbd0fccf532486c1ba40"},
+    {file = "coverage-5.2-cp36-cp36m-win_amd64.whl", hash = "sha256:a4d511012beb967a39580ba7d2549edf1e6865a33e5fe51e4dce550522b3ac0e"},
+    {file = "coverage-5.2-cp37-cp37m-macosx_10_13_x86_64.whl", hash = "sha256:32ecee61a43be509b91a526819717d5e5650e009a8d5eda8631a59c721d5f3b6"},
+    {file = "coverage-5.2-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:6f91b4492c5cde83bfe462f5b2b997cdf96a138f7c58b1140f05de5751623cf1"},
+    {file = "coverage-5.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:bfcc811883699ed49afc58b1ed9f80428a18eb9166422bce3c31a53dba00fd1d"},
+    {file = "coverage-5.2-cp37-cp37m-win32.whl", hash = "sha256:60a3d36297b65c7f78329b80120f72947140f45b5c7a017ea730f9112b40f2ec"},
+    {file = "coverage-5.2-cp37-cp37m-win_amd64.whl", hash = "sha256:12eaccd86d9a373aea59869bc9cfa0ab6ba8b1477752110cb4c10d165474f703"},
+    {file = "coverage-5.2-cp38-cp38-macosx_10_13_x86_64.whl", hash = "sha256:d82db1b9a92cb5c67661ca6616bdca6ff931deceebb98eecbd328812dab52032"},
+    {file = "coverage-5.2-cp38-cp38-manylinux1_i686.whl", hash = "sha256:214eb2110217f2636a9329bc766507ab71a3a06a8ea30cdeebb47c24dce5972d"},
+    {file = "coverage-5.2-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:8a3decd12e7934d0254939e2bf434bf04a5890c5bf91a982685021786a08087e"},
+    {file = "coverage-5.2-cp38-cp38-win32.whl", hash = "sha256:1dcebae667b73fd4aa69237e6afb39abc2f27520f2358590c1b13dd90e32abe7"},
+    {file = "coverage-5.2-cp38-cp38-win_amd64.whl", hash = "sha256:f50632ef2d749f541ca8e6c07c9928a37f87505ce3a9f20c8446ad310f1aa87b"},
+    {file = "coverage-5.2-cp39-cp39-macosx_10_13_x86_64.whl", hash = "sha256:7403675df5e27745571aba1c957c7da2dacb537c21e14007ec3a417bf31f7f3d"},
+    {file = "coverage-5.2-cp39-cp39-manylinux1_i686.whl", hash = "sha256:0fc4e0d91350d6f43ef6a61f64a48e917637e1dcfcba4b4b7d543c628ef82c2d"},
+    {file = "coverage-5.2-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:25fe74b5b2f1b4abb11e103bb7984daca8f8292683957d0738cd692f6a7cc64c"},
+    {file = "coverage-5.2-cp39-cp39-win32.whl", hash = "sha256:d67599521dff98ec8c34cd9652cbcfe16ed076a2209625fca9dc7419b6370e5c"},
+    {file = "coverage-5.2-cp39-cp39-win_amd64.whl", hash = "sha256:10f2a618a6e75adf64329f828a6a5b40244c1c50f5ef4ce4109e904e69c71bd2"},
+    {file = "coverage-5.2.tar.gz", hash = "sha256:1874bdc943654ba46d28f179c1846f5710eda3aeb265ff029e0ac2b52daae404"},
 ]
 distlib = [
     {file = "distlib-0.3.1-py2.py3-none-any.whl", hash = "sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb"},
@@ -576,6 +596,10 @@ pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
     {file = "pytest-5.4.3.tar.gz", hash = "sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8"},
 ]
+pytest-cov = [
+    {file = "pytest-cov-2.10.0.tar.gz", hash = "sha256:1a629dc9f48e53512fcbfda6b07de490c374b0c83c55ff7a1720b3fccff0ac87"},
+    {file = "pytest_cov-2.10.0-py2.py3-none-any.whl", hash = "sha256:6e6d18092dce6fad667cd7020deed816f858ad3b49d5b5e2b1cc1c97a4dba65c"},
+]
 pytest-mock = [
     {file = "pytest-mock-3.2.0.tar.gz", hash = "sha256:7122d55505d5ed5a6f3df940ad174b3f606ecae5e9bc379569cdcbd4cd9d2b83"},
     {file = "pytest_mock-3.2.0-py3-none-any.whl", hash = "sha256:5564c7cd2569b603f8451ec77928083054d8896046830ca763ed68f4112d17c7"},
@@ -602,11 +626,6 @@ tox = [
 tox-venv = [
     {file = "tox-venv-0.4.0.tar.gz", hash = "sha256:ea29dc7b21a03951e1e2bd7f3474bbf315657c5454224a5674b2896e9bbb795c"},
     {file = "tox_venv-0.4.0-py2.py3-none-any.whl", hash = "sha256:22c2aba71a991d4adf6902253fa07b3a241d28e4e901cbc9dc86ee8eeaa8d4b4"},
-]
-typing = [
-    {file = "typing-3.7.4.1-py2-none-any.whl", hash = "sha256:c8cabb5ab8945cd2f54917be357d134db9cc1eb039e59d1606dc1e60cb1d9d36"},
-    {file = "typing-3.7.4.1-py3-none-any.whl", hash = "sha256:f38d83c5a7a7086543a0f649564d661859c5146a85775ab90c0d2f93ffaa9714"},
-    {file = "typing-3.7.4.1.tar.gz", hash = "sha256:91dfe6f3f706ee8cc32d38edbbf304e9b7583fb37108fef38229617f8b3eba23"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.9-py2.py3-none-any.whl", hash = "sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115"},
