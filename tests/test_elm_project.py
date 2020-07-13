@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from elm_doc import elm_project
 
 
@@ -190,3 +192,18 @@ def _glob_project_modules(*args, **kwargs):
 
 def _resolve_paths(tmpdir, *paths):
     return [str(tmpdir.join(path)) for path in paths]
+
+
+def test_elm_application_iter_dependencies_throws_when_no_packages_dir(tmpdir, mocker):
+    mocker.patch('elm_doc.elm_platform.ELM_HOME', Path(str(tmpdir)))
+    app = elm_project.ElmApplication(
+        path=Path(),
+        source_directories=[],
+        elm_version='',
+        direct_dependencies={},
+        indirect_dependencies={},
+        direct_test_dependencies={},
+        indirect_test_dependencies={},
+    )
+    with pytest.raises(RuntimeError):
+        list(app.iter_direct_dependencies())
