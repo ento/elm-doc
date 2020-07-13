@@ -19,8 +19,6 @@ python:
 jobs:
   include:
   - python: "3.5"
-    env: CHECK_INSTALL=yes
-  - python: "3.5"
   - python: "3.6"
   - python: "3.7"
   - python: "3.8"
@@ -48,26 +46,26 @@ script:
   - |
     set -o errexit
 
-    if [[ "$CHECK_INSTALL" == 'yes' ]]; then
-      pip install .
-      python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
-      # diagnostic info
-      pip list
-      python -c 'import elm_doc; print(elm_doc.__file__)'
-      elm-doc --help
-    else
-      poetry run doit --verbosity 2
+    poetry run doit --verbosity 2
 
-      if [ ! -z "$(git status --porcelain)" ]; then
-        git status
-        python tests/dump_modified_tarballs.py
-        echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
-        echo See git status above.
-        exit 1
-      fi
-
-      tox -v
+    if [ ! -z "$(git status --porcelain)" ]; then
+      git status
+      python tests/dump_modified_tarballs.py
+      echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
+      echo See git status above.
+      exit 1
     fi
+
+    # run tests
+    tox -v
+
+    # check installability
+    pip install .
+    python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
+    # print diagnostic info
+    pip list
+    python -c 'import elm_doc; print(elm_doc.__file__)'
+    elm-doc --help
 
     set +o errexit
 
