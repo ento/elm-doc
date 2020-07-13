@@ -197,7 +197,7 @@ class ElmApplication(ElmProject):
         else:
             raise RuntimeError(
                 ('No directory that starts with "package" in {}. '
-                 'Wiping the directory may and retrying may fix this, '
+                 'Wiping the directory and retrying may fix this, '
                  'or it may be that this version of Elm is not supported by elm-doc yet.').format(
                      elm_version_dir))
 
