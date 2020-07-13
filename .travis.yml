@@ -33,7 +33,7 @@ before_install:
   - pip install -U pip setuptools
 
 install:
-  - pip install poetry tox-travis
+  - pip install poetry==1.1.0a3 tox-travis
   - poetry --version
   - poetry install --no-root
 
