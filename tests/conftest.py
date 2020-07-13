@@ -34,6 +34,10 @@ def elm_core_fixture_path(elm_version):
 
 # Helper function for use in tests
 def install_elm(to: Path, elm_version: str) -> Path:
+    if elm_version == '0.19.0':
+        # use a version without graceful-fs, which can cause issues like
+        # https://github.com/nodejs/node/issues/32799
+        elm_version = '0.19.0-no-deps'
     npm_package = {
         'dependencies': {
             'elm': _get_npm_version_range(elm_version)
