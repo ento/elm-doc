@@ -50,8 +50,8 @@ script:
 
     if [[ "$CHECK_INSTALL" == 'yes' ]]; then
       pip install .
-      elm-doc --help
       python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
+      elm-doc --help
     else
       poetry run doit --verbosity 2
 
