@@ -13,11 +13,11 @@ classifiers = [
   "Topic :: Software Development :: Documentation"
 ]
 packages = [
-  { include = "elm_doc", from = "src" },
-  { include = "tests", format = "sdist" }
+  { include = "elm_doc", from = "src" }
 ]
 include = [
-  'assets.tar.gz'
+  { include = 'assets.tar.gz' },
+  { include = "tests", format = "sdist" }
 ]
 
 [tool.poetry.dependencies]
