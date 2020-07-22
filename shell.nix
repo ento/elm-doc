@@ -38,13 +38,8 @@ let
           rev = "c264bc0"; # includes #2664
           sha256 = "008qx6c8qgwkn5j95vz5dwnk9926i2ia4irs3gn4kcwnl4m4crz4";
         };
-        # appears to be broken as of 1.1.0a3
-        disabledTests = old.disabledTests ++ [
-          "test_execute_executes_a_batch_of_operations"
-          "test_create_venv_tries_to_find_a_compatible_python_executable_using_specific_ones"
-          "test_builder_installs_proper_files_for_standard_packages"
-          "test_create_poetry"
-        ];
+        # checks depend on httpretty, which doesn't support 3.5
+        doCheck = false;
         propagatedBuildInputs =
           old.propagatedBuildInputs
           ++ (with self; [ poetry-core virtualenv ]
