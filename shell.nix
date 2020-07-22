@@ -3,6 +3,13 @@ let
   pkgs = import <nixpkgs> {};
   python = pkgs."python${pythonVersion}".override {
     packageOverrides = self: super: {
+      clikit = super.clikit.overridePythonAttrs (old: rec {
+        # mark crashtest as python = ^3.6
+        propagatedBuildInputs = with self; [
+          pylev pastel
+        ] ++ pkgs.lib.optionals (self.pythonAtLeast "3.6") [ crashtest ]
+        ++ pkgs.lib.optionals self.isPy27 [ typing enum34 ];
+      });
       distlib = super.distlib.overridePythonAttrs (old: rec {
         version = "0.3.1";
         src = self.fetchPypi {
@@ -27,7 +34,10 @@ let
           "test_builder_installs_proper_files_for_standard_packages"
           "test_create_poetry"
         ];
-        propagatedBuildInputs = old.propagatedBuildInputs ++ (with self; [ poetry-core virtualenv ]);
+        propagatedBuildInputs =
+          old.propagatedBuildInputs
+          ++ (with self; [ poetry-core virtualenv ]
+                         ++ pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ] );
         postPatch = ''
           substituteInPlace pyproject.toml \
            --replace "requests-toolbelt = \"^0.8.0\"" "requests-toolbelt = \"^0.9.1\"" \
