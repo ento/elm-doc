@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "elm-doc"
+version = "1.0.0b4"
+description = "Generate static documentation for your Elm application"
+license = "BSD-3-Clause"
+authors = ["ento <ento+github@i.pearlwaffles.xyz>"]
+readme = "README.md"
+repository = "https://github.com/ento/elm-doc"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Documentation"
+]
+packages = [
+  { include = "elm_doc", from = "src" }
+]
+include = [
+  { path = "assets.tar.gz" },
+  { path = "tests", format = "sdist" },
+  { path = "tox.ini", format = "sdist" },
+  { path = ".travis.yml", format = "sdist" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.5"
+attrs = "^19.3.0"
+click = "^7.1.2"
+doit = "^0.32.0"
+parsy = "^1.3.0"
+requests = "^2.24.0"
+retrying = "^1.3.3"
+
+[tool.poetry.dev-dependencies]
+check-manifest = "^0.42"
+pytest = "^5.4.3"
+pytest-cov = "^2.10.0"
+pytest-mock = "^3.2.0"
+tox = "^3.16.1"
+wheel = "^0.34.2"
+codecov = "^2.1.8"
+coverage = "^5.2"
+virtualenv = "^20.0.27"
+
+[tool.poetry.scripts]
+elm-doc = "elm_doc.cli:main"
+
+[build-system]
+# should be in sync with shell.nix
+requires = ["poetry-core@https://github.com/python-poetry/poetry-core/archive/ada9bf8.tar.gz"]
+build-backend = "poetry.core.masonry.api"

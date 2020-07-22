@@ -1,0 +1,43 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["35", "36", "37", "38"]
+        pytest_addopts: [""]
+        include:
+        - python: "38"
+          tox_extra_envs: ",flake8,manifest"
+          report_coverage: true
+        - python: "38"
+          pytest_addopts: "--elm-version=0.19.0"
+      fail-fast: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        lfs: true
+        submodules: true
+    - name: Checkout LFS objects
+      run: git lfs checkout
+    - name: Install Nix
+      uses: cachix/install-nix-action@v8
+    - name: Configure Cachix
+      uses: cachix/cachix-action@v6
+      with:
+        name: '${{ secrets.CACHIX_CACHE_NAME }}'
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    - name: Build
+      run: nix-shell --argstr pythonVersion "$PYTHON_VERSION" --run "./ci.sh"
+      env:
+        PYTHON_VERSION: "${{matrix.python}}"
+        PYTEST_ADDOPTS: "${{matrix.pytest_addopts}}"
+        TOX_EXTRA_ENVS: "${{matrix.tox_extra_envs}}"
+        REPORT_COVERAGE: "${{matrix.report_coverage}}"
+    - name: Codecov
+      uses: codecov/codecov-action@v1
+      if: success() && matrix.report_coverage
+      with:
+        fail_ci_if_error: true

@@ -36,7 +36,7 @@ def elm_core_fixture_path(elm_version):
 def install_elm(to: Path, elm_version: str) -> Path:
     npm_package = {
         'dependencies': {
-            'elm': _get_npm_version_range(elm_version)
+            'elm': _get_npm_version(elm_version)
         }
     }
     with open(str(to / 'package.json'), 'w') as f:
@@ -45,8 +45,12 @@ def install_elm(to: Path, elm_version: str) -> Path:
     return to / 'node_modules' / '.bin' / 'elm'
 
 
-def _get_npm_version_range(elm_version: str) -> str:
+def _get_npm_version(elm_version: str) -> str:
     if _is_exact(elm_version):
+        if elm_version == '0.19.0':
+            # use a version without graceful-fs, which can cause issues like
+            # https://github.com/nodejs/node/issues/32799
+            return '{v}-no-deps'.format(v=elm_version)
         return 'latest-{v}'.format(v=elm_version)
     min_version, gt_op, _, lt_op, max_version = elm_version.split(' ')
     return '{gt_op}{min_version} {lt_op}{max_version}'.format(

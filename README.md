@@ -118,9 +118,10 @@ This is the rough build process:
 
 Running tests:
 
-    $ pipenv install --dev
-    $ pipenv run tox -e py35,...
+    $ nix-shell
+    $ poetry install
+    $ poetry run tox -e py35,...
 
 Updating the prebuilt frontend code and test fixture:
 
-    $ pipenv run doit
+    $ poetry run doit
