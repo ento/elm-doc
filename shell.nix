@@ -19,6 +19,17 @@ let
           sha256 = "1wdzv7fsjhrkhh1wfkarlhcwa8m00mgcpdsvknmf2qy8f9l13xpd";
         };
       });
+      keyring =
+        if self.pythonAtLeast "3.6"
+        then super.keyring
+        else super.keyring.overridePythonAttrs (old: rec {
+          version = "20.0.1";
+          src = self.fetchPypi {
+            inherit (old) pname;
+            inherit version;
+            sha256 = "963bfa7f090269d30bdc5e25589e5fd9dad2cf2a7c6f176a7f2386910e5d0d8d";
+          };
+        });
       poetry = super.poetry.overridePythonAttrs (old: rec {
         version = "1.1.0a4-c264bc0";
         src = pkgs.fetchFromGitHub {
@@ -44,7 +55,6 @@ let
            --replace 'importlib-metadata = {version = "^1.6.0", python = "<3.8"}' \
              'importlib-metadata = {version = ">=1.3,<2", python = "<3.8"}' \
            --replace "tomlkit = \"^0.5.11\"" "tomlkit = \"^0.6.0\"" \
-           --replace "version = \"^20.0.1\", python = \"~3.5\"" "version = \"^21.0.0\", python = \"^3.5\""
         '';
       });
       poetry-core = self.buildPythonPackage rec {
