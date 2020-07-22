@@ -1,7 +1,9 @@
-include *.txt *.py LICENSE README.md tox.ini .travis.yml
+include *.txt *.py LICENSE README.md tox.ini
 include src/elm_doc/assets/assets.tar.gz
 
+exclude .github
 exclude .gitmodules
+exclude ci.sh
 exclude dependencies.yml
 exclude dodo.py
 exclude setup.py
