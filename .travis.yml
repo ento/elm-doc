@@ -1,77 +1,41 @@
-os:
-  - linux
-
 cache:
   directories:
-    - $PIP_CACHE_DIR
-    - $POETRY_CACHE_DIR
-    - $HOME/.yarn-cache
+  - $PIP_CACHE_DIR
+  - $POETRY_CACHE_DIR
+  - $HOME/nix.store
+
+language: nix
 
 env:
   global:
-    - PIP_CACHE_DIR=$HOME/.cache/pip
-    - POETRY_CACHE_DIR=$HOME/.cache/pypoetry/cache
-
-language: python
-
-python:
-
-jobs:
-  include:
-  - python: "3.5"
-  - python: "3.6"
-  - python: "3.7"
-  - python: "3.8"
-  - python: "3.8"
-    env: PYTEST_ADDOPTS=--elm-version=0.19.0
-  - python: nightly
-    dist: trusty
+  - PIP_CACHE_DIR=$HOME/.cache/pip
+  - POETRY_CACHE_DIR=$HOME/.cache/pypoetry/cache
+  jobs:
+  - PYTHON_VERSION="35"
+  - PYTHON_VERSION="36"
+  - PYTHON_VERSION="37"
+  - PYTHON_VERSION="38"
+  - PYTHON_VERSION="38" PYTEST_ADDOPTS=--elm-version=0.19.0
 
 before_install:
-  - pip --version
-  - pip install codecov
-  - pip install -U pip setuptools
-
-install:
-  - pip install poetry==1.1.0a3 tox-travis
-  - poetry --version
-  - poetry install --no-root
-
-before_script:
-  - git lfs version
-  - git lfs pull
-  - find . -iname '*.tar.gz'
+- sudo mkdir -p /etc/nix
+- echo "substituters = https://cache.nixos.org/ file://$HOME/nix.store" | sudo tee -a /etc/nix/nix.conf > /dev/null
+- echo 'require-sigs = false' | sudo tee -a /etc/nix/nix.conf > /dev/null
+- git lfs version
+- git lfs pull
+- find . -iname '*.tar.gz'
 
 script:
-  - |
-    set -o errexit
+- nix-shell --argstr pythonVersion "${PYTHON_VERSION}" --run "./ci.sh"
 
-    poetry run doit --verbosity 2
-
-    if [ ! -z "$(git status --porcelain)" ]; then
-      git status
-      python tests/dump_modified_tarballs.py
-      echo Tasks in dodo.py created files untracked by git or modified files tracked by git.
-      echo See git status above.
-      exit 1
-    fi
-
-    # run tests
-    tox -v
-
-    # check installability
-    pip install .
-    python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
-    # print diagnostic info
-    pip list
-    python -c 'import elm_doc; print(elm_doc.__file__)'
-    elm-doc --help
-
-    set +o errexit
+before_cache:
+- mkdir -p "$HOME/nix.store"
+- nix copy --to "file://$HOME/nix.store" -f shell.nix buildInputs
+- ls "$HOME/nix.store"
 
 after_success:
-  - tox -e coverage-report
-  - codecov
+- nix-shell --argstr pythonVersion "${PYTHON_VERSION}" --run "tox -e coverage-report"
+- bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email: false
