@@ -392,17 +392,6 @@ docs = ["sphinx (>=2.0.0)", "towncrier (>=18.5.0)", "pygments-github-lexers (>=0
 testing = ["freezegun (>=0.3.11)", "pathlib2 (>=2.3.3)", "pytest (>=4.0.0)", "pytest-cov (>=2.5.1)", "pytest-mock (>=1.10.0)", "pytest-xdist (>=1.22.2)", "pytest-randomly (>=1.0.0)", "flaky (>=3.4.0)", "psutil (>=5.6.1)"]
 
 [[package]]
-category = "dev"
-description = "Use Python 3 venvs for Python 3 tox testenvs"
-name = "tox-venv"
-optional = false
-python-versions = "*"
-version = "0.4.0"
-
-[package.dependencies]
-tox = ">=3.8.1"
-
-[[package]]
 category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
@@ -467,7 +456,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "af7042c080a43933b859eb239236a0c68d467a3e010eba20d377f06f811a1826"
+content-hash = "6cdeeb99abcc355da400837e907349c4391394c10258aff4142ba90642b7df39"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -639,10 +628,6 @@ toml = [
 tox = [
     {file = "tox-3.17.1-py2.py3-none-any.whl", hash = "sha256:cf130909a224515f6c894023150ccc860c4cf5ecad64f583b9d43ed1aa7e5da8"},
     {file = "tox-3.17.1.tar.gz", hash = "sha256:5968c07b3aeea715ac2fe723a912e0b6a0c53bebad24fc37eb559b7497f217fa"},
-]
-tox-venv = [
-    {file = "tox-venv-0.4.0.tar.gz", hash = "sha256:ea29dc7b21a03951e1e2bd7f3474bbf315657c5454224a5674b2896e9bbb795c"},
-    {file = "tox_venv-0.4.0-py2.py3-none-any.whl", hash = "sha256:22c2aba71a991d4adf6902253fa07b3a241d28e4e901cbc9dc86ee8eeaa8d4b4"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.10-py2.py3-none-any.whl", hash = "sha256:e7983572181f5e1522d9c98453462384ee92a0be7fac5f1413a1e35c56cc0461"},
