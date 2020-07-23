@@ -1,13 +1,12 @@
 '''
 '''
-from typing import Optional
 from pathlib import Path
 
 from doit import create_after
 
 from elm_doc import elm_project
 from elm_doc import tasks
-from elm_doc.run_config import RunConfig, Build, Validate
+from elm_doc.run_config import RunConfig, Build
 
 
 def make_task_loader(

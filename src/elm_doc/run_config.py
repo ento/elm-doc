@@ -8,7 +8,8 @@ class RunConfig:
 
 
 @attr.s
-class Validate(RunConfig): pass
+class Validate(RunConfig):
+    pass
 
 
 @attr.s

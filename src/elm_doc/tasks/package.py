@@ -29,7 +29,6 @@ class actions(Namespace):
         if package_file.is_file():
             shutil.copy(str(package_file), str(output_path))
 
-
     def copy_package_docs_json(package: ElmPackage, output_path: Path):
         source = package.path / package.DOCS_FILENAME
         shutil.copy(str(source), str(output_path))

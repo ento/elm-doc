@@ -1,5 +1,8 @@
 from . import assets
 from . import catalog
+from . import html
 from . import package
 from . import project
-from . import html
+
+
+__all__ = ['assets', 'catalog', 'html', 'package', 'project']

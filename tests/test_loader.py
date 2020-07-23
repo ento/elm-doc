@@ -98,7 +98,6 @@ def test_create_tasks_project_modules_and_dependencies(
 
 def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir)
-    output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
         result = _create_tasks(Path('.'), ProjectConfig(), Validate(None, None))
 
