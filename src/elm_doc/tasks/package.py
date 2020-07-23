@@ -5,6 +5,7 @@ import json
 import shutil
 
 from doit.tools import create_folder, config_changed
+from requests import Session
 
 from elm_doc.elm_project import ElmPackage, ModuleName
 from elm_doc.run_config import Build
@@ -53,7 +54,7 @@ def _package_task_name(package):
     return '{}/{}'.format(package.name, package.version)
 
 
-def create_dependency_tasks(package: ElmPackage, run_config: Build):
+def create_dependency_tasks(session: Session, package: ElmPackage, run_config: Build):
     task_name = _package_task_name(package)
     package_modules = package.sorted_exposed_modules()
     package_output_path = package_docs_root(run_config.output_path, package)
@@ -70,11 +71,12 @@ def create_dependency_tasks(package: ElmPackage, run_config: Build):
     }
 
     yield from create_package_page_tasks(
-        Context.Dependency, package, package_modules, run_config)
+        Context.Dependency, session, package, package_modules, run_config)
 
 
 def create_package_page_tasks(
         context: Context,
+        session: Session,
         package: ElmPackage,
         package_modules: List[ModuleName],
         run_config: Build):

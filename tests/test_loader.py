@@ -21,7 +21,7 @@ def test_dependencies_task_loader_creates_matches_actual_basenames(
 
         # actual
         deps_creator = loader.make_dependencies_task_loader(
-            project, ProjectConfig(), output_path)
+            None, project, ProjectConfig(), output_path)
         # note: relies on doit internals
         delayed_task_creates = set(deps_creator.doit_create_after.creates)
         assert delayed_task_creates == set(result_basenames['task_dependencies'])

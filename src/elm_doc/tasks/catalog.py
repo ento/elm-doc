@@ -3,11 +3,10 @@ from pathlib import Path
 import json
 
 import attr
-import requests
-from retrying import retry
+from requests import Session
 from doit.tools import config_changed
 
-from elm_doc.elm_project import ElmPackage, ExactVersion
+from elm_doc.elm_project import ElmPackage, ExactVersion, fetch_releases
 from elm_doc.run_config import Build
 from elm_doc.tasks import assets as assets_tasks
 from elm_doc.tasks import html as html_tasks
@@ -24,22 +23,14 @@ popular_packages = [
 ]
 
 
-def missing_popular_packages(package_names: List[str]) -> Iterator[Tuple[str, ExactVersion]]:
+def missing_popular_packages(
+        session: Session,
+        package_names: List[str]) -> Iterator[Tuple[str, ExactVersion]]:
     missing_names = set(popular_packages) - set(package_names)
     for missing_name in missing_names:
-        latest_version = _fetch_latest_version(missing_name)
+        releases = fetch_releases(session, missing_name)
+        latest_version = sorted(releases.keys())[-1]
         yield (missing_name, latest_version)
-
-
-@retry(
-    retry_on_exception=lambda e: isinstance(e, requests.RequestException),
-    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
-    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
-    stop_max_attempt_number=10)
-def _fetch_latest_version(package_name: str) -> ExactVersion:
-    releases_url = 'https://package.elm-lang.org/packages/{}/releases.json'.format(package_name)
-    releases = requests.get(releases_url).json()
-    return sorted(releases.keys())[-1]
 
 
 @attr.s

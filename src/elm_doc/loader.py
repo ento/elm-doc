@@ -3,6 +3,8 @@
 from pathlib import Path
 
 from doit import create_after
+import requests
+from cachecontrol import CacheControl
 
 from elm_doc import elm_project
 from elm_doc import tasks
@@ -13,10 +15,11 @@ def make_task_loader(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
         run_config: RunConfig):
+    session = CacheControl(requests.Session())
     project = elm_project.from_path(project_path)
     if isinstance(run_config, Build):
         project.add_direct_dependencies(
-            tasks.catalog.missing_popular_packages(list(project.direct_dependency_names())))
+            tasks.catalog.missing_popular_packages(session, list(project.direct_dependency_names())))
 
     if run_config.build_path is None:
         run_config.build_path = project_path / '.elm-doc'
@@ -24,27 +27,29 @@ def make_task_loader(
     task_loader = {}
 
     task_loader['task_main_project'] = make_main_project_task_loader(
-        project, project_config, run_config)
+        session, project, project_config, run_config)
 
     if isinstance(run_config, Build):
         task_loader['task_dependencies'] = make_dependencies_task_loader(
-            project, project_config, run_config)
+            session, project, project_config, run_config)
         task_loader['task_assets'] = make_assets_task_loader(run_config)
 
     return task_loader
 
 
 def make_main_project_task_loader(
+        session: requests.Session,
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
         run_config: RunConfig):
     def task_main_project():
         yield from tasks.project.create_main_project_tasks(
-            project, project_config, run_config)
+            session, project, project_config, run_config)
     return task_main_project
 
 
 def make_dependencies_task_loader(
+        session: requests.Session,
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
         run_config: Build):
@@ -62,7 +67,7 @@ def make_dependencies_task_loader(
 
         for package in deps:
             yield from tasks.package.create_dependency_tasks(
-                package, run_config)
+                session, package, run_config)
 
         yield from tasks.catalog.create_catalog_tasks(
             all_packages, run_config)

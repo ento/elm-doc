@@ -5,6 +5,7 @@ from collections import ChainMap
 import json
 
 from click import BadParameter
+from requests import Session
 from doit.action import CmdAction
 from doit.tools import create_folder, config_changed
 
@@ -60,6 +61,7 @@ class actions(Namespace):
 
 
 def create_main_project_tasks(
+        session: Session,
         project: ElmProject,
         project_config: ProjectConfig,
         run_config: RunConfig):
@@ -118,6 +120,7 @@ def create_main_project_tasks(
 
     yield from package_tasks.create_package_page_tasks(
         package_tasks.Context.Project,
+        session,
         project_as_package,
         [module.name for module in project_modules],
         run_config)
