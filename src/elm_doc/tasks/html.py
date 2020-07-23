@@ -5,6 +5,8 @@ from pathlib import Path
 from elm_doc.utils import Namespace
 
 
+# Note: title tag is omitted, as the Elm app sets the title after
+# it's initialized.
 PAGE_TEMPLATE = '''
 <!DOCTYPE html>
 <html>
