@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from elm_doc import elm_project
-from elm_doc import catalog_tasks
+from elm_doc.tasks import catalog as catalog_tasks
 
 
 def test_fixture_includes_popular_packages(elm_version):

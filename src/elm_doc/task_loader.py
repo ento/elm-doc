@@ -6,10 +6,7 @@ from pathlib import Path
 from doit import create_after
 
 from elm_doc import elm_project
-from elm_doc import project_tasks
-from elm_doc import package_tasks
-from elm_doc import asset_tasks
-from elm_doc import catalog_tasks
+from elm_doc import tasks
 
 
 def make_task_loader(
@@ -23,7 +20,7 @@ def make_task_loader(
     project = elm_project.from_path(project_path)
     if not validate:
         project.add_direct_dependencies(
-            catalog_tasks.missing_popular_packages(list(project.direct_dependency_names())))
+            tasks.catalog.missing_popular_packages(list(project.direct_dependency_names())))
 
     if build_path is None:
         build_path = project_path / '.elm-doc'
@@ -63,7 +60,7 @@ def make_main_project_task_loader(
         mount_point: str = '',
         validate: bool = False):
     def task_main_project():
-        yield from project_tasks.create_main_project_tasks(
+        yield from tasks.project.create_main_project_tasks(
             project,
             project_config,
             elm_path,
@@ -92,10 +89,10 @@ def make_dependencies_task_loader(
         all_packages = [project.as_package(project_config).without_license()] + deps
 
         for package in deps:
-            yield from package_tasks.create_dependency_tasks(
+            yield from tasks.package.create_dependency_tasks(
                 output_path, package, mount_point)
 
-        yield from catalog_tasks.create_catalog_tasks(
+        yield from tasks.catalog.create_catalog_tasks(
             all_packages, output_path, mount_point=mount_point)
 
     return task_dependencies
@@ -105,8 +102,8 @@ def make_assets_task_loader(output_path: Optional[Path] = None):
     def task_assets():
         yield {
             'basename': 'assets',
-            'actions': [(asset_tasks.extract_assets, (output_path,))],
-            'targets': [output_path / path for path in asset_tasks.bundled_assets],
-            'file_dep': [asset_tasks.tarball]
+            'actions': [(tasks.assets.extract_assets, (output_path,))],
+            'targets': [output_path / path for path in tasks.assets.bundled_assets],
+            'file_dep': [tasks.assets.tarball]
         }
     return task_assets

@@ -82,7 +82,7 @@ def module_fixture_path(elm_version):
 
 @pytest.fixture
 def mock_popular_packages(mocker):
-    mocker.patch('elm_doc.catalog_tasks.missing_popular_packages', return_value=[])
+    mocker.patch('elm_doc.tasks.catalog.missing_popular_packages', return_value=[])
 
 
 @pytest.fixture(scope='session')

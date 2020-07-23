@@ -11,7 +11,7 @@ from doit.tools import create_folder, config_changed
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
 from elm_doc import elm_parser
-from elm_doc import package_tasks
+from elm_doc.tasks import package as package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
 
 

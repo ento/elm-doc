@@ -6,7 +6,7 @@ import shutil
 
 from doit.tools import create_folder, config_changed
 
-from elm_doc import page_tasks
+from elm_doc.tasks import page as page_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
 
 

@@ -8,8 +8,8 @@ from retrying import retry
 from doit.tools import config_changed
 
 from elm_doc.elm_project import ElmPackage, ExactVersion
-from elm_doc import asset_tasks
-from elm_doc import page_tasks
+from elm_doc.tasks import assets as assets_tasks
+from elm_doc.tasks import page as page_tasks
 
 
 popular_packages = [
@@ -85,7 +85,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     }
 
     # help pages
-    for help_file in asset_tasks.bundled_helps:
+    for help_file in assets_tasks.bundled_helps:
         url_path = Path(help_file).relative_to('assets').with_suffix('')
         help_output_path = (output_path / url_path)
         yield {

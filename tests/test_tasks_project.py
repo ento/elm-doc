@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from elm_doc import elm_project
-from elm_doc import project_tasks
+from elm_doc.tasks import project as project_tasks
 
 
 def test_sync_source_files_create_new_file(

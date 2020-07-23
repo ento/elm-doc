@@ -8,8 +8,8 @@ import parsy
 from doit.runner import SUCCESS, FAILURE, ERROR
 
 from elm_doc import cli
-from elm_doc import catalog_tasks
 from elm_doc import elm_project
+from elm_doc.tasks import catalog as catalog_tasks
 
 
 @pytest.fixture

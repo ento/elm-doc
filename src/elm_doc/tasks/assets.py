@@ -2,7 +2,7 @@ from pathlib import Path
 import tarfile
 
 
-tarball = Path(__file__).parent / 'assets' / 'assets.tar.gz'
+tarball = Path(__file__).parent.parent / 'assets' / 'assets.tar.gz'
 bundled_helps = [
     'assets/help/documentation-format.md',
     'assets/help/design-guidelines.md',
