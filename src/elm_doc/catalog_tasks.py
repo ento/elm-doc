@@ -45,7 +45,7 @@ class SearchEntry:
     name = attr.ib()  # str
     summary = attr.ib()  # str
     license = attr.ib()  # str
-    versions = attr.ib()  # List[ExactVersion]
+    version = attr.ib()  # ExactVersion
 
     @classmethod
     def from_package(cls, package: ElmPackage) -> 'SearchEntry':
@@ -53,7 +53,7 @@ class SearchEntry:
             name=package.name,
             summary=package.summary,
             license=package.license,
-            versions=[package.version],
+            version=package.version,
         )
 
 
