@@ -30,7 +30,11 @@ jobs:
         name: '${{ secrets.CACHIX_CACHE_NAME }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
     - name: Build
-      run: nix-shell --argstr pythonVersion "$PYTHON_VERSION" --run "./ci.sh"
+      uses: nick-invision/retry@v1
+      with:
+        timeout_minutes: 30
+        max_attempts: 5
+        command: nix-shell --argstr pythonVersion "$PYTHON_VERSION" --run "./ci.sh"
       env:
         PYTHON_VERSION: "${{matrix.python}}"
         PYTEST_ADDOPTS: "${{matrix.pytest_addopts}}"
