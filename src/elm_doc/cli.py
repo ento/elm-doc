@@ -95,13 +95,12 @@ class LazyOutfile:
 @click.option('--elm-path',
               metavar='path/to/elm',
               callback=validate_elm_path,
-              help=('specify which elm binary to use. if not specified, '
-                    'elm will be installed afresh in a temporary directory'))
+              help=('specify which elm binary to use'))
 @click.option('--mount-at',
               metavar='/path',
               default='',
               callback=validate_mount_at,
-              help='url path at which the docs will be served')
+              help='url path at which the docs will be served. e.g. /docs')
 @click.option('--exclude-modules', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
