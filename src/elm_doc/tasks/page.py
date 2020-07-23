@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from elm_doc.utils import Namespace
+
 
 PAGE_TEMPLATE = '''
 <!DOCTYPE html>
@@ -33,7 +35,8 @@ def _render(mount_point: str = ''):
     return PAGE_TEMPLATE.format(mount_point=mount_point, init=json.dumps(init))
 
 
-def write_page(output_path: Path, mount_point: str = ''):
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(str(output_path), 'w') as f:
-        f.write(_render(mount_point=mount_point))
+class actions(Namespace):
+    def write_page(output_path: Path, mount_point: str = ''):
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(str(output_path), 'w') as f:
+            f.write(_render(mount_point=mount_point))

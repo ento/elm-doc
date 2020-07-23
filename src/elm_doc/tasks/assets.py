@@ -1,6 +1,8 @@
 from pathlib import Path
 import tarfile
 
+from elm_doc.utils import Namespace
+
 
 tarball = Path(__file__).parent.parent / 'assets' / 'assets.tar.gz'
 bundled_helps = [
@@ -89,6 +91,7 @@ bundled_assets = bundled_helps + [
 ]
 
 
-def extract_assets(output_path: Path):
-    with tarfile.open(str(tarball)) as f:
-        f.extractall(str(output_path))
+class actions(Namespace):
+    def extract_assets(output_path: Path):
+        with tarfile.open(str(tarball)) as f:
+            f.extractall(str(output_path))

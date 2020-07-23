@@ -8,30 +8,30 @@ from doit.tools import create_folder, config_changed
 
 from elm_doc.tasks import page as page_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
+from elm_doc.utils import Namespace
 
 
-def build_package_releases(output_path: Path, version: str, timestamp: int):
-    releases = {version: timestamp}
-    with open(str(output_path), 'w') as f:
-        json.dump(releases, f)
+class actions(Namespace):
+    def build_package_releases(output_path: Path, version: str, timestamp: int):
+        releases = {version: timestamp}
+        with open(str(output_path), 'w') as f:
+            json.dump(releases, f)
+
+    def link_latest_package_dir(output_path: Path, package_dir: Path):
+        package_dir.mkdir(parents=True, exist_ok=True)
+        # prefer relative path to make the built documentation directory relocatable
+        if output_path.is_symlink():
+            output_path.unlink()
+        output_path.symlink_to(package_dir.relative_to(output_path.parent), target_is_directory=True)
+
+    def copy_package_file(package_file: Path, output_path: Path):
+        if package_file.is_file():
+            shutil.copy(str(package_file), str(output_path))
 
 
-def link_latest_package_dir(output_path: Path, package_dir: Path):
-    package_dir.mkdir(parents=True, exist_ok=True)
-    # prefer relative path to make the built documentation directory relocatable
-    if output_path.is_symlink():
-        output_path.unlink()
-    output_path.symlink_to(package_dir.relative_to(output_path.parent), target_is_directory=True)
-
-
-def copy_package_file(package_file: Path, output_path: Path):
-    if package_file.is_file():
-        shutil.copy(str(package_file), str(output_path))
-
-
-def copy_package_docs_json(package: ElmPackage, output_path: Path):
-    source = package.path / package.DOCS_FILENAME
-    shutil.copy(str(source), str(output_path))
+    def copy_package_docs_json(package: ElmPackage, output_path: Path):
+        source = package.path / package.DOCS_FILENAME
+        shutil.copy(str(source), str(output_path))
 
 
 def _package_task_name(package):
@@ -52,7 +52,7 @@ def create_dependency_tasks(
         'basename': Context.Dependency.basename('copy_docs_json'),
         'name': task_name,
         'actions': [(create_folder, (str(package_output_path),)),
-                    (copy_package_docs_json, (package, docs_json_path))],
+                    (actions.copy_package_docs_json, (package, docs_json_path))],
         'targets': [docs_json_path],
         'file_dep': [package.path / package.DOCS_FILENAME]
     }
@@ -91,7 +91,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('top_page'),
         'name': task_name,
-        'actions': [(page_tasks.write_page, (package_index_output,), page_flags)],
+        'actions': [(page_tasks.actions.write_page, (package_index_output,), page_flags)],
         'targets': [package_index_output],
         'uptodate': [config_changed(page_flags)],
     }
@@ -104,7 +104,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('elm_json'),
             'name': task_name,
-            'actions': [(copy_package_file, (package_elm_json, output_elm_json_path))],
+            'actions': [(actions.copy_package_file, (package_elm_json, output_elm_json_path))],
             'targets': [output_elm_json_path],
             'file_dep': [package_elm_json],
         }
@@ -117,7 +117,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('readme'),
             'name': task_name,
-            'actions': [(copy_package_file, (package_readme, output_readme_path))],
+            'actions': [(actions.copy_package_file, (package_readme, output_readme_path))],
             'targets': [output_readme_path],
             'file_dep': [package_readme],
         }
@@ -130,7 +130,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('releases'),
         'name': task_name,
-        'actions': [(build_package_releases, (package_releases_output,), content)],
+        'actions': [(actions.build_package_releases, (package_releases_output,), content)],
         'targets': [package_releases_output],
         'uptodate': [config_changed(content)]
     }
@@ -141,7 +141,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('latest_link'),
         'name': task_name,
-        'actions': [(link_latest_package_dir, (latest_path, package_output_path))],
+        'actions': [(actions.link_latest_package_dir, (latest_path, package_output_path))],
         'targets': [latest_path],
         'uptodate': [config_changed(uptodate_config)]
     }
@@ -152,7 +152,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('module_page'),
             'name': '{}:{}'.format(task_name, module_name),
-            'actions': [(page_tasks.write_page, (module_output,), page_flags)],
+            'actions': [(page_tasks.actions.write_page, (module_output,), page_flags)],
             'targets': [module_output],
             'uptodate': [config_changed(page_flags)],
         }

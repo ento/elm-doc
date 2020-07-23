@@ -10,6 +10,7 @@ from doit.tools import config_changed
 from elm_doc.elm_project import ElmPackage, ExactVersion
 from elm_doc.tasks import assets as assets_tasks
 from elm_doc.tasks import page as page_tasks
+from elm_doc.utils import Namespace
 
 
 popular_packages = [
@@ -57,9 +58,10 @@ class SearchEntry:
         )
 
 
-def write_search_json(entries: List[SearchEntry], output_path: Path):
-    with open(str(output_path), 'w') as f:
-        json.dump([attr.asdict(entry) for entry in entries], f)
+class actions(Namespace):
+    def write_search_json(entries: List[SearchEntry], output_path: Path):
+        with open(str(output_path), 'w') as f:
+            json.dump([attr.asdict(entry) for entry in entries], f)
 
 
 def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
@@ -69,7 +71,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     index_path = output_path / 'index.html'
     yield {
         'basename': 'index',
-        'actions': [(page_tasks.write_page, (index_path,), page_flags)],
+        'actions': [(page_tasks.actions.write_page, (index_path,), page_flags)],
         'targets': [index_path],
         'uptodate': [config_changed(page_flags)],
     }
@@ -79,7 +81,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     search_entries = list(map(SearchEntry.from_package, packages))
     yield {
         'basename': 'search_json',
-        'actions': [(write_search_json, (search_entries, search_json_path))],
+        'actions': [(actions.write_search_json, (search_entries, search_json_path))],
         'targets': [search_json_path],
         'uptodate': [config_changed({'entries': [attr.asdict(entry) for entry in search_entries]})],
     }
@@ -91,7 +93,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         yield {
             'basename': 'help',
             'name': url_path,
-            'actions': [(page_tasks.write_page, (help_output_path,), page_flags)],
+            'actions': [(page_tasks.actions.write_page, (help_output_path,), page_flags)],
             'targets': [help_output_path],
             'file_dep': [output_path / help_file],
             'uptodate': [config_changed(page_flags)],

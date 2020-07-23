@@ -102,7 +102,7 @@ def make_assets_task_loader(output_path: Optional[Path] = None):
     def task_assets():
         yield {
             'basename': 'assets',
-            'actions': [(tasks.assets.extract_assets, (output_path,))],
+            'actions': [(tasks.assets.actions.extract_assets, (output_path,))],
             'targets': [output_path / path for path in tasks.assets.bundled_assets],
             'file_dep': [tasks.assets.tarball]
         }
