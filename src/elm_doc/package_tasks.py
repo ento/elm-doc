@@ -24,9 +24,9 @@ def link_latest_package_dir(output_path: Path, package_dir: Path):
     output_path.symlink_to(package_dir.relative_to(output_path.parent), target_is_directory=True)
 
 
-def copy_package_readme(package_readme: Path, output_path: Path):
-    if package_readme.is_file():
-        shutil.copy(str(package_readme), str(output_path))
+def copy_package_file(package_file: Path, output_path: Path):
+    if package_file.is_file():
+        shutil.copy(str(package_file), str(output_path))
 
 
 def copy_package_docs_json(package: ElmPackage, output_path: Path):
@@ -104,7 +104,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('readme'),
             'name': task_name,
-            'actions': [(copy_package_readme, (package_readme, output_readme_path))],
+            'actions': [(copy_package_file, (package_readme, output_readme_path))],
             'targets': [output_readme_path],
             'file_dep': [package_readme],
         }
