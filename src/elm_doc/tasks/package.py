@@ -34,6 +34,21 @@ class actions(Namespace):
         shutil.copy(str(source), str(output_path))
 
 
+class Context(enum.Enum):
+    '''In order to delay the creation of tasks for project dependencies,
+    the basenames of the delayed tasks need to be different than those
+    for the main project tasks for doit to correctly pick up.
+
+    This enum provides a way for differentiating those two contexts when
+    creating tasks in this module, which are shared between the two.
+    '''
+    Project = 'project'
+    Dependency = 'dep'
+
+    def basename(self, suffix):
+        return '{}_{}'.format(self.value, suffix)
+
+
 def _package_task_name(package):
     return '{}/{}'.format(package.name, package.version)
 
@@ -56,21 +71,6 @@ def create_dependency_tasks(package: ElmPackage, run_config: Build):
 
     yield from create_package_page_tasks(
         Context.Dependency, package, package_modules, run_config)
-
-
-class Context(enum.Enum):
-    '''In order to delay the creation of tasks for project dependencies,
-    the basenames of the delayed tasks need to be different than those
-    for the main project tasks for doit to correctly pick up.
-
-    This enum provides a way for differentiating those two contexts when
-    creating tasks in this module, which are shared between the two.
-    '''
-    Project = 'project'
-    Dependency = 'dep'
-
-    def basename(self, suffix):
-        return '{}_{}'.format(self.value, suffix)
 
 
 def create_package_page_tasks(
