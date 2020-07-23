@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from elm_doc import elm_project, task_loader
+from elm_doc import elm_project, loader
 from tests import conftest
 
 
@@ -221,7 +221,7 @@ def _install_elm(project_path: Path):
     conftest.install_elm(project_path, elm_version)
 
 
-for creator_name, creator_func in task_loader.make_task_loader(
+for creator_name, creator_func in loader.make_task_loader(
         workspace_path,
         config,
         elm_path,

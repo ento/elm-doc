@@ -12,7 +12,7 @@ from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 from doit.runner import ERROR
 
-from elm_doc.task_loader import make_task_loader
+from elm_doc.loader import make_task_loader
 from elm_doc.elm_project import ProjectConfig
 
 

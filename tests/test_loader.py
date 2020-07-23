@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from elm_doc import task_loader
+from elm_doc import loader
 from elm_doc import elm_project
 from elm_doc.elm_project import ProjectConfig
 
@@ -19,7 +19,7 @@ def test_dependencies_task_loader_creates_matches_actual_basenames(
         result_basenames = _basenames_in_first_seen_order(result)
 
         # actual
-        deps_creator = task_loader.make_dependencies_task_loader(
+        deps_creator = loader.make_dependencies_task_loader(
             project, ProjectConfig(), output_path)
         # note: relies on doit internals
         delayed_task_creates = set(deps_creator.doit_create_after.creates)
@@ -108,8 +108,8 @@ def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
 
 
 def _create_tasks(*args, **kwargs):
-    loader = task_loader.make_task_loader(*args, **kwargs)
-    return {name: creator() for name, creator in loader.items()}
+    task_loader = loader.make_task_loader(*args, **kwargs)
+    return {name: creator() for name, creator in task_loader.items()}
 
 
 def _basenames_in_first_seen_order(create_tasks_result):
