@@ -6,7 +6,7 @@ import shutil
 
 from doit.tools import create_folder, config_changed
 
-from elm_doc.tasks import page as page_tasks
+from elm_doc.tasks import html as html_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
 from elm_doc.utils import Namespace
 
@@ -91,7 +91,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('top_page'),
         'name': task_name,
-        'actions': [(page_tasks.actions.write_page, (package_index_output,), page_flags)],
+        'actions': [(html_tasks.actions.write, (package_index_output,), page_flags)],
         'targets': [package_index_output],
         'uptodate': [config_changed(page_flags)],
     }
@@ -152,7 +152,7 @@ def create_package_page_tasks(
         yield {
             'basename': context.basename('module_page'),
             'name': '{}:{}'.format(task_name, module_name),
-            'actions': [(page_tasks.actions.write_page, (module_output,), page_flags)],
+            'actions': [(html_tasks.actions.write, (module_output,), page_flags)],
             'targets': [module_output],
             'uptodate': [config_changed(page_flags)],
         }

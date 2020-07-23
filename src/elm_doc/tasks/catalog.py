@@ -9,7 +9,7 @@ from doit.tools import config_changed
 
 from elm_doc.elm_project import ElmPackage, ExactVersion
 from elm_doc.tasks import assets as assets_tasks
-from elm_doc.tasks import page as page_tasks
+from elm_doc.tasks import html as html_tasks
 from elm_doc.utils import Namespace
 
 
@@ -71,7 +71,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     index_path = output_path / 'index.html'
     yield {
         'basename': 'index',
-        'actions': [(page_tasks.actions.write_page, (index_path,), page_flags)],
+        'actions': [(html_tasks.actions.write, (index_path,), page_flags)],
         'targets': [index_path],
         'uptodate': [config_changed(page_flags)],
     }
@@ -93,7 +93,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
         yield {
             'basename': 'help',
             'name': url_path,
-            'actions': [(page_tasks.actions.write_page, (help_output_path,), page_flags)],
+            'actions': [(html_tasks.actions.write, (help_output_path,), page_flags)],
             'targets': [help_output_path],
             'file_dep': [output_path / help_file],
             'uptodate': [config_changed(page_flags)],

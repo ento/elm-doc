@@ -36,7 +36,7 @@ def _render(mount_point: str = ''):
 
 
 class actions(Namespace):
-    def write_page(output_path: Path, mount_point: str = ''):
+    def write(output_path: Path, mount_point: str = ''):
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(str(output_path), 'w') as f:
             f.write(_render(mount_point=mount_point))
