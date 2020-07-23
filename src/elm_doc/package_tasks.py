@@ -57,8 +57,8 @@ def create_dependency_tasks(
         'file_dep': [package.path / package.DOCS_FILENAME]
     }
 
-    for page_task in create_package_page_tasks(Context.Dependency, output_path, package, package_modules, mount_point):
-        yield page_task
+    yield from create_package_page_tasks(
+        Context.Dependency, output_path, package, package_modules, mount_point)
 
 
 class Context(enum.Enum):

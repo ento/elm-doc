@@ -63,15 +63,14 @@ def make_main_project_task_loader(
         mount_point: str = '',
         validate: bool = False):
     def task_main_project():
-        for task in project_tasks.create_main_project_tasks(
-                project,
-                project_config,
-                elm_path,
-                output_path,
-                build_path,
-                mount_point=mount_point,
-                validate=validate):
-            yield task
+        yield from project_tasks.create_main_project_tasks(
+            project,
+            project_config,
+            elm_path,
+            output_path,
+            build_path,
+            mount_point=mount_point,
+            validate=validate)
     return task_main_project
 
 
@@ -93,12 +92,12 @@ def make_dependencies_task_loader(
         all_packages = [project.as_package(project_config).without_license()] + deps
 
         for package in deps:
-            for task in package_tasks.create_dependency_tasks(
-                    output_path, package, mount_point):
-                yield task
+            yield from package_tasks.create_dependency_tasks(
+                output_path, package, mount_point)
 
-        for task in catalog_tasks.create_catalog_tasks(all_packages, output_path, mount_point=mount_point):
-            yield task
+        yield from catalog_tasks.create_catalog_tasks(
+            all_packages, output_path, mount_point=mount_point)
+
     return task_dependencies
 
 
