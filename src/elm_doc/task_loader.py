@@ -12,7 +12,7 @@ from elm_doc import asset_tasks
 from elm_doc import catalog_tasks
 
 
-def build_task_creators(
+def make_task_loader(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
         elm_path: Optional[Path],
@@ -28,9 +28,9 @@ def build_task_creators(
     if build_path is None:
         build_path = project_path / '.elm-doc'
 
-    task_creators = {}
+    task_loader = {}
 
-    task_creators['task_main_project'] = build_main_project_task_creator(
+    task_loader['task_main_project'] = make_main_project_task_loader(
         project,
         project_config,
         elm_path,
@@ -41,20 +41,20 @@ def build_task_creators(
     )
 
     if validate:
-        return task_creators
+        return task_loader
 
-    task_creators['task_dependencies'] = build_dependencies_task_creator(
+    task_loader['task_dependencies'] = make_dependencies_task_loader(
         project,
         project_config,
         output_path,
         mount_point,
     )
-    task_creators['task_assets'] = build_assets_task_creator(output_path)
+    task_loader['task_assets'] = make_assets_task_loader(output_path)
 
-    return task_creators
+    return task_loader
 
 
-def build_main_project_task_creator(
+def make_main_project_task_loader(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
         elm_path: Optional[Path],
@@ -75,7 +75,7 @@ def build_main_project_task_creator(
     return task_main_project
 
 
-def build_dependencies_task_creator(
+def make_dependencies_task_loader(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
         output_path: Optional[Path] = None,
@@ -102,7 +102,7 @@ def build_dependencies_task_creator(
     return task_dependencies
 
 
-def build_assets_task_creator(output_path: Optional[Path] = None):
+def make_assets_task_loader(output_path: Optional[Path] = None):
     def task_assets():
         yield {
             'basename': 'assets',

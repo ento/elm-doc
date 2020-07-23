@@ -12,7 +12,7 @@ from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 from doit.runner import ERROR
 
-from elm_doc.tasks import build_task_creators
+from elm_doc.task_loader import make_task_loader
 from elm_doc.elm_project import ProjectConfig
 
 
@@ -185,7 +185,7 @@ def main(
         fake_license=fake_license,
     )
 
-    task_creators = build_task_creators(
+    task_loader = make_task_loader(
         _resolve_path(project_path),
         project_config,
         _resolve_path(elm_path) if elm_path else None,
@@ -195,7 +195,7 @@ def main(
         validate=validate)
 
     extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
-    result = DoitMain(ModuleTaskLoader(task_creators), extra_config=extra_config).run(
+    result = DoitMain(ModuleTaskLoader(task_loader), extra_config=extra_config).run(
         doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
         raise DoitException('see output above', result)
