@@ -10,10 +10,10 @@ PAGE_TEMPLATE = '''
   <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" size="16x16, 32x32, 48x48, 64x64, 128x128, 256x256" href="{mount_point}/assets/favicon.ico">
-    <link rel="stylesheet" href="{mount_point}/assets/highlight/styles/default.css">
     <link rel="stylesheet" href="{mount_point}/assets/style.css">
-    <script src="{mount_point}/assets/highlight/highlight.pack.js"></script>
     <script src="{mount_point}/artifacts/elm.js"></script>
+    <script src="{mount_point}/assets/highlight/highlight.pack.js"></script>
+    <link rel="stylesheet" href="{mount_point}/assets/highlight/styles/default.css">
   </head>
   <body>
   <script>
