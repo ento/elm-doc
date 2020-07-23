@@ -82,7 +82,7 @@ def build_dependencies_task_creator(
         mount_point: str = ''):
     @create_after(executed='build_docs_json', creates=[
         # package tasks
-        'dep_copy_docs_json', 'dep_top_page', 'dep_readme',
+        'dep_copy_docs_json', 'dep_top_page', 'dep_elm_json', 'dep_readme',
         'dep_releases', 'dep_latest_link', 'dep_module_page',
         # catalog tasks
         'index', 'search_json', 'help',

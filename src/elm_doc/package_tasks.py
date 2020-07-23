@@ -96,6 +96,19 @@ def create_package_page_tasks(
         'uptodate': [config_changed(page_flags)],
     }
 
+    # package elm.json
+    elm_json_filename = 'elm.json'
+    package_elm_json = package.path / elm_json_filename
+    output_elm_json_path = package_output_path / elm_json_filename
+    if package_elm_json.is_file():
+        yield {
+            'basename': context.basename('elm_json'),
+            'name': task_name,
+            'actions': [(copy_package_file, (package_elm_json, output_elm_json_path))],
+            'targets': [output_elm_json_path],
+            'file_dep': [package_elm_json],
+        }
+
     # package readme
     readme_filename = 'README.md'
     package_readme = package.path / readme_filename
