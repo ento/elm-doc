@@ -75,6 +75,17 @@ let
       });
     };
   };
+  spark = pkgs.buildGoPackage rec {
+    pname = "spark";
+    version = "1.7.3";
+    src = pkgs.fetchFromGitHub {
+      owner = "rif";
+      repo = pname;
+      rev = "v${version}";
+      sha256 = "0w3gcn4z8ayln08scwx449hv18ll5bmpk3m8kzn24nmm4crn6ymk";
+    };
+    goPackagePath = "github.com/rif/spark";
+  };
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
@@ -82,6 +93,7 @@ pkgs.mkShell {
     nodejs
     python.pkgs.poetry
     rsync
+    spark
   ];
   shellHook = ''
     export SOURCE_DATE_EPOCH=315532800
