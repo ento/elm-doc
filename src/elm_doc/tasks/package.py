@@ -6,8 +6,9 @@ import shutil
 
 from doit.tools import create_folder, config_changed
 
-from elm_doc.tasks import html as html_tasks
 from elm_doc.elm_project import ElmPackage, ModuleName
+from elm_doc.run_config import Build
+from elm_doc.tasks import html as html_tasks
 from elm_doc.utils import Namespace
 
 
@@ -38,13 +39,10 @@ def _package_task_name(package):
     return '{}/{}'.format(package.name, package.version)
 
 
-def create_dependency_tasks(
-        output_path: Optional[Path],
-        package: ElmPackage,
-        mount_point: str = ''):
+def create_dependency_tasks(package: ElmPackage, run_config: Build):
     task_name = _package_task_name(package)
     package_modules = package.sorted_exposed_modules()
-    package_output_path = package_docs_root(output_path, package)
+    package_output_path = package_docs_root(run_config.output_path, package)
 
     # package docs.json
     docs_json_path = package_output_path / package.DOCS_FILENAME
@@ -58,7 +56,7 @@ def create_dependency_tasks(
     }
 
     yield from create_package_page_tasks(
-        Context.Dependency, output_path, package, package_modules, mount_point)
+        Context.Dependency, package, package_modules, run_config)
 
 
 class Context(enum.Enum):
@@ -78,13 +76,12 @@ class Context(enum.Enum):
 
 def create_package_page_tasks(
         context: Context,
-        output_path: Optional[Path],
         package: ElmPackage,
         package_modules: List[ModuleName],
-        mount_point: str = '',):
+        run_config: Build):
     task_name = _package_task_name(package)
-    package_output_path = package_docs_root(output_path, package)
-    page_flags = {'mount_point': mount_point}
+    package_output_path = package_docs_root(run_config.output_path, package)
+    page_flags = {'mount_point': run_config.mount_point}
 
     # package index page
     package_index_output = package_output_path / 'index.html'
@@ -137,7 +134,7 @@ def create_package_page_tasks(
 
     # link from /latest
     latest_path = package_output_path.parent / 'latest'
-    uptodate_config = {'link_target': str(package_output_path.relative_to(output_path))}
+    uptodate_config = {'link_target': str(package_output_path.relative_to(run_config.output_path))}
     yield {
         'basename': context.basename('latest_link'),
         'name': task_name,

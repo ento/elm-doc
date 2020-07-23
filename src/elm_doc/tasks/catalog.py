@@ -8,6 +8,7 @@ from retrying import retry
 from doit.tools import config_changed
 
 from elm_doc.elm_project import ElmPackage, ExactVersion
+from elm_doc.run_config import Build
 from elm_doc.tasks import assets as assets_tasks
 from elm_doc.tasks import html as html_tasks
 from elm_doc.utils import Namespace
@@ -64,11 +65,11 @@ class actions(Namespace):
             json.dump([attr.asdict(entry) for entry in entries], f)
 
 
-def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_point: str = ''):
-    page_flags = {'mount_point': mount_point}
+def create_catalog_tasks(packages: List[ElmPackage], run_config: Build):
+    page_flags = {'mount_point': run_config.mount_point}
 
     # index
-    index_path = output_path / 'index.html'
+    index_path = run_config.output_path / 'index.html'
     yield {
         'basename': 'index',
         'actions': [(html_tasks.actions.write, (index_path,), page_flags)],
@@ -77,7 +78,7 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     }
 
     # search.json
-    search_json_path = output_path / 'search.json'
+    search_json_path = run_config.output_path / 'search.json'
     search_entries = list(map(SearchEntry.from_package, packages))
     yield {
         'basename': 'search_json',
@@ -89,12 +90,12 @@ def create_catalog_tasks(packages: List[ElmPackage], output_path: Path, mount_po
     # help pages
     for help_file in assets_tasks.bundled_helps:
         url_path = Path(help_file).relative_to('assets').with_suffix('')
-        help_output_path = (output_path / url_path)
+        help_output_path = run_config.output_path / url_path
         yield {
             'basename': 'help',
             'name': url_path,
             'actions': [(html_tasks.actions.write, (help_output_path,), page_flags)],
             'targets': [help_output_path],
-            'file_dep': [output_path / help_file],
+            'file_dep': [run_config.output_path / help_file],
             'uptodate': [config_changed(page_flags)],
         }

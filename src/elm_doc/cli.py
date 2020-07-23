@@ -12,6 +12,7 @@ from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 from doit.runner import ERROR
 
+from elm_doc.run_config import Build, Validate
 from elm_doc.loader import make_task_loader
 from elm_doc.elm_project import ProjectConfig
 
@@ -184,14 +185,21 @@ def main(
         fake_license=fake_license,
     )
 
+    if validate:
+        run_config = Validate(
+            elm_path=_resolve_path(elm_path) if elm_path else None,
+            build_path=_resolve_path(build_dir) if build_dir is not None else None,
+        )
+    else:
+        run_config = Build(
+            elm_path=_resolve_path(elm_path) if elm_path else None,
+            build_path=_resolve_path(build_dir) if build_dir is not None else None,
+            output_path=_resolve_path(output) if output is not None else None,
+            mount_point=mount_at,
+        )
+
     task_loader = make_task_loader(
-        _resolve_path(project_path),
-        project_config,
-        _resolve_path(elm_path) if elm_path else None,
-        _resolve_path(output) if output is not None else None,
-        build_path=_resolve_path(build_dir) if build_dir is not None else None,
-        mount_point=mount_at,
-        validate=validate)
+        _resolve_path(project_path), project_config, run_config)
 
     extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
     result = DoitMain(ModuleTaskLoader(task_loader), extra_config=extra_config).run(

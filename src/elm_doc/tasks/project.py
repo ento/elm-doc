@@ -11,8 +11,9 @@ from doit.tools import create_folder, config_changed
 from elm_doc import elm_project
 from elm_doc import elm_codeshift
 from elm_doc import elm_parser
-from elm_doc.tasks import package as package_tasks
 from elm_doc.elm_project import ElmPackage, ElmProject, ProjectConfig, ModuleName
+from elm_doc.run_config import RunConfig, Build, Validate
+from elm_doc.tasks import package as package_tasks
 from elm_doc.utils import Namespace
 
 
@@ -61,38 +62,34 @@ class actions(Namespace):
 def create_main_project_tasks(
         project: ElmProject,
         project_config: ProjectConfig,
-        elm_path: Optional[Path],
-        output_path: Optional[Path],
-        build_path: Path,
-        mount_point: str = '',
-        validate: bool = False):
+        run_config: RunConfig):
     task_name = '{}/{}'.format(project_config.fake_user, project_config.fake_project)
     project_modules = list(elm_project.glob_project_modules(
         project, project_config))
     project_as_package = project.as_package(project_config)
-    file_dep = [elm_path] if elm_path else []
+    file_dep = [run_config.elm_path] if run_config.elm_path else []
     file_dep.extend([module.path for module in project_modules])
     uptodate_config = {'elm_json': project_as_package.as_json()}
 
-    build_src_dir = build_path / 'src'
+    build_src_dir = run_config.build_path / 'src'
     docs_actions = [
-        (create_folder, (str(build_path),)),
+        (create_folder, (str(run_config.build_path),)),
         (actions.write_project_elm_json, (
             project,
             project_config,
             [module.name for module in project_modules],
-            build_path,
+            run_config.build_path,
         )),
         (create_folder, (str(build_src_dir),)),
         actions.SyncSources(project, build_src_dir),
         (actions.run_elm_codeshift, (build_src_dir,)),
-        (actions.validate_elm_path, (elm_path,)),
+        (actions.validate_elm_path, (run_config.elm_path,)),
     ]
 
-    if validate:
+    if isinstance(run_config, Validate):
         # don't update the final artifact; write to build dir instead
-        docs_path = build_path / project.DOCS_FILENAME
-        docs_actions.append(actions.ElmMake(elm_path, build_path, docs_path))
+        docs_path = run_config.build_path / project.DOCS_FILENAME
+        docs_actions.append(actions.ElmMake(run_config.elm_path, run_config.build_path, docs_path))
         yield {
             'basename': 'validate_docs_json',
             'name': task_name,
@@ -103,11 +100,12 @@ def create_main_project_tasks(
         }
         return
 
-    project_output_path = package_tasks.package_docs_root(output_path, project_as_package)
-    docs_actions.insert(0, (create_folder, (str(project_output_path),)))
     # project docs.json
+    project_output_path = package_tasks.package_docs_root(
+        run_config.output_path, project_as_package)
+    docs_actions.insert(0, (create_folder, (str(project_output_path),)))
     docs_path = project_output_path / project.DOCS_FILENAME
-    docs_actions.append(actions.ElmMake(elm_path, build_path, docs_path))
+    docs_actions.append(actions.ElmMake(run_config.elm_path, run_config.build_path, docs_path))
 
     yield {
         'basename': 'build_docs_json',
@@ -120,7 +118,6 @@ def create_main_project_tasks(
 
     yield from package_tasks.create_package_page_tasks(
         package_tasks.Context.Project,
-        output_path,
         project_as_package,
         [module.name for module in project_modules],
-        mount_point)
+        run_config)

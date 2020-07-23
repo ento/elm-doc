@@ -7,46 +7,30 @@ from doit import create_after
 
 from elm_doc import elm_project
 from elm_doc import tasks
+from elm_doc.run_config import RunConfig, Build, Validate
 
 
 def make_task_loader(
         project_path: Path,
         project_config: elm_project.ProjectConfig,
-        elm_path: Optional[Path],
-        output_path: Optional[Path] = None,
-        build_path: Optional[Path] = None,
-        mount_point: str = '',
-        validate: bool = False):
+        run_config: RunConfig):
     project = elm_project.from_path(project_path)
-    if not validate:
+    if isinstance(run_config, Build):
         project.add_direct_dependencies(
             tasks.catalog.missing_popular_packages(list(project.direct_dependency_names())))
 
-    if build_path is None:
-        build_path = project_path / '.elm-doc'
+    if run_config.build_path is None:
+        run_config.build_path = project_path / '.elm-doc'
 
     task_loader = {}
 
     task_loader['task_main_project'] = make_main_project_task_loader(
-        project,
-        project_config,
-        elm_path,
-        output_path,
-        build_path,
-        mount_point,
-        validate,
-    )
+        project, project_config, run_config)
 
-    if validate:
-        return task_loader
-
-    task_loader['task_dependencies'] = make_dependencies_task_loader(
-        project,
-        project_config,
-        output_path,
-        mount_point,
-    )
-    task_loader['task_assets'] = make_assets_task_loader(output_path)
+    if isinstance(run_config, Build):
+        task_loader['task_dependencies'] = make_dependencies_task_loader(
+            project, project_config, run_config)
+        task_loader['task_assets'] = make_assets_task_loader(run_config)
 
     return task_loader
 
@@ -54,28 +38,17 @@ def make_task_loader(
 def make_main_project_task_loader(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
-        elm_path: Optional[Path],
-        output_path: Optional[Path] = None,
-        build_path: Optional[Path] = None,
-        mount_point: str = '',
-        validate: bool = False):
+        run_config: RunConfig):
     def task_main_project():
         yield from tasks.project.create_main_project_tasks(
-            project,
-            project_config,
-            elm_path,
-            output_path,
-            build_path,
-            mount_point=mount_point,
-            validate=validate)
+            project, project_config, run_config)
     return task_main_project
 
 
 def make_dependencies_task_loader(
         project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
-        output_path: Optional[Path] = None,
-        mount_point: str = ''):
+        run_config: Build):
     @create_after(executed='build_docs_json', creates=[
         # package tasks
         'dep_copy_docs_json', 'dep_top_page', 'dep_elm_json', 'dep_readme',
@@ -90,20 +63,20 @@ def make_dependencies_task_loader(
 
         for package in deps:
             yield from tasks.package.create_dependency_tasks(
-                output_path, package, mount_point)
+                package, run_config)
 
         yield from tasks.catalog.create_catalog_tasks(
-            all_packages, output_path, mount_point=mount_point)
+            all_packages, run_config)
 
     return task_dependencies
 
 
-def make_assets_task_loader(output_path: Optional[Path] = None):
+def make_assets_task_loader(run_config: Build):
     def task_assets():
         yield {
             'basename': 'assets',
-            'actions': [(tasks.assets.actions.extract_assets, (output_path,))],
-            'targets': [output_path / path for path in tasks.assets.bundled_assets],
+            'actions': [(tasks.assets.actions.extract_assets, (run_config.output_path,))],
+            'targets': [run_config.output_path / path for path in tasks.assets.bundled_assets],
             'file_dep': [tasks.assets.tarball]
         }
     return task_assets
