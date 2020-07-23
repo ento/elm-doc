@@ -1,4 +1,5 @@
 from typing import List, Optional
+import time
 import enum
 from pathlib import Path
 import json
@@ -7,7 +8,7 @@ import shutil
 from doit.tools import create_folder, config_changed
 from requests import Session
 
-from elm_doc.elm_project import ElmPackage, ModuleName
+from elm_doc.elm_project import ElmPackage, ModuleName, fetch_releases
 from elm_doc.run_config import Build
 from elm_doc.tasks import html as html_tasks
 from elm_doc.utils import Namespace
@@ -122,9 +123,12 @@ def create_package_page_tasks(
 
     # package releases
     package_releases_output = package_output_path.parent / 'releases.json'
-    # generated docs will only ever include one version per package, so we hardcode
-    # the timestamp.
-    content = {'version': package.version, 'timestamp': 1}
+    if context == Context.Dependency:
+        releases = fetch_releases(session, package.name)
+        timestamp = releases.get(package.version, 1)
+    else:
+        timestamp = int(time.time())
+    content = {'version': package.version, 'timestamp': timestamp}
     yield {
         'basename': context.basename('releases'),
         'name': task_name,
