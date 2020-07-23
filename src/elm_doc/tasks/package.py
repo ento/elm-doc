@@ -13,7 +13,7 @@ from elm_doc.utils import Namespace
 
 
 class actions(Namespace):
-    def build_package_releases(output_path: Path, version: str, timestamp: int):
+    def write_package_releases(output_path: Path, version: str, timestamp: int):
         releases = {version: timestamp}
         with open(str(output_path), 'w') as f:
             json.dump(releases, f)
@@ -127,7 +127,7 @@ def create_package_page_tasks(
     yield {
         'basename': context.basename('releases'),
         'name': task_name,
-        'actions': [(actions.build_package_releases, (package_releases_output,), content)],
+        'actions': [(actions.write_package_releases, (package_releases_output,), content)],
         'targets': [package_releases_output],
         'uptodate': [config_changed(content)]
     }
