@@ -1,4 +1,5 @@
 import json
+import html
 from pathlib import Path
 
 from elm_doc.utils import Namespace
@@ -42,7 +43,9 @@ def _render(mount_point: str = ''):
             'mountedAt': mount_point,
         },
     }
-    return PAGE_TEMPLATE.format(mount_point=mount_point, init=json.dumps(init))
+    return PAGE_TEMPLATE.format(
+        mount_point=html.escape(mount_point),
+        init=json.dumps(init))
 
 
 class actions(Namespace):
