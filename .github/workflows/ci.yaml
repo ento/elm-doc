@@ -23,7 +23,7 @@ jobs:
     - name: Checkout LFS objects
       run: git lfs checkout
     - name: Install Nix
-      uses: cachix/install-nix-action@v8
+      uses: cachix/install-nix-action@v10
     - name: Configure Cachix
       uses: cachix/cachix-action@v6
       with:
