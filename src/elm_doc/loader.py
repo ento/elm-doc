@@ -75,7 +75,7 @@ def make_assets_task_loader(run_config: Build):
     def task_assets():
         yield {
             'basename': 'assets',
-            'actions': [(tasks.assets.actions.extract_assets, (run_config.output_path,))],
+            'actions': [(tasks.assets.actions.extract_assets, (run_config,))],
             'targets': [run_config.output_path / path for path in tasks.assets.bundled_assets],
             'file_dep': [tasks.assets.tarball]
         }

@@ -17,6 +17,16 @@ PAGE_TEMPLATE = '''
   </head>
   <body>
   <script>
+    try {{
+      const fontsLink = document.createElement("link");
+      fontsLink.href = "{mount_point}/assets/fonts/" + ((navigator.userAgent.indexOf("Macintosh") > -1) ? "_hints_off.css" : "_hints_on.css");
+      fontsLink.rel = "stylesheet";
+      document.head.appendChild(fontsLink);
+    }} catch(e) {{
+      // loading the font is not essential; log the error and move on
+      console.log(e);
+    }}
+
     Elm.Main.init({init});
   </script>
   </body>

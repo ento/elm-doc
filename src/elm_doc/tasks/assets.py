@@ -1,6 +1,9 @@
 from pathlib import Path
+import re
+import gzip
 import tarfile
 
+from elm_doc.run_config import Build
 from elm_doc.utils import Namespace
 
 
@@ -92,6 +95,34 @@ bundled_assets = bundled_helps + [
 
 
 class actions(Namespace):
-    def extract_assets(output_path: Path):
+    def extract_assets(run_config: Build):
         with tarfile.open(str(tarball)) as f:
-            f.extractall(str(output_path))
+            f.extractall(str(run_config.output_path))
+        # decompress .gz files
+        for asset in bundled_assets:
+            if Path(asset).suffix == '.gz':
+                src_path = run_config.output_path / asset
+                write_to = src_path.parent / src_path.stem
+                decompress_and_rewrite(src_path, write_to, run_config.mount_point)
+
+
+def decompress_and_rewrite(source: Path, target: Path, mount_point: str):
+    assets_re = re.compile(re.escape(b'/assets/'))
+    replace_with = mount_point.encode('utf8') + b'/assets/'
+    rewrite = target.suffix == '.css'
+    with gzip.open(str(source), 'rb') as f, target.open('wb') as g:
+        while True:
+            content = f.read(1024)
+            if not content:
+                break
+            if rewrite:
+                content = assets_re.sub(replace_with, content)
+            g.write(content)
+    # re-compress the rewritten content
+    if rewrite:
+        with target.open('rb') as f, gzip.open(str(source), 'wb') as g:
+            while True:
+                content = f.read(1024)
+                if not content:
+                    break
+                g.write(content)
