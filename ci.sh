@@ -26,7 +26,7 @@ virtualenv env
 . env/bin/activate
 pip install --upgrade pip
 pip install .
-python -c 'import elm_doc.asset_tasks; assert elm_doc.asset_tasks.tarball.exists()'
+python -c 'import elm_doc.tasks.assets; assert elm_doc.tasks.assets.tarball.exists()'
 
 # print diagnostic info
 pip list

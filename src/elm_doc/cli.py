@@ -12,7 +12,8 @@ from doit.doit_cmd import DoitMain
 from doit.cmd_base import ModuleTaskLoader
 from doit.runner import ERROR
 
-from elm_doc.tasks import build_task_creators
+from elm_doc.run_config import Build, Validate
+from elm_doc.loader import make_task_loader
 from elm_doc.elm_project import ProjectConfig
 
 
@@ -95,13 +96,12 @@ class LazyOutfile:
 @click.option('--elm-path',
               metavar='path/to/elm',
               callback=validate_elm_path,
-              help=('specify which elm binary to use. if not specified, '
-                    'elm will be installed afresh in a temporary directory'))
+              help=('specify which elm binary to use'))
 @click.option('--mount-at',
               metavar='/path',
               default='',
               callback=validate_mount_at,
-              help='url path at which the docs will be served')
+              help='url path at which the docs will be served. e.g. /docs')
 @click.option('--exclude-modules', '-x',
               metavar='module1,module2.*',
               help='comma-separated fnmatch pattern of modules to exclude from the list of included modules')
@@ -185,17 +185,24 @@ def main(
         fake_license=fake_license,
     )
 
-    task_creators = build_task_creators(
-        _resolve_path(project_path),
-        project_config,
-        _resolve_path(elm_path) if elm_path else None,
-        _resolve_path(output) if output is not None else None,
-        build_path=_resolve_path(build_dir) if build_dir is not None else None,
-        mount_point=mount_at,
-        validate=validate)
+    if validate:
+        run_config = Validate(
+            elm_path=_resolve_path(elm_path) if elm_path else None,
+            build_path=_resolve_path(build_dir) if build_dir is not None else None,
+        )
+    else:
+        run_config = Build(
+            elm_path=_resolve_path(elm_path) if elm_path else None,
+            build_path=_resolve_path(build_dir) if build_dir is not None else None,
+            output_path=_resolve_path(output) if output is not None else None,
+            mount_point=mount_at,
+        )
+
+    task_loader = make_task_loader(
+        _resolve_path(project_path), project_config, run_config)
 
     extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
-    result = DoitMain(ModuleTaskLoader(task_creators), extra_config=extra_config).run(
+    result = DoitMain(ModuleTaskLoader(task_loader), extra_config=extra_config).run(
         doit_args.split(' ') if doit_args else [])
     if result is not None and result > 0:
         raise DoitException('see output above', result)

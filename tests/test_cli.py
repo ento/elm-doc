@@ -8,8 +8,8 @@ import parsy
 from doit.runner import SUCCESS, FAILURE, ERROR
 
 from elm_doc import cli
-from elm_doc import catalog_tasks
 from elm_doc import elm_project
+from elm_doc.tasks import catalog as catalog_tasks
 
 
 @pytest.fixture
@@ -259,7 +259,7 @@ def test_cli_project_version_change_gets_picked_up(
 
         search_json = json.loads(output_dir.join('search.json').read())
         project_entry = next(entry for entry in search_json if entry['name'] == 'user/project')
-        assert project_entry['versions'] == ['2.0.0']
+        assert project_entry['version'] == '2.0.0'
 
 
 def test_cli_validate_real_project(

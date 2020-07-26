@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from elm_doc import tasks
+from elm_doc import loader
 from elm_doc import elm_project
 from elm_doc.elm_project import ProjectConfig
+from elm_doc.run_config import Build, Validate
 
 
-def test_dependencies_task_creator_creates_matches_actual_basenames(
+def test_dependencies_task_loader_creates_matches_actual_basenames(
         mock_popular_packages, tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
@@ -15,12 +16,12 @@ def test_dependencies_task_creator_creates_matches_actual_basenames(
         output_path = Path(str(output_dir))
 
         # expected
-        result = _create_tasks(project.path, config, None, output_path)
+        result = _create_tasks(project.path, config, Build(None, None, output_path, ''))
         result_basenames = _basenames_in_first_seen_order(result)
 
         # actual
-        deps_creator = tasks.build_dependencies_task_creator(
-            project, ProjectConfig(), output_path)
+        deps_creator = loader.make_dependencies_task_loader(
+            None, project, ProjectConfig(), output_path)
         # note: relies on doit internals
         delayed_task_creates = set(deps_creator.doit_create_after.creates)
         assert delayed_task_creates == set(result_basenames['task_dependencies'])
@@ -31,17 +32,20 @@ def test_create_tasks_only_dependencies(
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
-        result = _create_tasks(Path('.'), ProjectConfig(), None, Path(str(output_dir)))
+        result = _create_tasks(Path('.'), ProjectConfig(),
+                               Build(None, None, Path(str(output_dir)), ''))
         expected_task_names = {
             'task_main_project': [
                 'build_docs_json',
                 'project_top_page',
+                'project_elm_json',
                 'project_releases',
                 'project_latest_link',
                 ],
             'task_dependencies': [
                 'dep_copy_docs_json',
                 'dep_top_page',
+                'dep_elm_json',
                 'dep_readme',
                 'dep_releases',
                 'dep_latest_link',
@@ -62,12 +66,14 @@ def test_create_tasks_project_modules_and_dependencies(
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = _create_tasks(Path('.'), ProjectConfig(), None, Path(str(output_dir)))
+        result = _create_tasks(Path('.'), ProjectConfig(),
+                               Build(None, None, Path(str(output_dir)), ''))
 
         expected_task_names = {
             'task_main_project': [
                 'build_docs_json',
                 'project_top_page',
+                'project_elm_json',
                 'project_readme',
                 'project_releases',
                 'project_latest_link',
@@ -76,6 +82,7 @@ def test_create_tasks_project_modules_and_dependencies(
             'task_dependencies': [
                 'dep_copy_docs_json',
                 'dep_top_page',
+                'dep_elm_json',
                 'dep_readme',
                 'dep_releases',
                 'dep_latest_link',
@@ -91,9 +98,8 @@ def test_create_tasks_project_modules_and_dependencies(
 
 def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir)
-    output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
-        result = _create_tasks(Path('.'), ProjectConfig(), None, Path(str(output_dir)), validate=True)
+        result = _create_tasks(Path('.'), ProjectConfig(), Validate(None, None))
 
         expected_task_names = {
             'task_main_project': [
@@ -104,8 +110,8 @@ def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
 
 
 def _create_tasks(*args, **kwargs):
-    task_creators = tasks.build_task_creators(*args, **kwargs)
-    return {name: creator() for name, creator in task_creators.items()}
+    task_loader = loader.make_task_loader(*args, **kwargs)
+    return {name: creator() for name, creator in task_loader.items()}
 
 
 def _basenames_in_first_seen_order(create_tasks_result):

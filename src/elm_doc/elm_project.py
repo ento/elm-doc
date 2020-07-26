@@ -8,6 +8,8 @@ import json
 
 import attr
 from click import BadParameter
+from requests import Session, RequestException
+from retrying import retry
 
 from elm_doc import elm_platform
 
@@ -298,3 +300,13 @@ def _matches_include_path(source_path: Path, include_path: Path):
         return False
     else:
         return True
+
+
+@retry(
+    retry_on_exception=lambda e: isinstance(e, RequestException),
+    wait_exponential_multiplier=1000,  # Wait 2^x * 1000 milliseconds between each retry,
+    wait_exponential_max=30 * 1000,  # up to 30 seconds, then 30 seconds afterwards
+    stop_max_attempt_number=10)
+def fetch_releases(session: Session, package_name: str) -> Dict[ExactVersion, int]:
+    releases_url = 'https://package.elm-lang.org/packages/{}/releases.json'.format(package_name)
+    return session.get(releases_url).json()

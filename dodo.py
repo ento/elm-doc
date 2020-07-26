@@ -15,7 +15,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from elm_doc import elm_project, tasks
+from elm_doc import elm_project, loader
+from elm_doc.run_config import Build
 from tests import conftest
 
 
@@ -202,8 +203,12 @@ def _create_package_elm_lang_org_elm_js(output_path: Path):
 
 default_elm_version = '0.19.1'
 workspace_path = Path(__file__).parent / 'workspace' / default_elm_version
-output_path = workspace_path / 'build' / 'docs'
-elm_path = workspace_path / 'node_modules' / '.bin' / 'elm'
+run_config = Build(
+    elm_path=workspace_path / 'node_modules' / '.bin' / 'elm',
+    build_path=None,
+    output_path=workspace_path / 'build' / 'docs',
+    mount_point='/docs'
+)
 config = elm_project.ProjectConfig()
 
 
@@ -211,7 +216,7 @@ def task_install_workspace_elm():
     yield {
         'name': 'install_elm',
         'file_dep': [workspace_path / 'elm.json'],
-        'targets': [elm_path],
+        'targets': [run_config.elm_path],
         'actions': [(_install_elm, (workspace_path,))]
     }
 
@@ -221,11 +226,6 @@ def _install_elm(project_path: Path):
     conftest.install_elm(project_path, elm_version)
 
 
-for creator_name, creator_func in tasks.build_task_creators(
-        workspace_path,
-        config,
-        elm_path,
-        output_path,
-        mount_point='/docs',
-).items():
+for creator_name, creator_func in loader.make_task_loader(
+        workspace_path, config, run_config).items():
     globals()[creator_name] = creator_func
