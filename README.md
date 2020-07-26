@@ -15,8 +15,7 @@ You will need to enable the `--pre` flag if you're installing the latest version
 
 Simplest invocation:
 
-    $ elm-doc . --output docs --fake-license 'SPDX license name' \
-        --elm-path path/to/usually/node_modules/.bin/elm
+    $ elm-doc . --output docs --fake-license 'SPDX license name'
 
 The license name is required because elm-doc uses the official Elm binary to
 validate and generate docs; the official Elm binary only generates
@@ -55,26 +54,22 @@ You can `--exclude-modules` by using [fnmatch](https://docs.python.org/3/library
 patterns:
 
     $ elm-doc . --output docs --fake-license 'SPDX license name' \
-        --elm-path ./node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*'
 
 or `--exclude-source-directories` entirely:
 
     $ elm-doc . --output docs --fake-license 'SPDX license name' \
-        --elm-path ui/node_modules/.bin/elm \
         --exclude-source-directories generated
 
 You can also specify which files and directories to _include_ in the list of modules:
 
     $ elm-doc . --output docs \
-        --elm-path ui/node_modules/.bin/elm \
         src/Whitelist src/Main.elm
 
 Note that the `--exclude` flag takes no effect if you explicitly specify which
 files to include, unless you add the `--force-exclusion` flag:
 
     $ elm-doc . --output docs --fake-license 'SPDX license name' \
-        --elm-path ui/node_modules/.bin/elm \
         --exclude-modules '*.Private.*,Blacklist.*' \
         --force-exclusion \
         src/Whitelist src/Main.elm

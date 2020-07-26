@@ -1,7 +1,5 @@
 '''
 '''
-from pathlib import Path
-
 from doit import create_after
 import requests
 from cachecontrol import CacheControl
@@ -12,17 +10,16 @@ from elm_doc.run_config import RunConfig, Build
 
 
 def make_task_loader(
-        project_path: Path,
+        project: elm_project.ElmProject,
         project_config: elm_project.ProjectConfig,
         run_config: RunConfig):
     session = CacheControl(requests.Session())
-    project = elm_project.from_path(project_path)
     if isinstance(run_config, Build):
         project.add_direct_dependencies(
             tasks.catalog.missing_popular_packages(session, list(project.direct_dependency_names())))
 
     if run_config.build_path is None:
-        run_config.build_path = project_path / '.elm-doc'
+        run_config.build_path = project.path / '.elm-doc'
 
     task_loader = {}
 

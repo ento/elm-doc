@@ -16,7 +16,7 @@ def test_dependencies_task_loader_creates_matches_actual_basenames(
         output_path = Path(str(output_dir))
 
         # expected
-        result = _create_tasks(project.path, config, Build(None, None, output_path, ''))
+        result = _create_tasks(project, config, Build(None, None, output_path, ''))
         result_basenames = _basenames_in_first_seen_order(result)
 
         # actual
@@ -32,7 +32,7 @@ def test_create_tasks_only_dependencies(
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
-        result = _create_tasks(Path('.'), ProjectConfig(),
+        result = _create_tasks(elm_project.from_path(Path('.')), ProjectConfig(),
                                Build(None, None, Path(str(output_dir)), ''))
         expected_task_names = {
             'task_main_project': [
@@ -66,7 +66,7 @@ def test_create_tasks_project_modules_and_dependencies(
     output_dir = tmpdir.join('docs')
     with project_dir.as_cwd():
         project_dir.join('README.md').write('hello')
-        result = _create_tasks(Path('.'), ProjectConfig(),
+        result = _create_tasks(elm_project.from_path(Path('.')), ProjectConfig(),
                                Build(None, None, Path(str(output_dir)), ''))
 
         expected_task_names = {
@@ -99,7 +99,8 @@ def test_create_tasks_project_modules_and_dependencies(
 def test_create_tasks_for_validation(tmpdir, elm_version, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir)
     with project_dir.as_cwd():
-        result = _create_tasks(Path('.'), ProjectConfig(), Validate(None, None))
+        result = _create_tasks(
+            elm_project.from_path(Path('.')), ProjectConfig(), Validate(None, None))
 
         expected_task_names = {
             'task_main_project': [

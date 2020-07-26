@@ -14,7 +14,7 @@ from doit.runner import ERROR
 
 from elm_doc.run_config import Build, Validate
 from elm_doc.loader import make_task_loader
-from elm_doc.elm_project import ProjectConfig
+from elm_doc import elm_project
 
 
 class DoitException(click.ClickException):
@@ -31,16 +31,22 @@ def validate_mount_at(ctx, param, value):
 
 
 def validate_elm_path(ctx, param, value):
-    if value is None:
-        return value
-
     realpath = os.path.realpath(value)
     if not os.path.isfile(realpath):
         realpath = shutil.which(value)
 
     if realpath is None or not os.path.isfile(realpath):
-        raise click.BadParameter('{} not found'.format(value))
+        if value == 'elm':
+            message = 'Elm executable not found in $PATH'
+        else:
+            message = 'Elm executable not found at the specified path: {}'.format(value)
+        raise click.BadParameter(message)
 
+    return realpath
+
+
+def validate_project_path(ctx, param, value):
+    elm_project.from_path(Path(value))
     return value
 
 
@@ -95,6 +101,7 @@ class LazyOutfile:
                     'default: <project_path>/.elm-doc/'))
 @click.option('--elm-path',
               metavar='path/to/elm',
+              default='elm',
               callback=validate_elm_path,
               help=('specify which elm binary to use'))
 @click.option('--mount-at',
@@ -138,7 +145,9 @@ class LazyOutfile:
               help='validate all doc comments are in place without generating docs')
 @click.option('--doit-args',
               help='options to pass to doit.doit_cmd.DoitMain.run')
-@click.argument('project_path')
+@click.argument('project_path',
+                callback=validate_project_path,
+                type=click.Path(exists=True, file_okay=False, resolve_path=True))
 @click.argument('include_paths', nargs=-1)
 @_translate_click_exception_exit_code
 def main(
@@ -173,7 +182,7 @@ def main(
     resolved_include_paths = [_resolve_path(path) for path in include_paths]
     exclude_modules = exclude_modules.split(',') if exclude_modules else []
     exclude_source_directories = exclude_source_directories.split(',') if exclude_source_directories else []
-    project_config = ProjectConfig(
+    project_config = elm_project.ProjectConfig(
         include_paths=resolved_include_paths,
         exclude_modules=exclude_modules,
         exclude_source_directories=exclude_source_directories,
@@ -187,19 +196,19 @@ def main(
 
     if validate:
         run_config = Validate(
-            elm_path=_resolve_path(elm_path) if elm_path else None,
+            elm_path=elm_path,
             build_path=_resolve_path(build_dir) if build_dir is not None else None,
         )
     else:
         run_config = Build(
-            elm_path=_resolve_path(elm_path) if elm_path else None,
+            elm_path=elm_path,
             build_path=_resolve_path(build_dir) if build_dir is not None else None,
             output_path=_resolve_path(output) if output is not None else None,
             mount_point=mount_at,
         )
 
     task_loader = make_task_loader(
-        _resolve_path(project_path), project_config, run_config)
+        elm_project.from_path(Path(project_path)), project_config, run_config)
 
     extra_config = {'GLOBAL': {'outfile': LazyOutfile()}}
     result = DoitMain(ModuleTaskLoader(task_loader), extra_config=extra_config).run(
