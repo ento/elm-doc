@@ -52,7 +52,7 @@ def make_dependencies_task_loader(
         run_config: Build):
     @create_after(executed='build_docs_json', creates=[
         # package tasks
-        'dep_copy_docs_json', 'dep_top_page', 'dep_elm_json', 'dep_readme',
+        'dep_copy_docs_json', 'dep_top_page', 'dep_versions_page', 'dep_elm_json', 'dep_readme',
         'dep_releases', 'dep_latest_link', 'dep_about', 'dep_module_page',
         # catalog tasks
         'index', 'search_json', 'help',
