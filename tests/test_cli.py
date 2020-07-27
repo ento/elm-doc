@@ -1,3 +1,4 @@
+import os
 import os.path
 import json
 from pathlib import Path
@@ -48,7 +49,7 @@ def test_cli_in_empty_project(tmpdir, runner):
         assert 'does not look like an Elm project' in str(result.output)
 
 
-def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm_project):
+def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, elm, make_elm_project):
     project_dir = make_elm_project(elm_version, tmpdir, copy_elm_stuff=True)
 
     with tmpdir.as_cwd():
@@ -57,6 +58,7 @@ def test_cli_doit_only_arg_in_real_project(tmpdir, runner, elm_version, make_elm
             '--output', 'docs',
             project_dir.basename,
             '--fake-license', 'BSD-3-Clause',
+            '--elm-path', elm,
             '--doit-args', 'clean', '--dry-run'])
         assert not result.exception, result.output
         assert result.exit_code == SUCCESS
@@ -72,8 +74,7 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, elm, make_elm_project)
         project_dir.join('README.md').write('hello')
         result = runner.invoke(cli.main, [
             '--output', 'docs', project_dir.basename, '--fake-license', 'CATOSL-1.1',
-            '--elm-path', elm,
-        ])
+        ], env={'PATH': '{}:{}'.format(str(Path(elm).parent), os.environ['PATH'])})
         assert not result.exception, result.output
         assert result.exit_code == SUCCESS
 
@@ -98,6 +99,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, elm, make_elm_project)
 
         package_main = package_dir.join('Main')
         assert package_main.check()
+
+        package_about = package_dir.join('about')
+        assert package_about.check()
 
         package_docs = package_dir.join('docs.json')
         assert package_docs.check()

@@ -65,6 +65,17 @@ let
         nativeBuildInputs = with self; [ intreehooks ];
         dontUseSetuptoolsCheck = true;
       };
+      pypiserver = self.buildPythonPackage rec {
+        pname = "pypiserver";
+        version = "1.3.2";
+        format = "pyproject";
+        src = self.fetchPypi {
+          inherit pname version;
+          sha256 = "0qnf3qg0mx1whbysq072y0wpj0s3kkld96wzfmnqdi72mk8f3li1";
+          extension = "zip";
+        };
+        propagatedBuildInputs = with self; [ setuptools setuptools-git wheel ];
+      };
       virtualenv = super.virtualenv.overridePythonAttrs (old: rec {
         version = "20.0.26";
         src = self.fetchPypi {
@@ -92,6 +103,7 @@ pkgs.mkShell {
     libffi
     nodejs
     python.pkgs.poetry
+    python.pkgs.pypiserver
     rsync
     spark
   ];

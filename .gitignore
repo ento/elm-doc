@@ -10,3 +10,6 @@ build/
 .cache
 .doit.db
 /env
+/node_modules
+/packages
+/package-lock.json

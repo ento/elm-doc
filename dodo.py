@@ -227,5 +227,5 @@ def _install_elm(project_path: Path):
 
 
 for creator_name, creator_func in loader.make_task_loader(
-        workspace_path, config, run_config).items():
+        elm_project.from_path(workspace_path), config, run_config).items():
     globals()[creator_name] = creator_func

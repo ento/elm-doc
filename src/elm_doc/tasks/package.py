@@ -95,6 +95,16 @@ def create_package_page_tasks(
         'uptodate': [config_changed(page_flags)],
     }
 
+    # package versions page
+    package_versions_output = package_output_path.parent / 'index.html'
+    yield {
+        'basename': context.basename('versions_page'),
+        'name': task_name,
+        'actions': [(html_tasks.actions.write, (package_versions_output,), page_flags)],
+        'targets': [package_versions_output],
+        'uptodate': [config_changed(page_flags)],
+    }
+
     # package elm.json
     elm_json_filename = 'elm.json'
     package_elm_json = package.path / elm_json_filename
@@ -146,6 +156,16 @@ def create_package_page_tasks(
         'actions': [(actions.link_latest_package_dir, (latest_path, package_output_path))],
         'targets': [latest_path],
         'uptodate': [config_changed(uptodate_config)]
+    }
+
+    # package about
+    output_about_path = package_output_path / 'about'
+    yield {
+        'basename': context.basename('about'),
+        'name': task_name,
+        'actions': [(html_tasks.actions.write, (output_about_path,), page_flags)],
+        'targets': [output_about_path],
+        'uptodate': [config_changed(page_flags)],
     }
 
     # module pages
