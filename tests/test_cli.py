@@ -100,6 +100,9 @@ def test_cli_in_real_project(tmpdir, runner, elm_version, elm, make_elm_project)
         package_main = package_dir.join('Main')
         assert package_main.check()
 
+        package_about = package_dir.join('about')
+        assert package_about.check()
+
         package_docs = package_dir.join('docs.json')
         assert package_docs.check()
         assert json.loads(package_docs.read())[0]['name'] == 'Main'

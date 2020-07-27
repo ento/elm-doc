@@ -41,6 +41,7 @@ def test_create_tasks_only_dependencies(
                 'project_elm_json',
                 'project_releases',
                 'project_latest_link',
+                'project_about',
                 ],
             'task_dependencies': [
                 'dep_copy_docs_json',
@@ -49,6 +50,7 @@ def test_create_tasks_only_dependencies(
                 'dep_readme',
                 'dep_releases',
                 'dep_latest_link',
+                'dep_about',
                 'dep_module_page',
                 'index',
                 'search_json',
@@ -77,6 +79,7 @@ def test_create_tasks_project_modules_and_dependencies(
                 'project_readme',
                 'project_releases',
                 'project_latest_link',
+                'project_about',
                 'project_module_page',
                 ],
             'task_dependencies': [
@@ -86,6 +89,7 @@ def test_create_tasks_project_modules_and_dependencies(
                 'dep_readme',
                 'dep_releases',
                 'dep_latest_link',
+                'dep_about',
                 'dep_module_page',
                 'index',
                 'search_json',

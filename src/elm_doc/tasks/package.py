@@ -148,6 +148,16 @@ def create_package_page_tasks(
         'uptodate': [config_changed(uptodate_config)]
     }
 
+    # package about
+    output_about_path = package_output_path / 'about'
+    yield {
+        'basename': context.basename('about'),
+        'name': task_name,
+        'actions': [(html_tasks.actions.write, (output_about_path,), page_flags)],
+        'targets': [output_about_path],
+        'uptodate': [config_changed(page_flags)],
+    }
+
     # module pages
     for module_name in package_modules:
         module_output = package_output_path / module_name.replace('.', '-')
