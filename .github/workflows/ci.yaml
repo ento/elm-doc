@@ -30,7 +30,7 @@ jobs:
         name: '${{ secrets.CACHIX_CACHE_NAME }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
     - name: Build
-      uses: nick-invision/retry@v1
+      uses: nick-invision/retry@v2
       with:
         timeout_minutes: 30
         max_attempts: 5
