@@ -31,12 +31,12 @@ let
           };
         });
       poetry = super.poetry.overridePythonAttrs (old: rec {
-        version = "1.1.0a4-c264bc0";
+        version = "1.1.4";
         src = pkgs.fetchFromGitHub {
           owner = "python-poetry";
           repo = "poetry";
-          rev = "c264bc0"; # includes #2664
-          sha256 = "008qx6c8qgwkn5j95vz5dwnk9926i2ia4irs3gn4kcwnl4m4crz4";
+          rev = version;
+          sha256 = "0lx3qpz5dad0is7ki5a4vxphvc8cm8fnv4bmrx226a6nvvaj6ahs";
         };
         # checks depend on httpretty, which doesn't support 3.5
         doCheck = false;
@@ -44,23 +44,16 @@ let
           old.propagatedBuildInputs
           ++ (with self; [ poetry-core virtualenv ]
                          ++ pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ] );
-        postPatch = ''
-          substituteInPlace pyproject.toml \
-           --replace "requests-toolbelt = \"^0.8.0\"" "requests-toolbelt = \"^0.9.1\"" \
-           --replace 'importlib-metadata = {version = "^1.6.0", python = "<3.8"}' \
-             'importlib-metadata = {version = ">=1.3,<2", python = "<3.8"}' \
-           --replace "tomlkit = \"^0.5.11\"" "tomlkit = \"^0.6.0\"" \
-        '';
       });
       poetry-core = self.buildPythonPackage rec {
         pname = "poetry-core";
-        version = "1.0.0a8-ada9bf8";
+        version = "1.0.0";
         format = "pyproject";
         src = pkgs.fetchFromGitHub {
           owner = "python-poetry";
           repo = pname;
-          rev = "ada9bf8";
-          sha256 = "17hzmh71wzr2ra3ql8i22lcx611nww6xk9j9vcpsv1g5z19w4pv2";
+          rev = version;
+          sha256 = "02pqkwzbg43xz2zsw8q7m0sfkj8wbw07in83gy0bk0znhljhp0vw";
         };
         nativeBuildInputs = with self; [ intreehooks ];
         dontUseSetuptoolsCheck = true;
