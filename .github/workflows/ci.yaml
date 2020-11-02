@@ -5,13 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["35", "36", "37", "38"]
+        python: ["36", "37", "38", "39"]
         pytest_addopts: [""]
         include:
-        - python: "38"
+        - python: "39"
           tox_extra_envs: ",flake8,manifest"
           report_coverage: true
-        - python: "38"
+        - python: "39"
           pytest_addopts: "--elm-version=0.19.0"
       fail-fast: false
     steps:
