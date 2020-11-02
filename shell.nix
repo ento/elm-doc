@@ -38,26 +38,10 @@ let
           rev = version;
           sha256 = "0lx3qpz5dad0is7ki5a4vxphvc8cm8fnv4bmrx226a6nvvaj6ahs";
         };
-        # checks depend on httpretty, which doesn't support 3.5
-        doCheck = false;
         propagatedBuildInputs =
           old.propagatedBuildInputs
-          ++ (with self; [ poetry-core virtualenv ]
-                         ++ pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ] );
+          ++ (with self; pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ]);
       });
-      poetry-core = self.buildPythonPackage rec {
-        pname = "poetry-core";
-        version = "1.0.0";
-        format = "pyproject";
-        src = pkgs.fetchFromGitHub {
-          owner = "python-poetry";
-          repo = pname;
-          rev = version;
-          sha256 = "02pqkwzbg43xz2zsw8q7m0sfkj8wbw07in83gy0bk0znhljhp0vw";
-        };
-        nativeBuildInputs = with self; [ intreehooks ];
-        dontUseSetuptoolsCheck = true;
-      };
       pypiserver = self.buildPythonPackage rec {
         pname = "pypiserver";
         version = "1.3.2";
