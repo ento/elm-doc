@@ -23,7 +23,9 @@ jobs:
     - name: Checkout LFS objects
       run: git lfs checkout
     - name: Install Nix
-      uses: cachix/install-nix-action@v10
+      uses: cachix/install-nix-action@v11
+      with:
+        nix_path: nixpkgs=channel:nixpkgs-20.09-darwin
     - name: Configure Cachix
       uses: cachix/cachix-action@v6
       with:
