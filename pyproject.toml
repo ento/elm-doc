@@ -48,5 +48,5 @@ elm-doc = "elm_doc.cli:main"
 
 [build-system]
 # should be in sync with shell.nix
-requires = ["poetry-core@https://github.com/python-poetry/poetry-core/archive/ada9bf8.tar.gz"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

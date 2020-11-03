@@ -1,4 +1,4 @@
-{ pythonVersion ? "38" }:
+{ pythonVersion ? "39" }:
 let
   pkgs = import <nixpkgs> {};
   python = pkgs."python${pythonVersion}".override {
@@ -31,40 +31,27 @@ let
           };
         });
       poetry = super.poetry.overridePythonAttrs (old: rec {
-        version = "1.1.0a4-c264bc0";
+        version = "1.1.4";
         src = pkgs.fetchFromGitHub {
           owner = "python-poetry";
           repo = "poetry";
-          rev = "c264bc0"; # includes #2664
-          sha256 = "008qx6c8qgwkn5j95vz5dwnk9926i2ia4irs3gn4kcwnl4m4crz4";
+          rev = version;
+          sha256 = "0lx3qpz5dad0is7ki5a4vxphvc8cm8fnv4bmrx226a6nvvaj6ahs";
         };
-        # checks depend on httpretty, which doesn't support 3.5
-        doCheck = false;
         propagatedBuildInputs =
           old.propagatedBuildInputs
-          ++ (with self; [ poetry-core virtualenv ]
-                         ++ pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ] );
-        postPatch = ''
-          substituteInPlace pyproject.toml \
-           --replace "requests-toolbelt = \"^0.8.0\"" "requests-toolbelt = \"^0.9.1\"" \
-           --replace 'importlib-metadata = {version = "^1.6.0", python = "<3.8"}' \
-             'importlib-metadata = {version = ">=1.3,<2", python = "<3.8"}' \
-           --replace "tomlkit = \"^0.5.11\"" "tomlkit = \"^0.6.0\"" \
-        '';
+          ++ (with self; pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ]);
       });
-      poetry-core = self.buildPythonPackage rec {
-        pname = "poetry-core";
-        version = "1.0.0a8-ada9bf8";
-        format = "pyproject";
+      # latest master has fixes for 3.9 but there's no release yet (2020/11/2)
+      pyflakes = super.pyflakes.overridePythonAttrs (old: rec {
+        version = "2.2.0-26cf0631fe89f61d5b0ef8d6949676f051e35796";
         src = pkgs.fetchFromGitHub {
-          owner = "python-poetry";
-          repo = pname;
-          rev = "ada9bf8";
-          sha256 = "17hzmh71wzr2ra3ql8i22lcx611nww6xk9j9vcpsv1g5z19w4pv2";
+          owner = "PyCQA";
+          repo = "pyflakes";
+          rev = "26cf0631fe89f61d5b0ef8d6949676f051e35796";
+          sha256 = "1yc06rd01aak6lkc7h3gr7plmnyslzbm4plv7a3w7z73rsj51xqp";
         };
-        nativeBuildInputs = with self; [ intreehooks ];
-        dontUseSetuptoolsCheck = true;
-      };
+      });
       pypiserver = self.buildPythonPackage rec {
         pname = "pypiserver";
         version = "1.3.2";
