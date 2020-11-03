@@ -2,14 +2,12 @@
 
 Generate static documentation of your Elm application project.
 
-Requires Python >= 3.5, rsync >= 2.6.7, and macOS or Linux. It may work on Windows but it's untested.
+Requires Python >= 3.6, rsync >= 2.6.7, and macOS or Linux. It may work on Windows but it's untested.
 
 Supported Elm versions:
 
 - elm-doc version < 1.0: Elm 0.18
 - elm-doc version >= 1.0.0: Elm 0.19
-
-You will need to enable the `--pre` flag if you're installing the latest version through the `pip` command.
 
 ## Usage
 
@@ -80,7 +78,7 @@ For a full list of options, see:
 
 ## Installation
 
-In a Python (>=3.5) [virtualenv](https://docs.python.org/3.6/library/venv.html#creating-virtual-environments) or globally:
+In a Python (>=3.6) [virtualenv](https://docs.python.org/3.6/library/venv.html#creating-virtual-environments) or globally:
 
     $ pip install --upgrade pip setuptools
     $ pip install elm-doc
@@ -115,7 +113,7 @@ Running tests:
 
     $ nix-shell
     $ poetry install
-    $ poetry run tox -e py35,...
+    $ poetry run tox -e py36,...
 
 Updating the prebuilt frontend code and test fixture:
 
