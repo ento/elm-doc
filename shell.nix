@@ -1,4 +1,4 @@
-{ pythonVersion ? "38" }:
+{ pythonVersion ? "39" }:
 let
   pkgs = import <nixpkgs> {};
   python = pkgs."python${pythonVersion}".override {
