@@ -23,7 +23,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6"
 attrs = "^19.3.0"
 click = "^7.1.2"
 doit = "^0.32.0"
