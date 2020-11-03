@@ -9,8 +9,6 @@ Supported Elm versions:
 - elm-doc version < 1.0: Elm 0.18
 - elm-doc version >= 1.0.0: Elm 0.19
 
-You will need to enable the `--pre` flag if you're installing the latest version through the `pip` command.
-
 ## Usage
 
 Simplest invocation:
