@@ -42,6 +42,16 @@ let
           old.propagatedBuildInputs
           ++ (with self; pkgs.lib.optionals (pythonAtLeast "3.6") [ crashtest ]);
       });
+      # latest master has fixes for 3.9 but there's no release yet (2020/11/2)
+      pyflakes = super.pyflakes.overridePythonAttrs (old: rec {
+        version = "2.2.0-26cf0631fe89f61d5b0ef8d6949676f051e35796";
+        src = pkgs.fetchFromGitHub {
+          owner = "PyCQA";
+          repo = "pyflakes";
+          rev = "26cf0631fe89f61d5b0ef8d6949676f051e35796";
+          sha256 = "1yc06rd01aak6lkc7h3gr7plmnyslzbm4plv7a3w7z73rsj51xqp";
+        };
+      });
       pypiserver = self.buildPythonPackage rec {
         pname = "pypiserver";
         version = "1.3.2";
