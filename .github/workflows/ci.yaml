@@ -27,7 +27,7 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixpkgs-20.09-darwin
     - name: Configure Cachix
-      uses: cachix/cachix-action@v6
+      uses: cachix/cachix-action@v8
       with:
         name: '${{ secrets.CACHIX_CACHE_NAME }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
