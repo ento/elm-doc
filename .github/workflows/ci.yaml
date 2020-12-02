@@ -23,11 +23,11 @@ jobs:
     - name: Checkout LFS objects
       run: git lfs checkout
     - name: Install Nix
-      uses: cachix/install-nix-action@v11
+      uses: cachix/install-nix-action@v12
       with:
         nix_path: nixpkgs=channel:nixpkgs-20.09-darwin
     - name: Configure Cachix
-      uses: cachix/cachix-action@v6
+      uses: cachix/cachix-action@v8
       with:
         name: '${{ secrets.CACHIX_CACHE_NAME }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
