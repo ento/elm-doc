@@ -34,7 +34,7 @@ jobs:
     - name: Build
       uses: nick-invision/retry@v2
       with:
-        timeout_minutes: 20
+        timeout_minutes: 60
         max_attempts: 3
         command: nix-shell --argstr pythonVersion "$PYTHON_VERSION" --run "./ci.sh"
       env:
