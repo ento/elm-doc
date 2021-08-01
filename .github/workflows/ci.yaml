@@ -43,7 +43,7 @@ jobs:
         TOX_EXTRA_ENVS: "${{matrix.tox_extra_envs}}"
         REPORT_COVERAGE: "${{matrix.report_coverage}}"
     - name: Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2.0.2
       if: success() && matrix.report_coverage
       with:
         fail_ci_if_error: true
