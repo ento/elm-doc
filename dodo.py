@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def task_create_elm_core_fixture():
     workspace_path = Path(__file__).parent / 'workspace'
-    elm_versions = ['0.19.0', '0.19.1']
+    elm_versions = ['0.19.1']
     for elm_version in elm_versions:
         build_tarball_path = Path(__file__).parent / 'build' / 'elm-core-fixture-{}.tar.gz'.format(elm_version)
         dist_tarball_path = Path(str(conftest.elm_core_fixture_path(elm_version)))
