@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "elm-doc"
-version = "1.0.0"
+version = "1.0.1"
 description = "Generate static documentation for your Elm application"
 license = "BSD-3-Clause"
 authors = ["ento <ento+github@i.pearlwaffles.xyz>"]
