@@ -1,6 +1,6 @@
 # How to deploy changes to the internal elm docs site
 
-After making and committing changes to the brilliantorg/package.elm-lang.org:
+After making and committing changes to [brilliantorg/package.elm-lang.org](https://github.com/brilliantorg/package.elm-lang.org/tree/master):
 
 ```bash
 # Update the git submodule in this directory
